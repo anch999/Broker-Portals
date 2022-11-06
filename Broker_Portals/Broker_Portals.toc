@@ -1,0 +1,33 @@
+## Interface: 30300
+## Title: Broker - |cffffffffPortals|r
+## Notes: Provides access to all Portal and Teleport spells on right click of one button.
+## Author: CrazyBenny of Stormrage-EU
+## X-Email: s_m AT centrum DOT cz
+## LastUpdate: 2010-10-07T17:48:31Z
+## Version: 1.8.10
+## OptionalDeps: LibDBIcon-1.0
+## X-Curse-Packaged-Version: 1.8.10
+## X-Curse-Project-Name: Broker_Portals
+## X-Curse-Project-ID: broker-portals
+## X-Curse-Repository-ID: wow/broker-portals/mainline
+
+## SavedVariables: PortalsDB
+
+libs\LibStub\LibStub.lua
+libs\CallbackHandler-1.0\CallbackHandler-1.0.lua
+libs\LibDataBroker-1.1.lua
+libs\AceLibrary\AceLibrary.lua
+libs\Dewdrop-2.0\Dewdrop-2.0.lua
+libs\LibDBIcon-1.0\LibDBIcon-1.0.lua
+
+locale-enUS.lua
+locale-deDE.lua
+locale-esES.lua
+locale-esMX.lua
+locale-frFR.lua
+locale-koKR.lua
+locale-ruRU.lua
+locale-zhCN.lua
+locale-zhTW.lua
+
+portals.lua

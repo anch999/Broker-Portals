@@ -1,3 +1,3 @@
-# Addon Name
+# Broker Portals
 
-This is the repository for <Addon Name>. Modified for Ascension.gg. 
+This is the repository for Broker Portals. Modified for Ascension.gg. 
