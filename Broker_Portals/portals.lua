@@ -66,6 +66,7 @@ local items = {
 -- IDs of items usable instead of hearthstone
 local scrolls = {
   6948, -- Hearthstone
+  1903515, -- Fel-Infused Gateway
   28585, -- Ruby Slippers
   44315, -- Scroll of Recall III
   44314, -- Scroll of Recall II
@@ -400,20 +401,16 @@ local function ShowHearthstone()
         type = 'item',
         item = name
       }
-      break
+      dewdrop:AddLine(
+        'text', text,
+        'secure', secure,
+        'icon', icon,
+        'func', function() UpdateIcon(icon) end,
+        'closeWhenClicked', true
+      )
     end
   end
-
-  if secure ~= nil then
-    dewdrop:AddLine(
-      'text', text,
-      'secure', secure,
-      'icon', icon,
-      'func', function() UpdateIcon(icon) end,
-      'closeWhenClicked', true
-    )
-    dewdrop:AddLine()
-  end
+  dewdrop:AddLine()
 end
 
 local function ShowOtherItems()
