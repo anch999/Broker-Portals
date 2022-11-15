@@ -215,8 +215,8 @@ local function SetupSpells()
     else
       portals = {};
     end
-    tinsert(portals, { 18960 })
-    tinsert(portals, { 556 })
+    tinsert(portals, { 18960 }) -- TP:Moonglade
+    tinsert(portals, { 556 }) -- Astral Recall
   end
   if class == 'MAGE' then
     portals = spells[fac]
@@ -226,11 +226,11 @@ local function SetupSpells()
     }
   elseif class == 'DRUID' then
     portals = {
-      { 18960 } -- TP:Moonglade
+      { 18960 }
     }
   elseif class == 'SHAMAN' then
     portals = {
-      { 556 } -- Astral Recall
+      { 556 }
     }
   end
   -- Ascension: Stones of Retreat
@@ -316,7 +316,6 @@ local function SetupSpells()
   if #runeRandom > 0 then
     tinsert(portals, { runeRandom[math.random(1, #runeRandom)], 'TRUE' })
   end
-  spells = nil
 end
 
 local function UpdateSpells()
@@ -329,20 +328,19 @@ local function UpdateSpells()
       local spellid = findSpell(spell)
 
       if spellid then
-        if PortalsDB.showPortals and v[2] and not (GetNumPartyMembers() > 0 or UnitInRaid("player")) then
-          break
-        end
-        methods[spell] = {
-          spellid = spellid,
-          text = spell,
-          spellIcon = spellIcon,
-          isPortal = v[2],
-          secure = {
-            type = 'spell',
-            spell = spell
+        if not PortalsDB.showPortals or not v[2] or (GetNumPartyMembers() > 0 or UnitInRaid("player")) then
+          methods[spell] = {
+            spellid = spellid,
+            text = spell,
+            spellIcon = spellIcon,
+            isPortal = v[2],
+            secure = {
+              type = 'spell',
+              spell = spell
+            }
           }
-        }
-        i = i + 1
+          i = i + 1
+        end
       end
     end
   end
