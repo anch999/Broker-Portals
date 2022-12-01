@@ -248,7 +248,7 @@ local function SetupSpells()
     tinsert(portals, { 777004 }) -- Darnassus
     tinsert(portals, { 777005 }) -- Ironforge
     tinsert(portals, { 1777044 }) -- Nijei's Point
-    tinsert(portals, { 177702 }) -- Feathermoon Stronghold
+    tinsert(portals, { 1777025 }) -- Feathermoon Stronghold
     tinsert(portals, { 1777026 }) -- Nethergarde Keep
     tinsert(portals, { 1777036 }) -- Aerie Peak
   end
@@ -314,7 +314,7 @@ local function SetupSpells()
     end
   end
   if #runeRandom > 0 then
-    tinsert(portals, { runeRandom[math.random(1, #runeRandom)], 'TRUE' })
+    tinsert(portals, { runeRandom[math.random(1, #runeRandom)]})
   end
 end
 
