@@ -637,30 +637,17 @@ local function UpdateMenu(level, value)
         )
         mainHeaderSet = true
       end
-      --Adds menu if any kalimdor stones have been learned
-      if showStones("Kalimdor", true) then
+      --Adds menu if any stone in that category has been learned
+			for continent, _ in pairs(stones)
+			do
+				if showStones(continent, true) then
         dewdrop:AddLine(
-        'text', 'Kalimdor',
+        'text', continent,
         'hasArrow', true,
-        'value', 'Kalimdor'
+        'value', continent
         )
-      end
-      --Adds menu if any easternkingdoms stones have been learned
-      if showStones("EasternKingdoms", true) then
-        dewdrop:AddLine(
-        'text', 'EasternKingdoms',
-        'hasArrow', true,
-        'value', 'EasternKingdoms'
-        )
-      end
-      --Adds menu if any ountlands stones have been learned
-      if showStones("Outlands", true) then
-        dewdrop:AddLine(
-        'text', 'Outlands',
-        'hasArrow', true,
-        'value', 'Outlands'
-        )
-      end
+				end
+			end
     else
       showStones("All")
     end
