@@ -19,8 +19,9 @@ local SendChatMessage = SendChatMessage
 local UnitInRaid = UnitInRaid
 local GetNumPartyMembers = GetNumPartyMembers
 
+local xpacLevel = GetAccountExpansionLevel() + 1;
 local xpaclist = { "CLASSIC", "TBC", "WRATH" };
-local expac = xpaclist[GetAccountExpansionLevel() + 1];
+local expac = xpaclist[xpacLevel];
 
 local addonName, addonTable = ...
 local L = addonTable.L
@@ -77,64 +78,64 @@ local scrolls = {
 local stones = {
   Kalimdor = {
     "Kalimdor",
-    777023, -- Azshara
-    777013, -- Cenarion Hold
-    777007, -- Everlook
-    777009, -- Gadgetzan
-    777026, -- Gates of Ahn'Quiraj
-    777012, -- Mudsprocket
-    777027, -- Onyxia's Lair
-    777010, -- Ratchet
-    1777025, -- Feathermoon Stronghold
-    { 777004 , "Alliance" }, -- Darnassus
-    { 1777044, "Alliance" }, -- Nijei's Point
-    { 777000 , "Horde", "Capital" }, -- Orgrimmar
-    { 777002 , "Horde" }, -- Thunder Bluff
-    { 777021 , "Horde" }, -- Bloodvenom Post
-    { 1777024, "Horde" }, -- Camp Mojache
-    { 1777043, "Horde" }, -- Shadowprey Village
+    { 777023, "Neutral", "Unlocked", 1 }, -- Azshara
+    { 777013, "Neutral", "Unlocked", 1 }, -- Cenarion Hold
+    { 777007, "Neutral", "Unlocked", 1 }, -- Everlook
+    { 777009, "Neutral", "Unlocked", 1 }, -- Gadgetzan
+    { 777026, "Neutral", "Unlocked", 1 }, -- Gates of Ahn'Quiraj
+    { 777012, "Neutral", "Unlocked", 1 }, -- Mudsprocket
+    { 777027, "Neutral", "Unlocked", 1 }, -- Onyxia's Lair
+    { 777010, "Neutral", "Unlocked", 1 }, -- Ratchet
+    { 1777025, "Neutral", "Unlocked", 1 }, -- Feathermoon Stronghold
+		{ 777015, "Alliance", "Locked", 1 }, -- The Exodar
+    { 777004 , "Alliance", "Unlocked", 1 }, -- Darnassus
+    { 1777044, "Alliance", "Unlocked", 1 }, -- Nijei's Point
+    { 777000 , "Horde", "Locked", 1 }, -- Orgrimmar
+    { 777002 , "Horde", "Unlocked", 1 }, -- Thunder Bluff
+    { 777021 , "Horde", "Unlocked", 1 }, -- Bloodvenom Post
+    { 1777024, "Horde", "Unlocked", 1 }, -- Camp Mojache
+    { 1777043, "Horde", "Unlocked", 1 }, -- Shadowprey Village
   },
 
   EasternKingdoms = {
     "Eastern Kingdoms",
-    777008, -- Booty Bay
-    777025, -- Blackrock Mountain
-    777020, -- Gurubashi Arena
-    777006, -- Light's Hope
-    777011, -- Thorium Point
-    1777023, -- Yojamba Isle
-    777024, -- Zul'Gurub
-    { 777003 , "Alliance", "Capital" },-- Stormwind
-    { 777005 , "Alliance" },-- Ironforge
-    { 1777036, "Alliance" }, -- Aerie Peak
-    { 1777026, "Alliance" }, -- Nethergarde Keep
-    { 777001 , "Horde" }, -- Undercity
-    { 1777037, "Horde" }, -- Revantusk Village
-    { 1777027, "Horde" }, -- Stonard
+    { 777008, "Neutral", "Unlocked", 1 }, -- Booty Bay
+    { 777025, "Neutral", "Unlocked", 1 }, -- Blackrock Mountain
+    { 777020, "Neutral", "Unlocked", 1 }, -- Gurubashi Arena
+    { 777006, "Neutral", "Unlocked", 1 }, -- Light's Hope
+    { 777011, "Neutral", "Unlocked", 1 }, -- Thorium Point
+    { 1777023, "Neutral", "Unlocked", 1 }, -- Yojamba Isle
+    { 777024, "Neutral", "Unlocked", 1 }, -- Zul'Gurub
+    { 777003 , "Alliance", "Locked", 1 },-- Stormwind
+    { 777005 , "Alliance", "Unlocked", 1 },-- Ironforge
+    { 1777036, "Alliance", "Unlocked", 1 }, -- Aerie Peak
+    { 1777026, "Alliance", "Unlocked", 1 }, -- Nethergarde Keep
+		{ 777014, "Horde", "Locked", 1 }, -- Silvermoon City 
+    { 777001 , "Horde", "Unlocked", 1 }, -- Undercity
+    { 1777037, "Horde", "Unlocked", 1 }, -- Revantusk Village
+    { 1777027, "Horde", "Unlocked", 1 }, -- Stonard
   },
 
   Outlands = {
     "Outlands",
-    777017, -- Area 52
-    1175646, -- Altar of Sha'tar
-    1175645, -- Sanctum of the Stars
-    102182, -- Cenarion Refuge
-    102186, -- Ogri'la
-    102196, -- Stormspire
-    102180, -- Cenarion Refuge
-    777016, -- Shattrath
-    { 777014, "Horde" }, -- Silvermoon City 
-    { 102197, "Horde" }, -- Thrallmar
-    { 102189, "Horde" }, -- Shadowmoon Village
-    { 102184, "Horde" }, -- Garadar
-    { 102190, "Horde" }, -- Stonebreaker Hold
-    { 102201, "Horde" }, -- Zabra'jin
-    { 777015, "Alliance" }, -- The Exodar
-    { 102185, "Alliance" }, -- Honor Hold
-    { 102193, "Alliance" }, -- Telaar
-    { 102178, "Alliance" }, -- Allerian Stronghold
-    { 102187, "Alliance" }, -- Orebor Harborage
-    { 102200, "Alliance" }, -- Wildhammer Stronghold
+    { 777017, "Neutral", "Unlocked", 2 }, -- Area 52
+    { 1175646, "Neutral", "Unlocked", 2 }, -- Altar of Sha'tar
+    { 1175645, "Neutral", "Unlocked", 2 }, -- Sanctum of the Stars
+    { 102182, "Neutral", "Unlocked", 2 }, -- Cenarion Refuge
+    { 102186, "Neutral", "Unlocked", 2 }, -- Ogri'la
+    { 102196, "Neutral", "Unlocked", 2 }, -- Stormspire
+    { 102180, "Neutral", "Unlocked", 2 }, -- Cenarion Refuge
+    { 777016, "Neutral", "Unlocked", 2 }, -- Shattrath
+    { 102197, "Horde", "Unlocked", 2 }, -- Thrallmar
+    { 102189, "Horde", "Unlocked", 2 }, -- Shadowmoon Village
+    { 102184, "Horde", "Unlocked", 2 }, -- Garadar
+    { 102190, "Horde", "Unlocked", 2 }, -- Stonebreaker Hold
+    { 102201, "Horde", "Unlocked", 2 }, -- Zabra'jin
+    { 102185, "Alliance", "Unlocked", 2 }, -- Honor Hold
+    { 102193, "Alliance", "Unlocked", 2 }, -- Telaar
+    { 102178, "Alliance", "Unlocked", 2 }, -- Allerian Stronghold
+    { 102187, "Alliance", "Unlocked", 2 }, -- Orebor Harborage
+    { 102200, "Alliance", "Unlocked", 2 }, -- Wildhammer Stronghold
   }
 
 }
@@ -488,14 +489,14 @@ local function showStones(subMenu, spellCheck, noSpacer)
         if type(v) == "string" then
           headerSet = false
           header = v 
-        elseif type(v) == "table" and (v[2] == fac or PortalsDB.showEnemy) and not (v[3] == "Capital" and v[2] ~= fac ) then
-          local name = GetSpellInfo(v[1])
-          if spellCheck and findSpell(name) then return true end
-          if findSpell(name) then sorted[name] = v[1] end
-        elseif type(v) == "number" then
-          local name = GetSpellInfo(v)
-          if spellCheck and findSpell(name) then return true end
-          if findSpell(name) then sorted[name] = v end
+        elseif type(v) == "table" then
+					if not (v[3] == "Locked" and v[2] ~= fac ) and not (xpacLevel < v[4]) then --xpacLevel and locked cities check
+						if PortalsDB.showEnemy or (v[2] == fac or v[2] == "Neutral") then --faction or showEnemy check
+							local name = GetSpellInfo(v[1])
+							if spellCheck and findSpell(name) then return true end
+							if findSpell(name) then sorted[name] = v[1] end
+						end
+					end
         end
       end
       table.sort(sorted)
@@ -503,21 +504,17 @@ local function showStones(subMenu, spellCheck, noSpacer)
         addStone(v, xpac)
       end
   end
+	
+	local function addTable(zone)
+		if subMenu == zone or subMenu == "All" then
+			local spellCheck = tableSort(zone)
+			if spellCheck then return true end
+		end
+	end
 
-  if subMenu == "Kalimdor" or subMenu == "All" then
-    local spellCheck = tableSort("Kalimdor")
-    if spellCheck then return true end
-  end
-
-  if subMenu == "EasternKingdoms" or subMenu == "All" then
-    local spellCheck = tableSort("EasternKingdoms")
-    if spellCheck then return true end
-  end
-
-  if expac == "TBC" and (subMenu == "Outlands" or subMenu == "All") then
-    local spellCheck = tableSort("Outlands", expac)
-    if spellCheck then return true end
-  end
+	for continent, _ in pairs(stones) do
+		addTable(continent);
+	end
 
 end
 
