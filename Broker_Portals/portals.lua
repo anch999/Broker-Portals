@@ -472,7 +472,7 @@ local function ShowHearthstone()
 end
 
 --Stones of retreat
-local function showStones(subMenu, spellCheck, noSpacer)
+local function showStones(subMenu, spellCheck, noSpacer) --Kalimdor, true
   local headerSet, header = false, ""
 
   local function addStone(spellID, xpac)
@@ -506,14 +506,17 @@ local function showStones(subMenu, spellCheck, noSpacer)
   end
 	
 	local function addTable(zone)
-		if subMenu == zone or subMenu == "All" then
-			local spellCheck = tableSort(zone)
-			if spellCheck then return true end
-		end
+		local spellCheck = tableSort(zone)
+		if spellCheck then return true end
 	end
 
-	for continent, _ in pairs(stones) do
-		addTable(continent);
+	if subMenu == "All" then
+		for continent, _ in pairs(stones) do
+			addTable(continent);
+		end
+	else
+		addTable(subMenu);
+		return true
 	end
 
 end
