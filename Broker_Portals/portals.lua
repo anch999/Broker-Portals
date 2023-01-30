@@ -679,7 +679,6 @@ local function UpdateMenu(level, value)
           'secure', v.secure,
           'icon', v.spellIcon,
           'func', function()
-            print(v.secure.portalSpellID)
             addFavorites(v.spellID, v.spellIcon, v.secure.type1, true, v.isPortal, nil, nil, v.portalSpellID)
             if v.isPortal and chatType and PortalsDB.announce then
               SendChatMessage(L['ANNOUNCEMENT'] .. ' ' .. v.text, chatType)
