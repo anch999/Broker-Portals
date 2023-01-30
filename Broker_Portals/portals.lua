@@ -88,7 +88,7 @@ local stones = {
     1777025, -- Feathermoon Stronghold
     { 777004 , "Alliance" }, -- Darnassus
     { 1777044, "Alliance" }, -- Nijei's Point
-    { 777000 , "Horde" }, -- Orgrimmar
+    { 777000 , "Horde", "Capital" }, -- Orgrimmar
     { 777002 , "Horde" }, -- Thunder Bluff
     { 777021 , "Horde" }, -- Bloodvenom Post
     { 1777024, "Horde" }, -- Camp Mojache
@@ -104,7 +104,7 @@ local stones = {
     777011, -- Thorium Point
     1777023, -- Yojamba Isle
     777024, -- Zul'Gurub
-    { 777003 , "Alliance" },-- Stormwind
+    { 777003 , "Alliance", "Capital" },-- Stormwind
     { 777005 , "Alliance" },-- Ironforge
     { 1777036, "Alliance" }, -- Aerie Peak
     { 1777026, "Alliance" }, -- Nethergarde Keep
@@ -488,7 +488,7 @@ local function showStones(subMenu, spellCheck, noSpacer)
         if type(v) == "string" then
           headerSet = false
           header = v 
-        elseif type(v) == "table" and v[2] == fac then
+        elseif type(v) == "table" and (v[2] == fac or PortalsDB.showEnemy) and not (v[3] == "Capital" and v[2] ~= fac ) then
           local name = GetSpellInfo(v[1])
           if spellCheck and findSpell(name) then return true end
           if findSpell(name) then sorted[name] = v[1] end
@@ -766,6 +766,12 @@ local function UpdateMenu(level, value)
       'func', function() PortalsDB.stonesSubMenu = not PortalsDB.stonesSubMenu end,
       'closeWhenClicked', true
     )
+		dewdrop:AddLine(
+      'text', 'Show enemy faction Stones of Retreats',
+      'checked', PortalsDB.showEnemy,
+      'func', function() PortalsDB.showEnemy = not PortalsDB.showEnemy end,
+      'closeWhenClicked', true
+    )
   elseif level == 3 and value == 'announce' then
     dewdrop:AddLine(
       'text', 'Say',
@@ -803,6 +809,9 @@ function frame:PLAYER_LOGIN()
   if PortalsDB.showPortals == nil then
     PortalsDB.showPortals = false
   end
+	if PortalsDB.showEnemy == nil then
+		PortalsDB.showEnemy = false
+	end
   if not PortalsDB.favorites then PortalsDB.favorites = {} end
   if icon then
     icon:Register('Broker_Portals', obj, PortalsDB.minimap)
