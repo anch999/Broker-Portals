@@ -318,6 +318,44 @@ local function addFavorites(spellID, icon, type, mage, isPortal, xpac, fac, port
   UpdateIcon(icon)
 end
 
+local function setHeader(text, headerSet, noSpacer)
+  if headerSet then return true end
+  if not noSpacer then dewdrop:AddLine() end
+  dewdrop:AddLine(
+    'text', text,
+    'isTitle', true
+  )
+  return true
+end
+
+local function getCooldown(ID, text, type)
+  local startTime, duration
+  if type == "item" then
+    startTime, duration = GetItemCooldown(ID)
+  else
+    startTime, duration = GetSpellCooldown(text)
+  end
+  local cooldown = math.ceil(((duration - (GetTime() - startTime))/60))
+  if cooldown > 0 then
+    return text.." |cFF00FFFF("..cooldown.." ".. L['MIN'] .. ")"
+  end
+end
+
+local function dewdropAdd(ID, name, icon, type, mage, isPortal, xpac, fac)
+  local text = getCooldown(ID, name, type) or name
+  local secure = {
+    type1 = type,
+    [type] = name,
+  }
+  dewdrop:AddLine(
+    'text', text,
+    'secure', secure,
+    'icon', icon,
+    'func', function() addFavorites(ID, icon, secure.type1, mage, isPortal, xpac, fac) end,
+    'closeWhenClicked', true
+  )
+end
+
 local function updateSpells()
   SetupSpells()
   local i = 0
@@ -403,43 +441,16 @@ local function GetItemCooldowns()
   return cooldowns
 end
 
+--Hearthstone items and spells
 local function ShowHearthstone()
   local text, secure, icon, name
   local headerSet = false
-    local function setHeader()
-      if headerSet then return end
-      dewdrop:AddLine()
-      dewdrop:AddLine(
-        'text', "Hearthstone: "..GetBindLocation(),
-        'isTitle', true
-      )
-      headerSet = true
-    end
-
+    
   for _, itemID in ipairs(scrolls) do
     if hasItem(itemID) and (not PortalsDB.favorites[itemID] or not PortalsDB.favorites[itemID][1]) then
-      setHeader()
+      headerSet = setHeader("Hearthstone: "..GetBindLocation(), headerSet)
       name, _, _, _, _, _, _, _, _, icon = GetItemInfo(itemID)
-      local startTime, duration = GetItemCooldown(itemID)
-      local cooldown = math.ceil(((duration - (GetTime() - startTime))/60))
-      text = name
-      if cooldown > 0 then
-        text = name.." |cFF00FFFF("..cooldown.." ".. L['MIN'] .. ")"
-      end
-      secure = {
-        type1 = 'item',
-        item = name
-      }
-      dewdrop:AddLine(
-        'text', text,
-        'secure', secure,
-        'icon', icon,
-        'arg1', itemID,
-        'arg2', icon,
-        'arg3', secure.type1,
-        'func', addFavorites,
-        'closeWhenClicked', true
-      )
+      dewdropAdd(itemID, name, icon, "item")
     end
   end
 
@@ -454,64 +465,20 @@ local function ShowHearthstone()
     local spellID = runeRandom[math.random(1, #runeRandom)]
     local name, _, icon = GetSpellInfo(spellID)
     if findSpell(name) then
-      setHeader()
-      local startTime, duration = GetSpellCooldown(name)
-      local cooldown = math.ceil(((duration - (GetTime() - startTime))/60))
-      local text = name
-      if cooldown > 0 then
-        text = name.." |cFF00FFFF("..cooldown.." ".. L['MIN'] .. ")"
-      end
-      secure = {
-        type1 = 'spell',
-        spell = name,
-      }
-      dewdrop:AddLine(
-        'text', text,
-        'secure', secure,
-        'icon', icon,
-        'arg1', spellID,
-        'arg2', icon,
-        'arg3', secure.type1,
-        'func', addFavorites, 
-        'closeWhenClicked', true
-      )
+      dewdropAdd(spellID, name, icon, "spell")
     end
   end
 end
 
+--Stones of retreat
 local function showStones(subMenu, spellCheck, noSpacer)
-  local secure, header
-  local headerSet = false
+  local headerSet, header = false, ""
 
   local function addStone(spellID, xpac)
     local name, _, icon = GetSpellInfo(spellID)
     if findSpell(name) and (not PortalsDB.favorites[spellID] or not PortalsDB.favorites[spellID][1]) then
-      if spellCheck then return true end
-        if not headerSet then
-          if not noSpacer then dewdrop:AddLine() end
-            dewdrop:AddLine(
-            'text', header,
-            'isTitle', true
-          )
-          headerSet = true
-        end
-        local startTime, duration = GetSpellCooldown(name)
-        local cooldown = math.ceil(((duration - (GetTime() - startTime))/60))
-        local text = name
-        if cooldown > 0 then
-          text = name.." |cFF00FFFF("..cooldown.." ".. L['MIN'] .. ")"
-        end
-        secure = {
-          type1 = 'spell',
-          spell = name,
-        }
-        dewdrop:AddLine(
-          'text', text,
-          'secure', secure,
-          'icon', icon,
-          'func', function() addFavorites(spellID, icon, secure.type1, nil, nil, xpac, fac) end,
-          'closeWhenClicked', true
-        )
+      headerSet = setHeader(header, headerSet, noSpacer)
+      dewdropAdd(spellID, name, icon, "spell", nil, nil, xpac, fac)
     end
   end
 
@@ -520,7 +487,7 @@ local function showStones(subMenu, spellCheck, noSpacer)
       for _,v in ipairs(stones[zone]) do
         if type(v) == "string" then
           headerSet = false
-          header = v
+          header = v 
         elseif type(v) == "table" and v[2] == fac then
           local name = GetSpellInfo(v[1])
           if spellCheck and findSpell(name) then return true end
@@ -536,7 +503,7 @@ local function showStones(subMenu, spellCheck, noSpacer)
         addStone(v, xpac)
       end
   end
-  
+
   if subMenu == "Kalimdor" or subMenu == "All" then
     local spellCheck = tableSort("Kalimdor")
     if spellCheck then return true end
@@ -555,61 +522,22 @@ local function showStones(subMenu, spellCheck, noSpacer)
 end
 
 local function ShowScrolls()
-  local secure
+  local secure, text
   local i = 0
   local headerSet = false
 
   for n,spellID in ipairs(sod) do
     local name, _, icon = GetSpellInfo(spellID)
     if findSpell(name) and (not PortalsDB.favorites[spellID] or not PortalsDB.favorites[spellID][1]) then
-      if not headerSet then
-        dewdrop:AddLine()
-        dewdrop:AddLine(
-        'text', "Scrolls Of Defense",
-        'isTitle', true
-      )
-      headerSet = true
-      end
-      local startTime, duration = GetSpellCooldown(name)
-      local cooldown = math.ceil(((duration - (GetTime() - startTime))/60))
-      local text = name
-      if cooldown > 0 then
-        text = name.." |cFF00FFFF("..cooldown.." ".. L['MIN'] .. ")"
-      end
-      secure = {
-        type1 = 'spell',
-        spell = name,
-      }
-      dewdrop:AddLine(
-        'text', text,
-        'secure', secure,
-        'icon', icon,
-        'arg1', spellID,
-        'arg2', icon,
-        'arg3', secure.type1,
-        'func', addFavorites,
-        'closeWhenClicked', true
-      )
+      headerSet = setHeader("Scrolls Of Defense", headerSet)
+      dewdropAdd(spellID, name, icon, "spell")
       i = i + 1
     end
   end
 
   if hasItem(sor[fac]) and (not PortalsDB.favorites[sor[fac]] or not PortalsDB.favorites[sor[fac]][1]) then
     local name, _, _, _, _, _, _, _, _, icon = GetItemInfo(sor[fac])
-    secure = {
-      type1 = 'item',
-      item = name
-    }
-    dewdrop:AddLine(
-      'text', name,
-      'secure', secure,
-      'icon', icon,
-      'arg1', sor[fac],
-      'arg2', icon,
-      'arg3', secure.type1,
-      'func', addFavorites,
-      'closeWhenClicked', true
-    )
+    dewdropAdd(sor[fac], name, icon, "item")
     i = i + 1
   end
 
@@ -623,26 +551,7 @@ local function ShowOtherItems()
   for _, itemID in ipairs(items) do
     if hasItem(itemID) and (not PortalsDB.favorites[itemID] or not PortalsDB.favorites[itemID][1]) then
       name, _, _, _, _, _, _, _, _, icon = GetItemInfo(itemID)
-      local startTime, duration = GetItemCooldown(itemID)
-      local cooldown = math.ceil(((duration - (GetTime() - startTime))/60))
-      local text = name
-      if cooldown > 0 then
-        text = name.." |cFF00FFFF("..cooldown.." ".. L['MIN'] .. ")"
-      end
-      secure = {
-        type1 = 'item',
-        item = name
-      }
-      dewdrop:AddLine(
-        'text', text,
-        'secure', secure,
-        'icon', icon,
-        'arg1', itemID,
-        'arg2', icon,
-        'arg3', secure.type1,
-        'func', addFavorites,
-        'closeWhenClicked', true
-      )
+      dewdropAdd(itemID, name, icon, "item")
       i = i + 1
     end
   end
@@ -669,44 +578,16 @@ local function showFavorites()
       local name, icon, startTime, duration
       if type == "item" then
         name, _, _, _, _, _, _, _, _, icon = GetItemInfo(ID)
-        startTime, duration = GetItemCooldown(ID)
       elseif (PortalsDB.swapPortals and swapPortal and (GetNumPartyMembers() > 0 or UnitInRaid("player"))) then
         name, _, icon = GetSpellInfo(swapPortal)
-        startTime, duration = GetSpellCooldown(name)
       else
         name, _, icon = GetSpellInfo(ID)
-        startTime, duration = GetSpellCooldown(name)
       end
       if (mage and not isPortal and IsSpellKnown(818045) and findSpell(name)) or
       (mage and isPortal and PortalsDB.showPortals and not PortalsDB.swapPortals and IsSpellKnown(818045) and findSpell(name) and ((GetNumPartyMembers() > 0 or UnitInRaid("player")))) or
        (not mage and findSpell(name)) or hasItem(ID) then
-          if not headerSet then
-              dewdrop:AddLine()
-              dewdrop:AddLine(
-              'text', 'Favorites',
-              'isTitle', true
-            )
-            headerSet = true
-          end
-          local cooldown = math.ceil(((duration - (GetTime() - startTime))/60))
-          local text = name
-          if cooldown > 0 then
-            text = name.." |cFF00FFFF("..cooldown.." ".. L['MIN'] .. ")"
-          end
-          secure = {
-            type1 = type,
-            [type] = name,
-          }
-          dewdrop:AddLine(
-            'text', text,
-            'secure', secure,
-            'icon', icon,
-            'arg1', ID,
-            'arg2', icon,
-            'arg3', secure.type1,
-            'func', addFavorites,
-            'closeWhenClicked', true
-          )
+        headerSet = setHeader("Favorites", headerSet)
+        dewdropAdd(ID, name, icon, type)
       end
     end
 
