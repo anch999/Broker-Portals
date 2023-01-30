@@ -515,8 +515,7 @@ local function showStones(subMenu, spellCheck, noSpacer) --Kalimdor, true
 			addTable(continent);
 		end
 	else
-		addTable(subMenu);
-		return true
+		return addTable(subMenu);
 	end
 
 end
