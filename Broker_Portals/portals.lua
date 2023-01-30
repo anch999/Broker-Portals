@@ -73,18 +73,94 @@ local scrolls = {
   37118 -- Scroll of Recall
 }
 
+-- Ascension: Stones of Retreat
+local stones = {
+  Kalimdor = {
+    "Kalimdor",
+    777023, -- Azshara
+    777013, -- Cenarion Hold
+    777007, -- Everlook
+    777009, -- Gadgetzan
+    777026, -- Gates of Ahn'Quiraj
+    777012, -- Mudsprocket
+    777027, -- Onyxia's Lair
+    777010, -- Ratchet
+    1777025, -- Feathermoon Stronghold
+    { 777004 , "Alliance" }, -- Darnassus
+    { 1777044, "Alliance" }, -- Nijei's Point
+    { 777000 , "Horde" }, -- Orgrimmar
+    { 777002 , "Horde" }, -- Thunder Bluff
+    { 777021 , "Horde" }, -- Bloodvenom Post
+    { 1777024, "Horde" }, -- Camp Mojache
+    { 1777043, "Horde" }, -- Shadowprey Village
+  },
+
+  EasternKingdoms = {
+    "Eastern Kingdoms",
+    777008, -- Booty Bay
+    777025, -- Blackrock Mountain
+    777020, -- Gurubashi Arena
+    777006, -- Light's Hope
+    777011, -- Thorium Point
+    1777023, -- Yojamba Isle
+    777024, -- Zul'Gurub
+    { 777003 , "Alliance" },-- Stormwind
+    { 777005 , "Alliance" },-- Ironforge
+    { 1777036, "Alliance" }, -- Aerie Peak
+    { 1777026, "Alliance" }, -- Nethergarde Keep
+    { 777001 , "Horde" }, -- Undercity
+    { 1777037, "Horde" }, -- Revantusk Village
+    { 1777027, "Horde" }, -- Stonard
+  },
+
+  Outlands = {
+    "Outlands",
+    777017, -- Area 52
+    1175646, -- Altar of Sha'tar
+    1175645, -- Sanctum of the Stars
+    102182, -- Cenarion Refuge
+    102186, -- Ogri'la
+    102196, -- Stormspire
+    102180, -- Cenarion Refuge
+    777016, -- Shattrath
+    { 777014, "Horde" }, -- Silvermoon City 
+    { 102197, "Horde" }, -- Thrallmar
+    { 102189, "Horde" }, -- Shadowmoon Village
+    { 102184, "Horde" }, -- Garadar
+    { 102190, "Horde" }, -- Stonebreaker Hold
+    { 102201, "Horde" }, -- Zabra'jin
+    { 777015, "Alliance" }, -- The Exodar
+    { 102185, "Alliance" }, -- Honor Hold
+    { 102193, "Alliance" }, -- Telaar
+    { 102178, "Alliance" }, -- Allerian Stronghold
+    { 102187, "Alliance" }, -- Orebor Harborage
+    { 102200, "Alliance" }, -- Wildhammer Stronghold
+  }
+
+}
+
+  -- Ascension: Runes of Retreat
+local runes = {
+  979807, -- Flaming
+  80133,  -- Frostforged
+  979806, -- Arcane
+  979808, -- Freezing
+  979809, -- Dark Rune
+  979810 -- Holy Rune
+}
+
 -- Ascension: Scrolls of Defense
 local sod = {
   83126, -- Ashenvale
   83128 -- Hillsbrad Foothills
 }
+
 -- Ascension: Scrolls of Retreat
-local sor = nil
-if fac == "Horde" then
-  sor = 1175627 -- Orgrimmar
-else
-  sor = 1175626 -- Stormwind
-end
+local sor = {
+  Horde = 1175627, -- Orgrimmar
+  Alliance = 1175626 -- Stormwind
+}
+
 
 obj = LibStub:GetLibrary('LibDataBroker-1.1'):NewDataObject(addonName, {
   type = 'data source',
@@ -119,7 +195,7 @@ local function pairsByKeys(t)
   return iter
 end
 
-function findSpell(spellName)
+local function findSpell(spellName)
   local i = 1
   while true do
     local s = GetSpellName(i, BOOKTYPE_SPELL)
@@ -144,11 +220,7 @@ local function hasItem(itemID)
     if item then
       found, _, id = item:find('^|c%x+|Hitem:(%d+):.+')
       if found and tonumber(id) == itemID then
-        if GetInventoryItemCooldown('player', slotId) ~= 0 then
-          return false
-        else
           return true
-        end
       end
     end
   end
@@ -159,11 +231,7 @@ local function hasItem(itemID)
       if item then
         found, _, id = item:find('^|c%x+|Hitem:(%d+):.+')
         if found and tonumber(id) == itemID then
-          if GetContainerItemCooldown(bag, slot) ~= 0 then
-            return false
-          else
-            return true
-          end
+          return true
         end
       end
     end
@@ -175,39 +243,39 @@ end
 local function SetupSpells()
   local spells = {
     Alliance = {
-      { 3561 }, -- TP:Stormwind
-      { 3562 }, -- TP:Ironforge
-      { 3565 }, -- TP:Darnassus
-      { 32271 }, -- TP:Exodar
-      { 49359 }, -- TP:Theramore
-      { 33690 }, -- TP:Shattrath
-      { 10059, 'TRUE' }, -- P:Stormwind
-      { 11416, 'TRUE' }, -- P:Ironforge
-      { 11419, 'TRUE' }, -- P:Darnassus
-      { 32266, 'TRUE' }, -- P:Exodar
-      { 49360, 'TRUE' }, -- P:Theramore
-      { 33691, 'TRUE' }, -- P:Shattrath
+      { 3561 , false, 10059 }, -- TP:Stormwind
+      { 3562 , false, 11416 }, -- TP:Ironforge
+      { 3565 , false, 11419 }, -- TP:Darnassus
+      { 32271, false, 32266 }, -- TP:Exodar
+      { 49359, false, 49360 }, -- TP:Theramore
+      { 33690, false, 33691 }, -- TP:Shattrath
+      { 10059, true }, -- P:Stormwind
+      { 11416, true }, -- P:Ironforge
+      { 11419, true }, -- P:Darnassus
+      { 32266, true }, -- P:Exodar
+      { 49360, true }, -- P:Theramore
+      { 33691, true }, -- P:Shattrath
     },
     Horde = {
-      { 3563 }, -- TP:Undercity
-      { 3566 }, -- TP:Thunder Bluff
-      { 3567 }, -- TP:Orgrimmar
-      { 32272 }, -- TP:Silvermoon
-      { 49358 }, -- TP:Stonard
-      { 35715 }, -- TP:Shattrath
-      { 11418, 'TRUE' }, -- P:Undercity
-      { 11420, 'TRUE' }, -- P:Thunder Bluff
-      { 11417, 'TRUE' }, -- P:Orgrimmar
-      { 32267, 'TRUE' }, -- P:Silvermoon
-      { 49361, 'TRUE' }, -- P:Stonard
-      { 35717, 'TRUE' }, -- P:Shattrath
+      { 3563 , false, 11418 }, -- TP:Undercity
+      { 3566 , false, 11420 }, -- TP:Thunder Bluff
+      { 3567 , false, 11417 }, -- TP:Orgrimmar
+      { 32272, false, 32267 }, -- TP:Silvermoon
+      { 49358, false, 49361 }, -- TP:Stonard
+      { 35715, false, 35717 }, -- TP:Shattrath
+      { 11418, true }, -- P:Undercity
+      { 11420, true }, -- P:Thunder Bluff
+      { 11417, true }, -- P:Orgrimmar
+      { 32267, true }, -- P:Silvermoon
+      { 49361, true }, -- P:Stonard
+      { 35717, true }, -- P:Shattrath
     }
   }
 
   local _, class = UnitClass('player')
   if expac == "WRATH" then
     tinsert(portals, { 53140 }) -- TP:Dalaran
-    tinsert(portals, { 53142, 'TRUE' }) -- P:Dalaran
+    tinsert(portals, { 53142, true }) -- P:Dalaran
   end
   if class == 'HERO' then
     if IsSpellKnown(818045) then
@@ -233,109 +301,49 @@ local function SetupSpells()
       { 556 }
     }
   end
-  -- Ascension: Stones of Retreat
-  if fac == "Horde" then
-    tinsert(portals, { 777000 }) -- Orgrimmar
-    tinsert(portals, { 777001 }) -- Undercity
-    tinsert(portals, { 777002 }) -- Thunder Bluff
-    tinsert(portals, { 177702 }) -- Camp Mojache
-    tinsert(portals, { 777021 }) -- Bloodvenom Post
-    tinsert(portals, { 1777027 }) -- Stonard
-    tinsert(portals, { 1777037 }) -- Revantusk Village
-    tinsert(portals, { 1777043 }) -- Shadowprey Village
-  else
-    tinsert(portals, { 777003 }) -- Stormwind
-    tinsert(portals, { 777004 }) -- Darnassus
-    tinsert(portals, { 777005 }) -- Ironforge
-    tinsert(portals, { 1777044 }) -- Nijei's Point
-    tinsert(portals, { 1777025 }) -- Feathermoon Stronghold
-    tinsert(portals, { 1777026 }) -- Nethergarde Keep
-    tinsert(portals, { 1777036 }) -- Aerie Peak
-  end
-
-  tinsert(portals, { 777006 }) -- Light's Hope
-  tinsert(portals, { 777007 }) -- Everlook
-  tinsert(portals, { 777008 }) -- Booty Bay
-  tinsert(portals, { 777009 }) -- Gadgetzan
-  tinsert(portals, { 777010 }) -- Ratchet
-  tinsert(portals, { 777011 }) -- Thorium Point
-  tinsert(portals, { 777012 }) -- Mudsprocket
-  tinsert(portals, { 777013 }) -- Cenarion Hold
-  tinsert(portals, { 777023 }) -- Azshara
-  tinsert(portals, { 777020 }) -- Gurubashi Arena
-  tinsert(portals, { 777024 }) -- Zul'Gurub
-  tinsert(portals, { 777025 }) -- Blackrock Mountain
-  tinsert(portals, { 777026 }) -- Gates of Ahn'Quiraj
-  tinsert(portals, { 777027 }) -- Onyxia's Lair
-  tinsert(portals, { 1777023 }) -- Yojamba Isle
-
-  if expac == "TBC" then
-    tinsert(portals, { 777016 }) -- Shattrath
-    tinsert(portals, { 777017 }) -- Area 52
-    tinsert(portals, { 777018 }) -- Altar of Sha'tar
-    tinsert(portals, { 777019 }) -- Sanctum of the Stars
-    tinsert(portals, { 102182 }) -- Cenarion Refuge
-    tinsert(portals, { 102186 }) -- Ogri'la
-    tinsert(portals, { 102196 }) -- Stormspire
-    tinsert(portals, { 777008 }) -- Sanctum of the Stars
-    tinsert(portals, { 777008 }) -- Altar of Sha'tar
-    tinsert(portals, { 102180 }) -- Cenarion Refuge
-
-    if fac == "Horde" then
-      tinsert(portals, { 777014 }) -- Silvermoon City
-      tinsert(portals, { 102197 }) -- Thrallmar
-      tinsert(portals, { 102189 }) -- Shadowmoon Village
-      tinsert(portals, { 102184 }) -- Garadar
-      tinsert(portals, { 102190 }) -- Stonebreaker Hold
-      tinsert(portals, { 102201 }) -- Zabra'jin
-    else
-      tinsert(portals, { 777015 }) -- The Exodar
-      tinsert(portals, { 102185 }) -- Honor Hold
-      tinsert(portals, { 102193 }) -- Telaar
-      tinsert(portals, { 102178 }) -- Allerian Stronghold
-      tinsert(portals, { 102187 }) -- Orebor Harborage
-      tinsert(portals, { 102200 }) -- Wildhammer Stronghold
-    end
-  end
-
-  -- Ascension: Runes of Retreat
-  local runes = {
-    { 979807 }, -- Flaming
-    { 80133 }, -- Frostforged
-    { 979806 }, -- Arcane
-    { 979808 }, -- Freezing
-    { 979809 }, -- Dark Rune
-    { 979810 } -- Holy Rune
-  }
-  local runeRandom = {}
-  for _, v in ipairs(runes) do
-    if IsSpellKnown(v[1]) then
-      tinsert(runeRandom, v[1])
-    end
-  end
-  if #runeRandom > 0 then
-    tinsert(portals, { runeRandom[math.random(1, #runeRandom)]})
-  end
 end
 
-local function UpdateSpells()
+local function UpdateIcon(icon)
+  obj.icon = icon
+end
+
+local function addFavorites(spellID, icon, type, mage, isPortal, xpac, fac, portalSpellID)
+  if IsAltKeyDown() then
+    if PortalsDB.favorites[spellID] and PortalsDB.favorites[spellID][1] then
+      PortalsDB.favorites[spellID] = {false, type, mage, isPortal, xpac, fac, portalSpellID}
+    else
+      PortalsDB.favorites[spellID] = {true, type, mage, isPortal, xpac, fac, portalSpellID}
+    end
+  end
+  UpdateIcon(icon)
+end
+
+local function updateSpells()
   SetupSpells()
   local i = 0
 
   if portals then
     for _, v in ipairs(portals) do
-      local spell, _, spellIcon = GetSpellInfo(v[1])
-      local spellid = findSpell(spell)
+      local spell, spellIcon, spellid
+      if (PortalsDB.swapPortals and v[3] and (GetNumPartyMembers() > 0 or UnitInRaid("player"))) then
+        spell, _, spellIcon = GetSpellInfo(v[3])
+        spellid = findSpell(spell)
+      else
+        spell, _, spellIcon = GetSpellInfo(v[1])
+        spellid = findSpell(spell)
+      end
 
-      if spellid then
-        if not PortalsDB.showPortals or not v[2] or (GetNumPartyMembers() > 0 or UnitInRaid("player")) then
+      if spellid and (not PortalsDB.favorites[v[1]] or not PortalsDB.favorites[v[1]][1]) then
+        if not v[2] or (v[2] and not PortalsDB.showPortals and not PortalsDB.swapPortals) or (PortalsDB.showPortals and v[2] and not PortalsDB.swapPortals) and (GetNumPartyMembers() > 0 or UnitInRaid("player")) then
           methods[spell] = {
             spellid = spellid,
+            spellID = v[1],
             text = spell,
             spellIcon = spellIcon,
             isPortal = v[2],
+            portalSpellID = v[3],
             secure = {
-              type = 'spell',
+              type1 = 'spell',
               spell = spell
             }
           }
@@ -346,10 +354,6 @@ local function UpdateSpells()
   end
 
   return i
-end
-
-local function UpdateIcon(icon)
-  obj.icon = icon
 end
 
 local function GetHearthCooldown()
@@ -401,60 +405,209 @@ end
 
 local function ShowHearthstone()
   local text, secure, icon, name
-  local bindLoc = GetBindLocation()
+  local headerSet = false
+    local function setHeader()
+      if headerSet then return end
+      dewdrop:AddLine()
+      dewdrop:AddLine(
+        'text', "Hearthstone: "..GetBindLocation(),
+        'isTitle', true
+      )
+      headerSet = true
+    end
 
   for _, itemID in ipairs(scrolls) do
-    if hasItem(itemID) then
+    if hasItem(itemID) and (not PortalsDB.favorites[itemID] or not PortalsDB.favorites[itemID][1]) then
+      setHeader()
       name, _, _, _, _, _, _, _, _, icon = GetItemInfo(itemID)
-      text = L['INN'] .. ' ' .. bindLoc
+      local startTime, duration = GetItemCooldown(itemID)
+      local cooldown = math.ceil(((duration - (GetTime() - startTime))/60))
+      text = name
+      if cooldown > 0 then
+        text = name.." |cFF00FFFF("..cooldown.." ".. L['MIN'] .. ")"
+      end
       secure = {
-        type = 'item',
+        type1 = 'item',
         item = name
       }
       dewdrop:AddLine(
         'text', text,
         'secure', secure,
         'icon', icon,
-        'func', function() UpdateIcon(icon) end,
+        'arg1', itemID,
+        'arg2', icon,
+        'arg3', secure.type1,
+        'func', addFavorites,
         'closeWhenClicked', true
       )
     end
   end
-  dewdrop:AddLine()
-end
 
-local function ShowScrolls()
-  local i = 0, secure
+  local runeRandom = {}
+  for _, spellID in ipairs(runes) do
+    if IsSpellKnown(spellID) and (not PortalsDB.favorites[spellID] or not PortalsDB.favorites[spellID][1]) then
+      tinsert(runeRandom, spellID)
+    end
+  end
 
-  for j = 1, #sod do
-    local name, _, icon = GetSpellInfo(sod[j])
+  if #runeRandom > 0 then
+    local spellID = runeRandom[math.random(1, #runeRandom)]
+    local name, _, icon = GetSpellInfo(spellID)
     if findSpell(name) then
+      setHeader()
+      local startTime, duration = GetSpellCooldown(name)
+      local cooldown = math.ceil(((duration - (GetTime() - startTime))/60))
+      local text = name
+      if cooldown > 0 then
+        text = name.." |cFF00FFFF("..cooldown.." ".. L['MIN'] .. ")"
+      end
       secure = {
-        type = 'spell',
+        type1 = 'spell',
         spell = name,
       }
       dewdrop:AddLine(
-        'text', name,
+        'text', text,
         'secure', secure,
         'icon', icon,
-        'func', function() UpdateIcon(icon) end,
+        'arg1', spellID,
+        'arg2', icon,
+        'arg3', secure.type1,
+        'func', addFavorites, 
+        'closeWhenClicked', true
+      )
+    end
+  end
+end
+
+local function showStones(subMenu, spellCheck, noSpacer)
+  local secure, header
+  local headerSet = false
+
+  local function addStone(spellID, xpac)
+    local name, _, icon = GetSpellInfo(spellID)
+    if findSpell(name) and (not PortalsDB.favorites[spellID] or not PortalsDB.favorites[spellID][1]) then
+      if spellCheck then return true end
+        if not headerSet then
+          if not noSpacer then dewdrop:AddLine() end
+            dewdrop:AddLine(
+            'text', header,
+            'isTitle', true
+          )
+          headerSet = true
+        end
+        local startTime, duration = GetSpellCooldown(name)
+        local cooldown = math.ceil(((duration - (GetTime() - startTime))/60))
+        local text = name
+        if cooldown > 0 then
+          text = name.." |cFF00FFFF("..cooldown.." ".. L['MIN'] .. ")"
+        end
+        secure = {
+          type1 = 'spell',
+          spell = name,
+        }
+        dewdrop:AddLine(
+          'text', text,
+          'secure', secure,
+          'icon', icon,
+          'func', function() addFavorites(spellID, icon, secure.type1, nil, nil, xpac, fac) end,
+          'closeWhenClicked', true
+        )
+    end
+  end
+
+  local function tableSort(zone, xpac)
+    local sorted = {}
+      for _,v in ipairs(stones[zone]) do
+        if type(v) == "string" then
+          headerSet = false
+          header = v
+        elseif type(v) == "table" and v[2] == fac then
+          local name = GetSpellInfo(v[1])
+          if spellCheck and findSpell(name) then return true end
+          if findSpell(name) then sorted[name] = v[1] end
+        elseif type(v) == "number" then
+          local name = GetSpellInfo(v)
+          if spellCheck and findSpell(name) then return true end
+          if findSpell(name) then sorted[name] = v end
+        end
+      end
+      table.sort(sorted)
+      for _,v in pairsByKeys(sorted) do
+        addStone(v, xpac)
+      end
+  end
+  
+  if subMenu == "Kalimdor" or subMenu == "All" then
+    local spellCheck = tableSort("Kalimdor")
+    if spellCheck then return true end
+  end
+
+  if subMenu == "EasternKingdoms" or subMenu == "All" then
+    local spellCheck = tableSort("EasternKingdoms")
+    if spellCheck then return true end
+  end
+
+  if expac == "TBC" and (subMenu == "Outlands" or subMenu == "All") then
+    local spellCheck = tableSort("Outlands", expac)
+    if spellCheck then return true end
+  end
+
+end
+
+local function ShowScrolls()
+  local secure
+  local i = 0
+  local headerSet = false
+
+  for n,spellID in ipairs(sod) do
+    local name, _, icon = GetSpellInfo(spellID)
+    if findSpell(name) and (not PortalsDB.favorites[spellID] or not PortalsDB.favorites[spellID][1]) then
+      if not headerSet then
+        dewdrop:AddLine()
+        dewdrop:AddLine(
+        'text', "Scrolls Of Defense",
+        'isTitle', true
+      )
+      headerSet = true
+      end
+      local startTime, duration = GetSpellCooldown(name)
+      local cooldown = math.ceil(((duration - (GetTime() - startTime))/60))
+      local text = name
+      if cooldown > 0 then
+        text = name.." |cFF00FFFF("..cooldown.." ".. L['MIN'] .. ")"
+      end
+      secure = {
+        type1 = 'spell',
+        spell = name,
+      }
+      dewdrop:AddLine(
+        'text', text,
+        'secure', secure,
+        'icon', icon,
+        'arg1', spellID,
+        'arg2', icon,
+        'arg3', secure.type1,
+        'func', addFavorites,
         'closeWhenClicked', true
       )
       i = i + 1
     end
   end
 
-  if hasItem(sor) then
-    local name, _, _, _, _, _, _, _, _, icon = GetItemInfo(sor)
+  if hasItem(sor[fac]) and (not PortalsDB.favorites[sor[fac]] or not PortalsDB.favorites[sor[fac]][1]) then
+    local name, _, _, _, _, _, _, _, _, icon = GetItemInfo(sor[fac])
     secure = {
-      type = 'item',
+      type1 = 'item',
       item = name
     }
     dewdrop:AddLine(
       'text', name,
       'secure', secure,
       'icon', icon,
-      'func', function() UpdateIcon(icon) end,
+      'arg1', sor[fac],
+      'arg2', icon,
+      'arg3', secure.type1,
+      'func', addFavorites,
       'closeWhenClicked', true
     )
     i = i + 1
@@ -464,20 +617,30 @@ local function ShowScrolls()
 end
 
 local function ShowOtherItems()
-  local i = 0, secure, icon, name
+  local i = 0
+  local secure, icon, name
 
   for _, itemID in ipairs(items) do
-    if hasItem(itemID) then
+    if hasItem(itemID) and (not PortalsDB.favorites[itemID] or not PortalsDB.favorites[itemID][1]) then
       name, _, _, _, _, _, _, _, _, icon = GetItemInfo(itemID)
+      local startTime, duration = GetItemCooldown(itemID)
+      local cooldown = math.ceil(((duration - (GetTime() - startTime))/60))
+      local text = name
+      if cooldown > 0 then
+        text = name.." |cFF00FFFF("..cooldown.." ".. L['MIN'] .. ")"
+      end
       secure = {
-        type = 'item',
+        type1 = 'item',
         item = name
       }
       dewdrop:AddLine(
-        'text', name,
+        'text', text,
         'secure', secure,
         'icon', icon,
-        'func', function() UpdateIcon(icon) end,
+        'arg1', itemID,
+        'arg2', icon,
+        'arg3', secure.type1,
+        'func', addFavorites,
         'closeWhenClicked', true
       )
       i = i + 1
@@ -497,29 +660,146 @@ local function ToggleMinimap()
   end
 end
 
+local function showFavorites()
+  if PortalsDB.favorites then
+    local secure, header
+    local headerSet = false
+
+    local function addStone(ID, type, mage, isPortal, swapPortal)
+      local name, icon, startTime, duration
+      if type == "item" then
+        name, _, _, _, _, _, _, _, _, icon = GetItemInfo(ID)
+        startTime, duration = GetItemCooldown(ID)
+      elseif (PortalsDB.swapPortals and swapPortal and (GetNumPartyMembers() > 0 or UnitInRaid("player"))) then
+        name, _, icon = GetSpellInfo(swapPortal)
+        startTime, duration = GetSpellCooldown(name)
+      else
+        name, _, icon = GetSpellInfo(ID)
+        startTime, duration = GetSpellCooldown(name)
+      end
+      if (mage and not isPortal and IsSpellKnown(818045) and findSpell(name)) or
+      (mage and isPortal and PortalsDB.showPortals and not PortalsDB.swapPortals and IsSpellKnown(818045) and findSpell(name) and ((GetNumPartyMembers() > 0 or UnitInRaid("player")))) or
+       (not mage and findSpell(name)) or hasItem(ID) then
+          if not headerSet then
+              dewdrop:AddLine()
+              dewdrop:AddLine(
+              'text', 'Favorites',
+              'isTitle', true
+            )
+            headerSet = true
+          end
+          local cooldown = math.ceil(((duration - (GetTime() - startTime))/60))
+          local text = name
+          if cooldown > 0 then
+            text = name.." |cFF00FFFF("..cooldown.." ".. L['MIN'] .. ")"
+          end
+          secure = {
+            type1 = type,
+            [type] = name,
+          }
+          dewdrop:AddLine(
+            'text', text,
+            'secure', secure,
+            'icon', icon,
+            'arg1', ID,
+            'arg2', icon,
+            'arg3', secure.type1,
+            'func', addFavorites,
+            'closeWhenClicked', true
+          )
+      end
+    end
+
+    local sorted = {}
+    for ID ,v in pairs(PortalsDB.favorites) do
+      if v[1] then
+        local name
+        if v[2] == "item" then
+          name = GetItemInfo(ID)
+        else
+          name = GetSpellInfo(ID)
+        end
+        if findSpell(name) or hasItem(ID) then
+          sorted[name] = {ID, v[2], v[3], v[4], v[5], v[6], v[7]}
+        end
+      end
+    end
+    table.sort(sorted)
+    for _,v in pairsByKeys(sorted) do
+      if (not v[5] and not v[6]) or (v[5] == expac and v[6] == fac) or v[6] == fac or v[5] == expac then
+        addStone(v[1], v[2], v[3], nil, v[7])
+      end
+    end
+  end
+end
+
 local function UpdateMenu(level, value)
   if level == 1 then
-    dewdrop:AddLine(
-      'text', 'Broker_Portals',
-      'isTitle', true
-    )
-
-    methods = {}
-    if UpdateSpells() > 0 then
-      dewdrop:AddLine()
-    end
     local chatType = PortalsDB.announceType
     if PortalsDB.announceType == "PARTYRAID" then
       chatType = (UnitInRaid("player") and "RAID") or (GetNumPartyMembers() > 0 and "PARTY")
     end
-    for k, v in pairsByKeys(methods) do
-      if v.secure and GetSpellCooldown(v.text) == 0 then
+    dewdrop:AddLine(
+      'text', 'Broker_Portals',
+      'isTitle', true
+    )
+    showFavorites()
+    
+    if PortalsDB.stonesSubMenu then
+      local mainHeaderSet = false
+      --set main header if player knows any stones
+      if not mainHeaderSet then
+        dewdrop:AddLine()
+        dewdrop:AddLine(
+          'text', "Stones Of Retreat",
+          'isTitle', true
+        )
+        mainHeaderSet = true
+      end
+      --Adds menu if any kalimdor stones have been learned
+      if showStones("Kalimdor", true) then
+        dewdrop:AddLine(
+        'text', 'Kalimdor',
+        'hasArrow', true,
+        'value', 'Kalimdor'
+        )
+      end
+      --Adds menu if any easternkingdoms stones have been learned
+      if showStones("EasternKingdoms", true) then
+        dewdrop:AddLine(
+        'text', 'EasternKingdoms',
+        'hasArrow', true,
+        'value', 'EasternKingdoms'
+        )
+      end
+      --Adds menu if any ountlands stones have been learned
+      if showStones("Outlands", true) then
+        dewdrop:AddLine(
+        'text', 'Outlands',
+        'hasArrow', true,
+        'value', 'Outlands'
+        )
+      end
+    else
+      showStones("All")
+    end
+
+    methods = {}
+    if updateSpells() > 0 then
+      dewdrop:AddLine()
+      dewdrop:AddLine(
+      'text', 'Mage Portals',
+      'isTitle', true
+    )
+    for _, v in pairsByKeys(methods) do
+      if v.secure and GetSpellCooldown(v.text) == 0 and (not PortalsDB.favorites[v.spellID] or not PortalsDB.favorites[v.spellID][1]) then
         dewdrop:AddLine(
           'text', v.text,
           'secure', v.secure,
           'icon', v.spellIcon,
           'func', function()
-            UpdateIcon(v.spellIcon)
+            print(v.secure.portalSpellID)
+            addFavorites(v.spellID, v.spellIcon, v.secure.type1, true, v.isPortal, nil, nil, v.portalSpellID)
             if v.isPortal and chatType and PortalsDB.announce then
               SendChatMessage(L['ANNOUNCEMENT'] .. ' ' .. v.text, chatType)
             end
@@ -528,15 +808,16 @@ local function UpdateMenu(level, value)
         )
       end
     end
-
-    dewdrop:AddLine()
+    end
 
     ShowHearthstone()
 
     if PortalsDB.showItems then
-      if (ShowScrolls() + ShowOtherItems()) > 0 then dewdrop:AddLine() end
+      ShowScrolls()
+      ShowOtherItems()
     end
 
+    dewdrop:AddLine()
     dewdrop:AddLine(
       'text', L['OPTIONS'],
       'hasArrow', true,
@@ -549,6 +830,12 @@ local function UpdateMenu(level, value)
       'tooltipText', CLOSE_DESC,
       'closeWhenClicked', true
     )
+  elseif level == 2 and value == 'Kalimdor' then
+    showStones("Kalimdor", nil, true)
+  elseif level == 2 and value == 'EasternKingdoms' then
+    showStones("EasternKingdoms", nil, true)
+  elseif level == 2 and value == 'Outlands' then
+    showStones("Outlands", nil, true)
   elseif level == 2 and value == 'options' then
     dewdrop:AddLine(
       'text', L['SHOW_ITEMS'],
@@ -585,6 +872,18 @@ local function UpdateMenu(level, value)
       'text', 'Show portals only in Party/Raid',
       'checked', PortalsDB.showPortals,
       'func', function() PortalsDB.showPortals = not PortalsDB.showPortals end,
+      'closeWhenClicked', true
+    )
+    dewdrop:AddLine(
+      'text', 'Swap teleport to portal spells in Party/Raid',
+      'checked', PortalsDB.swapPortals,
+      'func', function() PortalsDB.swapPortals = not PortalsDB.swapPortals end,
+      'closeWhenClicked', true
+    )
+    dewdrop:AddLine(
+      'text', 'Show Stones Of Retreats As Menus',
+      'checked', PortalsDB.stonesSubMenu,
+      'func', function() PortalsDB.stonesSubMenu = not PortalsDB.stonesSubMenu end,
       'closeWhenClicked', true
     )
   elseif level == 3 and value == 'announce' then
@@ -624,7 +923,7 @@ function frame:PLAYER_LOGIN()
   if PortalsDB.showPortals == nil then
     PortalsDB.showPortals = false
   end
-
+  if not PortalsDB.favorites then PortalsDB.favorites = {} end
   if icon then
     icon:Register('Broker_Portals', obj, PortalsDB.minimap)
   end
@@ -633,7 +932,7 @@ function frame:PLAYER_LOGIN()
 end
 
 function frame:SKILL_LINES_CHANGED()
-  UpdateSpells()
+  updateSpells()
 end
 
 -- All credit for this func goes to Tekkub and his picoGuild!
