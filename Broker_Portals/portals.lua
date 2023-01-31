@@ -444,7 +444,7 @@ end
 
 --Hearthstone items and spells
 local function ShowHearthstone()
-  local text, secure, icon, name
+  local icon, name
   local headerSet = false
     
   for _, itemID in ipairs(scrolls) do
@@ -521,7 +521,6 @@ local function showStones(subMenu, spellCheck, noSpacer) --Kalimdor, true
 end
 
 local function ShowScrolls()
-  local secure, text
   local i = 0
   local headerSet = false
 
@@ -570,11 +569,10 @@ end
 
 local function showFavorites()
   if PortalsDB.favorites then
-    local secure, header
     local headerSet = false
 
     local function addStone(ID, type, mage, isPortal, swapPortal)
-      local name, icon, startTime, duration
+      local name, icon
       if type == "item" then
         name, _, _, _, _, _, _, _, _, icon = GetItemInfo(ID)
       elseif (PortalsDB.swapPortals and swapPortal and (GetNumPartyMembers() > 0 or UnitInRaid("player"))) then
