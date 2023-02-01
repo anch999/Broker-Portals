@@ -332,10 +332,12 @@ local function dewdropAdd(ID, type, faction, factionLock, xpac, mage, isPortal, 
     'text', text,
     'secure', secure,
     'icon', icon,
-    'func', function() addFavorites(ID, secure.type1, faction, factionLock, xpac, mage, isPortal, swapPortal) end,
+    'func', function() 
+      addFavorites(ID, secure.type1, faction, factionLock, xpac, mage, isPortal, swapPortal)
+      updateIcon(icon)
+    end,
     'closeWhenClicked', true
   )
-  updateIcon(icon)
 end
 
 local function updateSpells()
@@ -471,7 +473,7 @@ local function showStones(subMenu, spellCheck, noSpacer) --Kalimdor, true
         dewdropAdd(v[1], "spell", v[2], v[3])
       end
   end
-	
+
 	local function addTable(zone)
 		local spellCheck = tableSort(zone)
 		if spellCheck then return true end
