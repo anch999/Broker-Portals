@@ -582,7 +582,7 @@ local function UpdateMenu(level, value)
     if PortalsDB.stonesSubMenu then
       local mainHeaderSet = false
       --set main header if player knows any stones
-      if not mainHeaderSet and showStones("All", true) then
+      if not mainHeaderSet then
         dewdrop:AddLine()
         dewdrop:AddLine(
           'text', "Stones Of Retreat",
