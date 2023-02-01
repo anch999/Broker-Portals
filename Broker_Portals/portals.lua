@@ -163,7 +163,6 @@ local frame = CreateFrame('frame')
 
 frame:SetScript('OnEvent', function(self, event, ...) if self[event] then return self[event](self, event, ...) end end)
 frame:RegisterEvent('PLAYER_LOGIN')
-frame:RegisterEvent('SKILL_LINES_CHANGED')
 
 local function pairsByKeys(t)
   local a = {}
@@ -754,10 +753,6 @@ function frame:PLAYER_LOGIN()
   end
 
   self:UnregisterEvent('PLAYER_LOGIN')
-end
-
-function frame:SKILL_LINES_CHANGED()
-  updateSpells()
 end
 
 -- All credit for this func goes to Tekkub and his picoGuild!
