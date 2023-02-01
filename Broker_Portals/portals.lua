@@ -582,7 +582,7 @@ local function UpdateMenu(level, value)
     if PortalsDB.stonesSubMenu then
       local mainHeaderSet = false
       --set main header if player knows any stones
-      if not mainHeaderSet then
+      if not mainHeaderSet and showStones("All", true) then
         dewdrop:AddLine()
         dewdrop:AddLine(
           'text', "Stones Of Retreat",
@@ -591,8 +591,7 @@ local function UpdateMenu(level, value)
         mainHeaderSet = true
       end
       --Adds menu if any stone in that category has been learned
-			for continent, _ in pairs(stones)
-			do
+			for continent, _ in pairs(stones) do
 				if showStones(continent, true) then
         dewdrop:AddLine(
         'text', continent,
@@ -744,18 +743,12 @@ function frame:PLAYER_LOGIN()
     PortalsDB.showItemCooldowns = true
     PortalsDB.announce = false
   end
-  if PortalsDB.announceType == nil then
-    PortalsDB.announceType = 'PARTYRAID'
-  end
-  if PortalsDB.showPortals == nil then
-    PortalsDB.showPortals = false
-  end
-	if PortalsDB.showEnemy == nil then
-		PortalsDB.showEnemy = false
-	end
-  if not favoritesdb then favoritesdb = {} end
-  if not favoritesdb[GetRealmName()] then favoritesdb[GetRealmName()] = {} end
-  favoritesdb = favoritesdb[GetRealmName()]
+  if not PortalsDB.announceType then PortalsDB.announceType = 'PARTYRAID' end
+  if not PortalsDB.showPortals then PortalsDB.showPortals = false end
+	if not PortalsDB.showEnemy then PortalsDB.showEnemy = false end
+  if not PortalsDB.favorites then PortalsDB.favorites = {} end
+  if not PortalsDB.favorites[GetRealmName()] then PortalsDB.favorites[GetRealmName()] = {} end
+  favoritesdb = PortalsDB.favorites[GetRealmName()]
   if icon then
     icon:Register('Broker_Portals', obj, PortalsDB.minimap)
   end
