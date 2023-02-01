@@ -10,7 +10,7 @@ local xpacLevel = GetAccountExpansionLevel() + 1;
 local addonName, addonTable = ...
 local L = addonTable.L
 local fac = UnitFactionGroup('player')
-
+local favoritesdb
 
 -- IDs of items usable for transportation
 local items = {
@@ -283,10 +283,10 @@ end
 local function addFavorites(spellID, type, faction, factionLock, xpac, mage, isPortal, portalSpellID)
   if IsAltKeyDown() then
     if not faction then faction = "Neutral" end
-    if PortalsDB.favorites[spellID] and PortalsDB.favorites[spellID][1] then
-      PortalsDB.favorites[spellID] = {false}
+    if favoritesdb[spellID] and favoritesdb[spellID][1] then
+      favoritesdb[spellID] = {false}
     else
-      PortalsDB.favorites[spellID] = {true, type, faction, factionLock, xpac, mage, isPortal, portalSpellID}
+      favoritesdb[spellID] = {true, type, faction, factionLock, xpac, mage, isPortal, portalSpellID}
     end
   end
 end
@@ -355,7 +355,7 @@ local function updateSpells()
         spellknown = IsSpellKnown(v[1])
       end
 
-      if spellknown and (not PortalsDB.favorites[v[1]] or not PortalsDB.favorites[v[1]][1]) then
+      if spellknown and (not favoritesdb[v[1]] or not favoritesdb[v[1]][1]) then
         if not v[2] or (v[2] and not PortalsDB.showPortals and not PortalsDB.swapPortals) or (PortalsDB.showPortals and v[2] and not PortalsDB.swapPortals) and (GetNumPartyMembers() > 0 or UnitInRaid("player")) then
           methods[spell] = {
             spellID = v[1],
@@ -428,7 +428,7 @@ end
 local function ShowHearthstone()
   local headerSet = false 
   for _, itemID in ipairs(scrolls) do
-    if hasItem(itemID) and (not PortalsDB.favorites[itemID] or not PortalsDB.favorites[itemID][1]) then
+    if hasItem(itemID) and (not favoritesdb[itemID] or not favoritesdb[itemID][1]) then
       headerSet = setHeader("Hearthstone: "..GetBindLocation(), headerSet)
       dewdropAdd(itemID, "item")
     end
@@ -436,7 +436,7 @@ local function ShowHearthstone()
 
   local runeRandom = {}
   for _, spellID in ipairs(runes) do
-    if IsSpellKnown(spellID) and (not PortalsDB.favorites[spellID] or not PortalsDB.favorites[spellID][1]) then
+    if IsSpellKnown(spellID) and (not favoritesdb[spellID] or not favoritesdb[spellID][1]) then
       tinsert(runeRandom, spellID)
     end
   end
@@ -456,7 +456,7 @@ local function showStones(subMenu, spellCheck, noSpacer) --Kalimdor, true
     local sorted = {}
     headerSet = false
       for _,v in ipairs(stones[zone]) do
-					if (not PortalsDB.favorites[v[1]] or not PortalsDB.favorites[v[1]][1]) and not (v[4] and v[2] ~= fac ) and (xpacLevel >= v[3]) then --xpacLevel and locked cities check
+					if (not favoritesdb[v[1]] or not favoritesdb[v[1]][1]) and not (v[4] and v[2] ~= fac ) and (xpacLevel >= v[3]) then --xpacLevel and locked cities check
 						if PortalsDB.showEnemy or (v[2] == fac or v[2] == "Neutral") then --faction or showEnemy check
 							--returns on the first found stone to turn the menu on
               if spellCheck and IsSpellKnown(v[1]) then return true end
@@ -488,7 +488,6 @@ local function showStones(subMenu, spellCheck, noSpacer) --Kalimdor, true
 	else
 		return addTable(subMenu);
 	end
-
 end
 
 local function ShowScrolls()
@@ -496,14 +495,14 @@ local function ShowScrolls()
   local headerSet = false
 
   for _,spellID in ipairs(sod) do
-    if IsSpellKnown(spellID) and (not PortalsDB.favorites[spellID] or not PortalsDB.favorites[spellID][1]) then
+    if IsSpellKnown(spellID) and (not favoritesdb[spellID] or not favoritesdb[spellID][1]) then
       headerSet = setHeader("Scrolls Of Defense", headerSet)
       dewdropAdd(spellID, "spell")
       i = i + 1
     end
   end
 
-  if hasItem(sor[fac]) and (not PortalsDB.favorites[sor[fac]] or not PortalsDB.favorites[sor[fac]][1]) then
+  if hasItem(sor[fac]) and (not favoritesdb[sor[fac]] or not favoritesdb[sor[fac]][1]) then
     dewdropAdd(sor[fac], "item", fac, true)
     i = i + 1
   end
@@ -515,7 +514,7 @@ local function ShowOtherItems()
   local i = 0
 
   for _, itemID in ipairs(items) do
-    if hasItem(itemID) and (not PortalsDB.favorites[itemID] or not PortalsDB.favorites[itemID][1]) then
+    if hasItem(itemID) and (not favoritesdb[itemID] or not favoritesdb[itemID][1]) then
       dewdropAdd(itemID, "item")
       i = i + 1
     end
@@ -535,10 +534,10 @@ local function ToggleMinimap()
 end
 
 local function showFavorites()
-  if PortalsDB.favorites then
+  if favoritesdb then
     local headerSet = false
     local sorted = {}
-    for ID ,v in pairs(PortalsDB.favorites) do
+    for ID ,v in pairs(favoritesdb) do
       if v[1] then
         local name
         if v[2] == "item" then
@@ -579,7 +578,7 @@ local function UpdateMenu(level, value)
       'isTitle', true
     )
     showFavorites()
-    
+
     if PortalsDB.stonesSubMenu then
       local mainHeaderSet = false
       --set main header if player knows any stones
@@ -614,7 +613,7 @@ local function UpdateMenu(level, value)
       'isTitle', true
     )
     for _, v in pairsByKeys(methods) do
-      if v.secure and GetSpellCooldown(v.text) == 0 and (not PortalsDB.favorites[v.spellID] or not PortalsDB.favorites[v.spellID][1]) then
+      if v.secure and GetSpellCooldown(v.text) == 0 and (not favoritesdb[v.spellID] or not favoritesdb[v.spellID][1]) then
         dewdrop:AddLine(
           'text', v.text,
           'secure', v.secure,
@@ -754,7 +753,9 @@ function frame:PLAYER_LOGIN()
 	if PortalsDB.showEnemy == nil then
 		PortalsDB.showEnemy = false
 	end
-  if not PortalsDB.favorites then PortalsDB.favorites = {} end
+  if not favoritesdb then favoritesdb = {} end
+  if not favoritesdb[GetRealmName()] then favoritesdb[GetRealmName()] = {} end
+  favoritesdb = favoritesdb[GetRealmName()]
   if icon then
     icon:Register('Broker_Portals', obj, PortalsDB.minimap)
   end
