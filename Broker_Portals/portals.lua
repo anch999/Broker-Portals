@@ -62,6 +62,7 @@ local scrolls = {
 --{ stoneID, faction, expansionNum, factionlock }
 local stones = {
   Kalimdor = {
+    expansion = 1,
     header = "Kalimdor",
     { 777023, "Neutral", 1 }, -- Azshara
     { 777013, "Neutral", 1 }, -- Cenarion Hold
@@ -83,6 +84,7 @@ local stones = {
   },
 
   EasternKingdoms = {
+    expansion = 1,
     header = "Eastern Kingdoms",
     { 777008, "Neutral", 1 }, -- Booty Bay
     { 777025, "Neutral", 1 }, -- Blackrock Mountain
@@ -102,6 +104,7 @@ local stones = {
   },
 
   Outlands = {
+    expansion = 2,
     header = "Outlands",
     { 777017, "Neutral", 2 }, -- Area 52
     { 1175646, "Neutral", 2 }, -- Altar of Sha'tar
@@ -451,7 +454,7 @@ local function showStones(subMenu, spellCheck, noSpacer) --Kalimdor, true
     local sorted = {}
     headerSet = false
       for _,v in ipairs(stones[zone]) do
-					if (not PortalsDB.favorites[v[1]] or not PortalsDB.favorites[v[1]][1]) and not (v[4] and v[2] ~= fac ) and not (xpacLevel < v[3]) then --xpacLevel and locked cities check
+					if (not PortalsDB.favorites[v[1]] or not PortalsDB.favorites[v[1]][1]) and not (v[4] and v[2] ~= fac ) and (xpacLevel >= v[3]) then --xpacLevel and locked cities check
 						if PortalsDB.showEnemy or (v[2] == fac or v[2] == "Neutral") then --faction or showEnemy check
 							--returns on the first found stone to turn the menu on
               if spellCheck and IsSpellKnown(v[1]) then return true end
@@ -475,8 +478,10 @@ local function showStones(subMenu, spellCheck, noSpacer) --Kalimdor, true
 	end
 
 	if subMenu == "All" then
-		for continent, _ in pairs(stones) do
-			addTable(continent);
+		for continent, v in pairs(stones) do
+			if xpacLevel >= v.expansion then
+        addTable(continent);
+      end
 		end
 	else
 		return addTable(subMenu);
@@ -547,7 +552,7 @@ local function showFavorites()
     table.sort(sorted)
     for _,v in pairsByKeys(sorted) do
       --addFavorites(spellID 1, type 2, fac 3, factionLock 4, xpac 5, mage 6, isPortal 7, portalSpellID 8)
-      if not (v[4] and v[3] ~= fac ) and (not v[5] or not xpacLevel < v[5]) then --xpacLevel and locked cities check
+      if not (v[4] and v[3] ~= fac ) and (not v[5] or xpacLevel >= v[5]) then --xpacLevel and locked cities check
         if PortalsDB.showEnemy or (v[3] == fac or v[3] == "Neutral") or v[6] then --faction or showEnemy check
           if  (v[6] and not v[7] and IsSpellKnown(818045) and IsSpellKnown(v[1])) or
               (v[6] and v[7] and PortalsDB.showPortals and not PortalsDB.swapPortals and IsSpellKnown(818045) and IsSpellKnown(v[1]) and ((GetNumPartyMembers() > 0 or UnitInRaid("player")))) or
