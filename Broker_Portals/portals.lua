@@ -497,7 +497,7 @@ local function ShowScrolls()
   end
 
   if hasItem(sor[fac]) and (not PortalsDB.favorites[sor[fac]] or not PortalsDB.favorites[sor[fac]][1]) then
-    dewdropAdd(sor[fac], "item", fac)
+    dewdropAdd(sor[fac], "item", fac, true)
     i = i + 1
   end
 
