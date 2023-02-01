@@ -5,23 +5,7 @@ local icon = LibStub('LibDBIcon-1.0')
 
 local math_floor = math.floor
 
-local CreateFrame = CreateFrame
-local GetContainerItemCooldown = GetContainerItemCooldown
-local GetContainerItemLink = GetContainerItemLink
-local GetContainerNumSlots = GetContainerNumSlots
-local GetBindLocation = GetBindLocation
-local GetInventoryItemCooldown = GetInventoryItemCooldown
-local GetInventoryItemLink = GetInventoryItemLink
-local GetSpellCooldown = GetSpellCooldown
-local GetSpellInfo = GetSpellInfo
-local GetSpellName = GetSpellName
-local SendChatMessage = SendChatMessage
-local UnitInRaid = UnitInRaid
-local GetNumPartyMembers = GetNumPartyMembers
-
 local xpacLevel = GetAccountExpansionLevel() + 1;
-local xpaclist = { "CLASSIC", "TBC", "WRATH" };
-local expac = xpaclist[xpacLevel];
 
 local addonName, addonTable = ...
 local L = addonTable.L
@@ -75,67 +59,68 @@ local scrolls = {
 }
 
 -- Ascension: Stones of Retreat
+--{ stoneID, faction, expansionNum, factionlock }
 local stones = {
   Kalimdor = {
-    "Kalimdor",
-    { 777023, "Neutral", "Unlocked", 1 }, -- Azshara
-    { 777013, "Neutral", "Unlocked", 1 }, -- Cenarion Hold
-    { 777007, "Neutral", "Unlocked", 1 }, -- Everlook
-    { 777009, "Neutral", "Unlocked", 1 }, -- Gadgetzan
-    { 777026, "Neutral", "Unlocked", 1 }, -- Gates of Ahn'Quiraj
-    { 777012, "Neutral", "Unlocked", 1 }, -- Mudsprocket
-    { 777027, "Neutral", "Unlocked", 1 }, -- Onyxia's Lair
-    { 777010, "Neutral", "Unlocked", 1 }, -- Ratchet
-    { 1777025, "Neutral", "Unlocked", 1 }, -- Feathermoon Stronghold
-		{ 777015, "Alliance", "Locked", 1 }, -- The Exodar
-    { 777004 , "Alliance", "Unlocked", 1 }, -- Darnassus
-    { 1777044, "Alliance", "Unlocked", 1 }, -- Nijei's Point
-    { 777000 , "Horde", "Locked", 1 }, -- Orgrimmar
-    { 777002 , "Horde", "Unlocked", 1 }, -- Thunder Bluff
-    { 777021 , "Horde", "Unlocked", 1 }, -- Bloodvenom Post
-    { 1777024, "Horde", "Unlocked", 1 }, -- Camp Mojache
-    { 1777043, "Horde", "Unlocked", 1 }, -- Shadowprey Village
+    header = "Kalimdor",
+    { 777023, "Neutral", 1 }, -- Azshara
+    { 777013, "Neutral", 1 }, -- Cenarion Hold
+    { 777007, "Neutral", 1 }, -- Everlook
+    { 777009, "Neutral", 1 }, -- Gadgetzan
+    { 777026, "Neutral", 1 }, -- Gates of Ahn'Quiraj
+    { 777012, "Neutral", 1 }, -- Mudsprocket
+    { 777027, "Neutral", 1 }, -- Onyxia's Lair
+    { 777010, "Neutral", 1 }, -- Ratchet
+    { 1777025, "Neutral", 1 }, -- Feathermoon Stronghold
+		{ 777015, "Alliance", 1, true }, -- The Exodar
+    { 777004 , "Alliance", 1 }, -- Darnassus
+    { 1777044, "Alliance", 1 }, -- Nijei's Point
+    { 777000 , "Horde", 1, true }, -- Orgrimmar
+    { 777002 , "Horde", 1 }, -- Thunder Bluff
+    { 777021 , "Horde", 1 }, -- Bloodvenom Post
+    { 1777024, "Horde", 1 }, -- Camp Mojache
+    { 1777043, "Horde", 1 }, -- Shadowprey Village
   },
 
   EasternKingdoms = {
-    "Eastern Kingdoms",
-    { 777008, "Neutral", "Unlocked", 1 }, -- Booty Bay
-    { 777025, "Neutral", "Unlocked", 1 }, -- Blackrock Mountain
-    { 777020, "Neutral", "Unlocked", 1 }, -- Gurubashi Arena
-    { 777006, "Neutral", "Unlocked", 1 }, -- Light's Hope
-    { 777011, "Neutral", "Unlocked", 1 }, -- Thorium Point
-    { 1777023, "Neutral", "Unlocked", 1 }, -- Yojamba Isle
-    { 777024, "Neutral", "Unlocked", 1 }, -- Zul'Gurub
-    { 777003 , "Alliance", "Locked", 1 },-- Stormwind
-    { 777005 , "Alliance", "Unlocked", 1 },-- Ironforge
-    { 1777036, "Alliance", "Unlocked", 1 }, -- Aerie Peak
-    { 1777026, "Alliance", "Unlocked", 1 }, -- Nethergarde Keep
-		{ 777014, "Horde", "Locked", 1 }, -- Silvermoon City 
-    { 777001 , "Horde", "Unlocked", 1 }, -- Undercity
-    { 1777037, "Horde", "Unlocked", 1 }, -- Revantusk Village
-    { 1777027, "Horde", "Unlocked", 1 }, -- Stonard
+    header = "Eastern Kingdoms",
+    { 777008, "Neutral", 1 }, -- Booty Bay
+    { 777025, "Neutral", 1 }, -- Blackrock Mountain
+    { 777020, "Neutral", 1 }, -- Gurubashi Arena
+    { 777006, "Neutral", 1 }, -- Light's Hope
+    { 777011, "Neutral", 1 }, -- Thorium Point
+    { 1777023, "Neutral", 1 }, -- Yojamba Isle
+    { 777024, "Neutral", 1 }, -- Zul'Gurub
+    { 777003 , "Alliance", 1, true },-- Stormwind
+    { 777005 , "Alliance", 1 },-- Ironforge
+    { 1777036, "Alliance", 1 }, -- Aerie Peak
+    { 1777026, "Alliance", 1 }, -- Nethergarde Keep
+		{ 777014, "Horde", 1, true }, -- Silvermoon City 
+    { 777001 , "Horde", 1 }, -- Undercity
+    { 1777037, "Horde", 1 }, -- Revantusk Village
+    { 1777027, "Horde", 1 }, -- Stonard
   },
 
   Outlands = {
-    "Outlands",
-    { 777017, "Neutral", "Unlocked", 2 }, -- Area 52
-    { 1175646, "Neutral", "Unlocked", 2 }, -- Altar of Sha'tar
-    { 1175645, "Neutral", "Unlocked", 2 }, -- Sanctum of the Stars
-    { 102182, "Neutral", "Unlocked", 2 }, -- Cenarion Refuge
-    { 102186, "Neutral", "Unlocked", 2 }, -- Ogri'la
-    { 102196, "Neutral", "Unlocked", 2 }, -- Stormspire
-    { 102180, "Neutral", "Unlocked", 2 }, -- Cenarion Refuge
-    { 777016, "Neutral", "Unlocked", 2 }, -- Shattrath
-    { 102197, "Horde", "Unlocked", 2 }, -- Thrallmar
-    { 102189, "Horde", "Unlocked", 2 }, -- Shadowmoon Village
-    { 102184, "Horde", "Unlocked", 2 }, -- Garadar
-    { 102190, "Horde", "Unlocked", 2 }, -- Stonebreaker Hold
-    { 102201, "Horde", "Unlocked", 2 }, -- Zabra'jin
-    { 102185, "Alliance", "Unlocked", 2 }, -- Honor Hold
-    { 102193, "Alliance", "Unlocked", 2 }, -- Telaar
-    { 102178, "Alliance", "Unlocked", 2 }, -- Allerian Stronghold
-    { 102187, "Alliance", "Unlocked", 2 }, -- Orebor Harborage
-    { 102200, "Alliance", "Unlocked", 2 }, -- Wildhammer Stronghold
+    header = "Outlands",
+    { 777017, "Neutral", 2 }, -- Area 52
+    { 1175646, "Neutral", 2 }, -- Altar of Sha'tar
+    { 1175645, "Neutral", 2 }, -- Sanctum of the Stars
+    { 102182, "Neutral", 2 }, -- Cenarion Refuge
+    { 102186, "Neutral", 2 }, -- Ogri'la
+    { 102196, "Neutral", 2 }, -- Stormspire
+    { 102180, "Neutral", 2 }, -- Cenarion Refuge
+    { 777016, "Neutral", 2 }, -- Shattrath
+    { 102197, "Horde", 2 }, -- Thrallmar
+    { 102189, "Horde", 2 }, -- Shadowmoon Village
+    { 102184, "Horde", 2 }, -- Garadar
+    { 102190, "Horde", 2 }, -- Stonebreaker Hold
+    { 102201, "Horde", 2 }, -- Zabra'jin
+    { 102185, "Alliance", 2 }, -- Honor Hold
+    { 102193, "Alliance", 2 }, -- Telaar
+    { 102178, "Alliance", 2 }, -- Allerian Stronghold
+    { 102187, "Alliance", 2 }, -- Orebor Harborage
+    { 102200, "Alliance", 2 }, -- Wildhammer Stronghold
   }
 
 }
@@ -194,22 +179,6 @@ local function pairsByKeys(t)
     end
   end
   return iter
-end
-
-local function findSpell(spellName)
-  local i = 1
-  while true do
-    local s = GetSpellName(i, BOOKTYPE_SPELL)
-    if not s then
-      break
-    end
-
-    if s == spellName then
-      return i
-    end
-
-    i = i + 1
-  end
 end
 
 -- returns true, if player has item with given ID in inventory or bags and it's not on cooldown
@@ -274,7 +243,7 @@ local function SetupSpells()
   }
 
   local _, class = UnitClass('player')
-  if expac == "WRATH" then
+  if xpacLevel == 3 then
     tinsert(portals, { 53140 }) -- TP:Dalaran
     tinsert(portals, { 53142, true }) -- P:Dalaran
   end
@@ -304,19 +273,19 @@ local function SetupSpells()
   end
 end
 
-local function UpdateIcon(icon)
+local function updateIcon(icon)
   obj.icon = icon
 end
 
-local function addFavorites(spellID, icon, type, mage, isPortal, xpac, fac, portalSpellID)
+local function addFavorites(spellID, type, faction, factionLock, xpac, mage, isPortal, portalSpellID)
   if IsAltKeyDown() then
+    if not faction then faction = "Neutral" end
     if PortalsDB.favorites[spellID] and PortalsDB.favorites[spellID][1] then
-      PortalsDB.favorites[spellID] = {false, type, mage, isPortal, xpac, fac, portalSpellID}
+      PortalsDB.favorites[spellID] = {false}
     else
-      PortalsDB.favorites[spellID] = {true, type, mage, isPortal, xpac, fac, portalSpellID}
+      PortalsDB.favorites[spellID] = {true, type, faction, factionLock, xpac, mage, isPortal, portalSpellID}
     end
   end
-  UpdateIcon(icon)
 end
 
 local function setHeader(text, headerSet, noSpacer)
@@ -342,7 +311,15 @@ local function getCooldown(ID, text, type)
   end
 end
 
-local function dewdropAdd(ID, name, icon, type, mage, isPortal, xpac, fac)
+local function dewdropAdd(ID, type, faction, factionLock, xpac, mage, isPortal, swapPortal)
+  local name, icon
+  if type == "item" then
+    name, _, _, _, _, _, _, _, _, icon = GetItemInfo(ID)
+  elseif (PortalsDB.swapPortals and swapPortal and (GetNumPartyMembers() > 0 or UnitInRaid("player"))) then
+    name, _, icon = GetSpellInfo(swapPortal)
+  else
+    name, _, icon = GetSpellInfo(ID)
+  end
   local text = getCooldown(ID, name, type) or name
   local secure = {
     type1 = type,
@@ -352,9 +329,10 @@ local function dewdropAdd(ID, name, icon, type, mage, isPortal, xpac, fac)
     'text', text,
     'secure', secure,
     'icon', icon,
-    'func', function() addFavorites(ID, icon, secure.type1, mage, isPortal, xpac, fac) end,
+    'func', function() addFavorites(ID, secure.type1, faction, factionLock, xpac, mage, isPortal, swapPortal) end,
     'closeWhenClicked', true
   )
+  updateIcon(icon)
 end
 
 local function updateSpells()
@@ -363,19 +341,18 @@ local function updateSpells()
 
   if portals then
     for _, v in ipairs(portals) do
-      local spell, spellIcon, spellid
+      local spell, spellIcon, spellknown
       if (PortalsDB.swapPortals and v[3] and (GetNumPartyMembers() > 0 or UnitInRaid("player"))) then
         spell, _, spellIcon = GetSpellInfo(v[3])
-        spellid = findSpell(spell)
+        spellknown = IsSpellKnown(v[3])
       else
         spell, _, spellIcon = GetSpellInfo(v[1])
-        spellid = findSpell(spell)
+        spellknown = IsSpellKnown(v[1])
       end
 
-      if spellid and (not PortalsDB.favorites[v[1]] or not PortalsDB.favorites[v[1]][1]) then
+      if spellknown and (not PortalsDB.favorites[v[1]] or not PortalsDB.favorites[v[1]][1]) then
         if not v[2] or (v[2] and not PortalsDB.showPortals and not PortalsDB.swapPortals) or (PortalsDB.showPortals and v[2] and not PortalsDB.swapPortals) and (GetNumPartyMembers() > 0 or UnitInRaid("player")) then
           methods[spell] = {
-            spellid = spellid,
             spellID = v[1],
             text = spell,
             spellIcon = spellIcon,
@@ -444,14 +421,11 @@ end
 
 --Hearthstone items and spells
 local function ShowHearthstone()
-  local icon, name
-  local headerSet = false
-    
+  local headerSet = false 
   for _, itemID in ipairs(scrolls) do
     if hasItem(itemID) and (not PortalsDB.favorites[itemID] or not PortalsDB.favorites[itemID][1]) then
       headerSet = setHeader("Hearthstone: "..GetBindLocation(), headerSet)
-      name, _, _, _, _, _, _, _, _, icon = GetItemInfo(itemID)
-      dewdropAdd(itemID, name, icon, "item")
+      dewdropAdd(itemID, "item")
     end
   end
 
@@ -464,44 +438,34 @@ local function ShowHearthstone()
 
   if #runeRandom > 0 then
     local spellID = runeRandom[math.random(1, #runeRandom)]
-    local name, _, icon = GetSpellInfo(spellID)
-    if findSpell(name) then
-      dewdropAdd(spellID, name, icon, "spell")
+    if IsSpellKnown(spellID) then
+      dewdropAdd(spellID, "spell")
     end
   end
 end
 
 --Stones of retreat
 local function showStones(subMenu, spellCheck, noSpacer) --Kalimdor, true
-  local headerSet, header = false, ""
-
-  local function addStone(spellID, xpac)
-    local name, _, icon = GetSpellInfo(spellID)
-    if findSpell(name) and (not PortalsDB.favorites[spellID] or not PortalsDB.favorites[spellID][1]) then
-      headerSet = setHeader(header, headerSet, noSpacer)
-      dewdropAdd(spellID, name, icon, "spell", nil, nil, xpac, fac)
-    end
-  end
-
-  local function tableSort(zone, xpac)
+  local headerSet
+  local function tableSort(zone)
     local sorted = {}
+    headerSet = false
       for _,v in ipairs(stones[zone]) do
-        if type(v) == "string" then
-          headerSet = false
-          header = v 
-        elseif type(v) == "table" then
-					if not (v[3] == "Locked" and v[2] ~= fac ) and not (xpacLevel < v[4]) then --xpacLevel and locked cities check
+					if (not PortalsDB.favorites[v[1]] or not PortalsDB.favorites[v[1]][1]) and not (v[4] and v[2] ~= fac ) and not (xpacLevel < v[3]) then --xpacLevel and locked cities check
 						if PortalsDB.showEnemy or (v[2] == fac or v[2] == "Neutral") then --faction or showEnemy check
-							local name = GetSpellInfo(v[1])
-							if spellCheck and findSpell(name) then return true end
-							if findSpell(name) then sorted[name] = v[1] end
+							--returns on the first found stone to turn the menu on
+              if spellCheck and IsSpellKnown(v[1]) then return true end
+							if IsSpellKnown(v[1]) then
+                local name = GetSpellInfo(v[1])
+                sorted[name] = {v[1], v[2], v[4], v[3]}
+              end
 						end
 					end
-        end
       end
       table.sort(sorted)
       for _,v in pairsByKeys(sorted) do
-        addStone(v, xpac)
+        headerSet = setHeader(stones[zone].header, headerSet, noSpacer)
+        dewdropAdd(v[1], "spell", v[2], v[3])
       end
   end
 	
@@ -524,18 +488,16 @@ local function ShowScrolls()
   local i = 0
   local headerSet = false
 
-  for n,spellID in ipairs(sod) do
-    local name, _, icon = GetSpellInfo(spellID)
-    if findSpell(name) and (not PortalsDB.favorites[spellID] or not PortalsDB.favorites[spellID][1]) then
+  for _,spellID in ipairs(sod) do
+    if IsSpellKnown(spellID) and (not PortalsDB.favorites[spellID] or not PortalsDB.favorites[spellID][1]) then
       headerSet = setHeader("Scrolls Of Defense", headerSet)
-      dewdropAdd(spellID, name, icon, "spell")
+      dewdropAdd(spellID, "spell")
       i = i + 1
     end
   end
 
   if hasItem(sor[fac]) and (not PortalsDB.favorites[sor[fac]] or not PortalsDB.favorites[sor[fac]][1]) then
-    local name, _, _, _, _, _, _, _, _, icon = GetItemInfo(sor[fac])
-    dewdropAdd(sor[fac], name, icon, "item")
+    dewdropAdd(sor[fac], "item", fac)
     i = i + 1
   end
 
@@ -544,12 +506,10 @@ end
 
 local function ShowOtherItems()
   local i = 0
-  local secure, icon, name
 
   for _, itemID in ipairs(items) do
     if hasItem(itemID) and (not PortalsDB.favorites[itemID] or not PortalsDB.favorites[itemID][1]) then
-      name, _, _, _, _, _, _, _, _, icon = GetItemInfo(itemID)
-      dewdropAdd(itemID, name, icon, "item")
+      dewdropAdd(itemID, "item")
       i = i + 1
     end
   end
@@ -570,24 +530,6 @@ end
 local function showFavorites()
   if PortalsDB.favorites then
     local headerSet = false
-
-    local function addStone(ID, type, mage, isPortal, swapPortal)
-      local name, icon
-      if type == "item" then
-        name, _, _, _, _, _, _, _, _, icon = GetItemInfo(ID)
-      elseif (PortalsDB.swapPortals and swapPortal and (GetNumPartyMembers() > 0 or UnitInRaid("player"))) then
-        name, _, icon = GetSpellInfo(swapPortal)
-      else
-        name, _, icon = GetSpellInfo(ID)
-      end
-      if (mage and not isPortal and IsSpellKnown(818045) and findSpell(name)) or
-      (mage and isPortal and PortalsDB.showPortals and not PortalsDB.swapPortals and IsSpellKnown(818045) and findSpell(name) and ((GetNumPartyMembers() > 0 or UnitInRaid("player")))) or
-       (not mage and findSpell(name)) or hasItem(ID) then
-        headerSet = setHeader("Favorites", headerSet)
-        dewdropAdd(ID, name, icon, type)
-      end
-    end
-
     local sorted = {}
     for ID ,v in pairs(PortalsDB.favorites) do
       if v[1] then
@@ -597,15 +539,23 @@ local function showFavorites()
         else
           name = GetSpellInfo(ID)
         end
-        if findSpell(name) or hasItem(ID) then
-          sorted[name] = {ID, v[2], v[3], v[4], v[5], v[6], v[7]}
+        if IsSpellKnown(ID) or hasItem(ID) then
+          sorted[name] = {ID, v[2], v[3], v[4], v[5], v[6], v[7], v[8]}
         end
       end
     end
     table.sort(sorted)
     for _,v in pairsByKeys(sorted) do
-      if (not v[5] and not v[6]) or (v[5] == expac and v[6] == fac) or v[6] == fac or v[5] == expac then
-        addStone(v[1], v[2], v[3], nil, v[7])
+      --addFavorites(spellID 1, type 2, fac 3, factionLock 4, xpac 5, mage 6, isPortal 7, portalSpellID 8)
+      if not (v[4] and v[3] ~= fac ) and (not v[5] or not xpacLevel < v[5]) then --xpacLevel and locked cities check
+        if PortalsDB.showEnemy or (v[3] == fac or v[3] == "Neutral") or v[6] then --faction or showEnemy check
+          if  (v[6] and not v[7] and IsSpellKnown(818045) and IsSpellKnown(v[1])) or
+              (v[6] and v[7] and PortalsDB.showPortals and not PortalsDB.swapPortals and IsSpellKnown(818045) and IsSpellKnown(v[1]) and ((GetNumPartyMembers() > 0 or UnitInRaid("player")))) or
+              (not v[6] and IsSpellKnown(v[1])) or hasItem(v[1]) then
+                headerSet = setHeader("Favorites", headerSet)
+                dewdropAdd(v[1], v[2], v[3], v[4], v[5], v[6], v[7], v[8])
+          end
+        end
       end
     end
   end
@@ -663,10 +613,11 @@ local function UpdateMenu(level, value)
           'secure', v.secure,
           'icon', v.spellIcon,
           'func', function()
-            addFavorites(v.spellID, v.spellIcon, v.secure.type1, true, v.isPortal, nil, nil, v.portalSpellID)
+            addFavorites(v.spellID, v.secure.type1, nil, nil, nil, true, v.isPortal, v.portalSpellID)
             if v.isPortal and chatType and PortalsDB.announce then
               SendChatMessage(L['ANNOUNCEMENT'] .. ' ' .. v.text, chatType)
             end
+            updateIcon(v.spellIcon)
           end,
           'closeWhenClicked', true
         )
