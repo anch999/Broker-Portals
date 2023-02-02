@@ -151,13 +151,11 @@ local sor = {
 }
 
 
-obj = LibStub:GetLibrary('LibDataBroker-1.1'):NewDataObject(addonName, {
+local obj = LibStub:GetLibrary('LibDataBroker-1.1'):NewDataObject(addonName, {
   type = 'data source',
   text = L['P'],
   icon = 'Interface\\Icons\\INV_Misc_Rune_06',
 })
-local obj = obj
-local methods = {}
 local portals = {}
 local frame = CreateFrame('frame')
 
@@ -352,7 +350,7 @@ end
 --shows class teleports/portals
 local function showClassSpells()
   SetupSpells()
-  methods = {}
+  local methods = {}
   local headerSet = false
   if portals then
     for _, v in ipairs(portals) do
