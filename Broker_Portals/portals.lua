@@ -743,7 +743,8 @@ function frame:PLAYER_LOGIN()
   if not PortalsDB.announceType then PortalsDB.announceType = 'PARTYRAID' end
   if not PortalsDB.showPortals then PortalsDB.showPortals = false end
 	if not PortalsDB.showEnemy then PortalsDB.showEnemy = false end
-  if not PortalsDB.favorites then PortalsDB.favorites = {Default = {}} end
+  if not PortalsDB.favorites then PortalsDB.favorites = {} end
+  if not PortalsDB.favorites.Default then PortalsDB.favorites.Default = {} end
   if not PortalsDB.setProfile then PortalsDB.setProfile = {} end
   if not PortalsDB.setProfile[GetRealmName()] then PortalsDB.setProfile[GetRealmName()] = {} end
   if not PortalsDB.setProfile[GetRealmName()][UnitName("player")] then PortalsDB.setProfile[GetRealmName()][UnitName("player")] = "Default" end
