@@ -10,7 +10,7 @@ local xpacLevel = GetAccountExpansionLevel() + 1;
 local addonName, addonTable = ...
 local L = addonTable.L
 local fac = UnitFactionGroup('player')
-local favoritesdb
+local favoritesdb, activeProfile
 
 -- IDs of items usable for transportation
 local items = {
@@ -665,25 +665,69 @@ local function UpdateMenu(level, value)
       'func', function() PortalsDB.showEnemy = not PortalsDB.showEnemy end,
       'closeWhenClicked', true
     )
-  elseif level == 3 and value == 'announce' then
     dewdrop:AddLine(
-      'text', 'Say',
-      'checked', PortalsDB.announceType == 'SAY',
-      'func', function() PortalsDB.announceType = 'SAY' end,
-      'closeWhenClicked', true
-    )
-    dewdrop:AddLine(
-      'text', '|cffff0000Yell|r',
-      'checked', PortalsDB.announceType == 'YELL',
-      'func', function() PortalsDB.announceType = 'YELL' end,
-      'closeWhenClicked', true
-    )
-    dewdrop:AddLine(
-      'text', '|cff00ffffParty|r/|cffff7f00Raid',
-      'checked', PortalsDB.announceType == 'PARTYRAID',
-      'func', function() PortalsDB.announceType = 'PARTYRAID' end,
-      'closeWhenClicked', true
-    )
+        'text', "Favorites Profiles",
+        'hasArrow', true,
+        'value', "profile"
+      )
+  elseif level == 3 then 
+    if value == 'announce' then
+      dewdrop:AddLine(
+        'text', 'Say',
+        'checked', PortalsDB.announceType == 'SAY',
+        'func', function() PortalsDB.announceType = 'SAY' end,
+        'closeWhenClicked', true
+      )
+      dewdrop:AddLine(
+        'text', '|cffff0000Yell|r',
+        'checked', PortalsDB.announceType == 'YELL',
+        'func', function() PortalsDB.announceType = 'YELL' end,
+        'closeWhenClicked', true
+      )
+      dewdrop:AddLine(
+        'text', '|cff00ffffParty|r/|cffff7f00Raid',
+        'checked', PortalsDB.announceType == 'PARTYRAID',
+        'func', function() PortalsDB.announceType = 'PARTYRAID' end,
+        'closeWhenClicked', true
+      )
+    elseif value == "profile" then
+      local checked = false
+      if activeProfile == "Default" then checked = true end
+      dewdrop:AddLine(
+            'text', "Default",
+            'checked', checked,
+            'func', function()
+                activeProfile = "Default"
+                favoritesdb = PortalsDB.favorites[activeProfile]
+            end,
+            'closeWhenClicked', true
+          )
+      for profile, _ in pairs(PortalsDB.favorites) do
+        local checked = false
+        if profile ~= "Default" then
+          if profile == activeProfile then checked = true end
+          dewdrop:AddLine(
+            'text', profile,
+            'checked', checked,
+            'func', function()
+              if IsAltKeyDown() then
+                StaticPopupDialogs.BROKER_PORTALS_DELETE_PROFILE.profile = profile
+                StaticPopup_Show("BROKER_PORTALS_DELETE_PROFILE")
+              else
+                activeProfile = profile
+                favoritesdb = PortalsDB.favorites[activeProfile]
+              end
+            end,
+            'closeWhenClicked', true
+          )
+        end
+      end
+        dewdrop:AddLine(
+        'text', "Add Profile",
+        'func', function() StaticPopup_Show("BROKER_PORTALS_ADD_PROFILE") end,
+        'closeWhenClicked', true
+        )
+    end
   end
 end
 
@@ -699,9 +743,16 @@ function frame:PLAYER_LOGIN()
   if not PortalsDB.announceType then PortalsDB.announceType = 'PARTYRAID' end
   if not PortalsDB.showPortals then PortalsDB.showPortals = false end
 	if not PortalsDB.showEnemy then PortalsDB.showEnemy = false end
-  if not PortalsDB.favorites then PortalsDB.favorites = {} end
-  if not PortalsDB.favorites[GetRealmName()] then PortalsDB.favorites[GetRealmName()] = {} end
-  favoritesdb = PortalsDB.favorites[GetRealmName()]
+  if not PortalsDB.favorites then PortalsDB.favorites = {Default = {}} end
+  if not PortalsDB.setProfile then PortalsDB.setProfile = {} end
+  if not PortalsDB.setProfile[GetRealmName()] then PortalsDB.setProfile[GetRealmName()] = {} end
+  if not PortalsDB.setProfile[GetRealmName()][UnitName("player")] then PortalsDB.setProfile[GetRealmName()][UnitName("player")] = "Default" end
+  activeProfile = PortalsDB.setProfile[GetRealmName()][UnitName("player")]
+  if not PortalsDB.favorites[activeProfile] then
+    PortalsDB.setProfile[GetRealmName()][UnitName("player")] = "Default"
+    activeProfile = "Default"
+  end
+  favoritesdb = PortalsDB.favorites[activeProfile] or PortalsDB.favorites["Default"]
   if icon then
     icon:Register('Broker_Portals', obj, PortalsDB.minimap)
   end
@@ -756,3 +807,46 @@ end
 -- slashcommand definition
 SlashCmdList['BROKER_PORTALS'] = function() ToggleMinimap() end
 SLASH_BROKER_PORTALS1 = '/portals'
+
+StaticPopupDialogs["BROKER_PORTALS_ADD_PROFILE"] = {
+  text = "Add New Profile",
+  button1 = "Confirm",
+  button2 = "Cancel",
+  hasEditBox = true,
+  OnShow = function(self)
+  self:SetFrameStrata("TOOLTIP");
+end,
+  OnAccept = function (self)
+      local text = self.editBox:GetText()
+      if text ~= "" then
+        PortalsDB.favorites[text] = {}
+      end
+  end,
+  timeout = 0,
+  whileDead = true,
+  hideOnEscape = true,
+  preferredIndex = 3,
+  enterClicksFirstButton = true,
+}
+
+StaticPopupDialogs["BROKER_PORTALS_DELETE_PROFILE"] = {
+  text = "Delete Profile?",
+  button1 = "Confirm",
+  button2 = "Cancel",
+  OnShow = function(self)
+  self:SetFrameStrata("TOOLTIP");
+  end,
+  OnAccept = function (self)
+    local profile = StaticPopupDialogs.BROKER_PORTALS_DELETE_PROFILE.profile
+    if activeProfile == profile then
+      activeProfile = "Default"
+      favoritesdb = PortalsDB.favorites[activeProfile]
+    end
+    PortalsDB.favorites[profile] = nil
+  end,
+  timeout = 0,
+  whileDead = true,
+  hideOnEscape = true,
+  preferredIndex = 3,
+  enterClicksFirstButton = true,
+}
