@@ -820,6 +820,8 @@ end,
       local text = self.editBox:GetText()
       if text ~= "" then
         PortalsDB.favorites[text] = {}
+        activeProfile = text
+        favoritesdb = PortalsDB.favorites[activeProfile]
       end
   end,
   timeout = 0,
