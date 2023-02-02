@@ -275,10 +275,7 @@ local function SetupSpells()
   end
 end
 
-local function updateIcon(icon)
-  obj.icon = icon
-end
-
+--used to add items or spells to the favorites
 local function addFavorites(spellID, type, faction, factionLock, xpac, mage, isPortal, portalSpellID)
   if IsAltKeyDown() then
     if not faction then faction = "Neutral" end
@@ -290,6 +287,7 @@ local function addFavorites(spellID, type, faction, factionLock, xpac, mage, isP
   end
 end
 
+--set group headers with or withou spaces
 local function setHeader(text, headerSet, noSpacer)
   if headerSet then return true end
   if not noSpacer then dewdrop:AddLine() end
@@ -300,6 +298,7 @@ local function setHeader(text, headerSet, noSpacer)
   return true
 end
 
+--get item/spell cooldown
 local function getCooldown(ID, text, type)
   local startTime, duration
   if type == "item" then
@@ -313,8 +312,15 @@ local function getCooldown(ID, text, type)
   end
 end
 
+--main function used to add any items or spells to the drop down list
 local function dewdropAdd(ID, type, faction, factionLock, xpac, mage, isPortal, swapPortal)
+  local chatType = PortalsDB.announceType
   local name, icon
+
+  if isPortal and PortalsDB.announceType == "PARTYRAID" then
+    chatType = (UnitInRaid("player") and "RAID") or (GetNumPartyMembers() > 0 and "PARTY")
+  end
+
   if type == "item" then
     name, _, _, _, _, _, _, _, _, icon = GetItemInfo(ID)
   elseif (PortalsDB.swapPortals and swapPortal and (GetNumPartyMembers() > 0 or UnitInRaid("player"))) then
@@ -322,6 +328,7 @@ local function dewdropAdd(ID, type, faction, factionLock, xpac, mage, isPortal, 
   else
     name, _, icon = GetSpellInfo(ID)
   end
+
   local text = getCooldown(ID, name, type) or name
   local secure = {
     type1 = type,
@@ -333,47 +340,40 @@ local function dewdropAdd(ID, type, faction, factionLock, xpac, mage, isPortal, 
     'icon', icon,
     'func', function() 
       addFavorites(ID, secure.type1, faction, factionLock, xpac, mage, isPortal, swapPortal)
-      updateIcon(icon)
+      if isPortal and chatType and PortalsDB.announce then
+        SendChatMessage(L['ANNOUNCEMENT'] .. ' ' .. name, chatType)
+      end
+      obj.icon = icon
     end,
     'closeWhenClicked', true
   )
 end
 
-local function updateSpells()
+--shows class teleports/portals
+local function showClassSpells()
   SetupSpells()
-  local i = 0
-
+  methods = {}
+  local headerSet = false
   if portals then
     for _, v in ipairs(portals) do
-      local spell, spellIcon, spellknown
-      if (PortalsDB.swapPortals and v[3] and (GetNumPartyMembers() > 0 or UnitInRaid("player"))) then
-        spell, _, spellIcon = GetSpellInfo(v[3])
-        spellknown = IsSpellKnown(v[3])
-      else
-        spell, _, spellIcon = GetSpellInfo(v[1])
-        spellknown = IsSpellKnown(v[1])
-      end
-
-      if spellknown and (not favoritesdb[v[1]] or not favoritesdb[v[1]][1]) then
+      if IsSpellKnown(818045) and IsSpellKnown(v[1]) and (not favoritesdb[v[1]] or not favoritesdb[v[1]][1]) then
         if not v[2] or (v[2] and not PortalsDB.showPortals and not PortalsDB.swapPortals) or (PortalsDB.showPortals and v[2] and not PortalsDB.swapPortals) and (GetNumPartyMembers() > 0 or UnitInRaid("player")) then
-          methods[spell] = {
+          headerSet = setHeader("Mage Portals", headerSet)
+          local name = GetSpellInfo(v[1])
+          methods[name] = {
             spellID = v[1],
-            text = spell,
-            spellIcon = spellIcon,
             isPortal = v[2],
             portalSpellID = v[3],
-            secure = {
-              type1 = 'spell',
-              spell = spell
-            }
           }
-          i = i + 1
         end
       end
     end
   end
-
-  return i
+  for _, v in pairsByKeys(methods) do
+    if (not favoritesdb[v.spellID] or not favoritesdb[v.spellID][1]) then
+      dewdropAdd(v.spellID, "spell", nil, nil, nil, true, v.isPortal, v.portalSpellID)
+    end
+  end
 end
 
 local function GetHearthCooldown()
@@ -450,10 +450,10 @@ end
 
 --Stones of retreat
 local function showStones(subMenu, spellCheck, noSpacer) --Kalimdor, true
-  local headerSet
+
   local function tableSort(zone)
     local sorted = {}
-    headerSet = false
+    local headerSet = false
       for _,v in ipairs(stones[zone]) do
 					if (not favoritesdb[v[1]] or not favoritesdb[v[1]][1]) and not (v[4] and v[2] ~= fac ) and (xpacLevel >= v[3]) then --xpacLevel and locked cities check
 						if PortalsDB.showEnemy or (v[2] == fac or v[2] == "Neutral") then --faction or showEnemy check
@@ -489,37 +489,28 @@ local function showStones(subMenu, spellCheck, noSpacer) --Kalimdor, true
 	end
 end
 
+--scrolls of defense and scrolls of retreat
 local function ShowScrolls()
-  local i = 0
   local headerSet = false
-
   for _,spellID in ipairs(sod) do
     if IsSpellKnown(spellID) and (not favoritesdb[spellID] or not favoritesdb[spellID][1]) then
       headerSet = setHeader("Scrolls Of Defense", headerSet)
       dewdropAdd(spellID, "spell")
-      i = i + 1
     end
   end
 
   if hasItem(sor[fac]) and (not favoritesdb[sor[fac]] or not favoritesdb[sor[fac]][1]) then
     dewdropAdd(sor[fac], "item", fac, true)
-    i = i + 1
   end
-
-  return i
 end
 
+--other items things like Engineering teleport trinkets
 local function ShowOtherItems()
-  local i = 0
-
   for _, itemID in ipairs(items) do
     if hasItem(itemID) and (not favoritesdb[itemID] or not favoritesdb[itemID][1]) then
       dewdropAdd(itemID, "item")
-      i = i + 1
     end
   end
-
-  return i
 end
 
 local function ToggleMinimap()
@@ -532,6 +523,7 @@ local function ToggleMinimap()
   end
 end
 
+--show favorites at the top if there are any added to it
 local function showFavorites()
   if favoritesdb then
     local headerSet = false
@@ -568,10 +560,6 @@ end
 
 local function UpdateMenu(level, value)
   if level == 1 then
-    local chatType = PortalsDB.announceType
-    if PortalsDB.announceType == "PARTYRAID" then
-      chatType = (UnitInRaid("player") and "RAID") or (GetNumPartyMembers() > 0 and "PARTY")
-    end
     dewdrop:AddLine(
       'text', 'Broker_Portals',
       'isTitle', true
@@ -580,18 +568,10 @@ local function UpdateMenu(level, value)
 
     if PortalsDB.stonesSubMenu then
       local mainHeaderSet = false
-      --set main header if player knows any stones
-      if not mainHeaderSet then
-        dewdrop:AddLine()
-        dewdrop:AddLine(
-          'text', "Stones Of Retreat",
-          'isTitle', true
-        )
-        mainHeaderSet = true
-      end
       --Adds menu if any stone in that category has been learned
 			for continent, _ in pairs(stones) do
 				if showStones(continent, true) then
+        mainHeaderSet = setHeader("Stones Of Retreat", mainHeaderSet)
         dewdrop:AddLine(
         'text', continent,
         'hasArrow', true,
@@ -603,31 +583,7 @@ local function UpdateMenu(level, value)
       showStones("All")
     end
 
-    methods = {}
-    if updateSpells() > 0 then
-      dewdrop:AddLine()
-      dewdrop:AddLine(
-      'text', 'Mage Portals',
-      'isTitle', true
-    )
-    for _, v in pairsByKeys(methods) do
-      if v.secure and GetSpellCooldown(v.text) == 0 and (not favoritesdb[v.spellID] or not favoritesdb[v.spellID][1]) then
-        dewdrop:AddLine(
-          'text', v.text,
-          'secure', v.secure,
-          'icon', v.spellIcon,
-          'func', function()
-            addFavorites(v.spellID, v.secure.type1, nil, nil, nil, true, v.isPortal, v.portalSpellID)
-            if v.isPortal and chatType and PortalsDB.announce then
-              SendChatMessage(L['ANNOUNCEMENT'] .. ' ' .. v.text, chatType)
-            end
-            updateIcon(v.spellIcon)
-          end,
-          'closeWhenClicked', true
-        )
-      end
-    end
-    end
+    showClassSpells()
 
     ShowHearthstone()
 
