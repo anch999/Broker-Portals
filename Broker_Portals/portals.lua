@@ -243,21 +243,20 @@ local function SetupSpells()
   }
 
   local _, class = UnitClass('player')
-  if xpacLevel == 3 then
-    tinsert(portals, { 53140 }) -- TP:Dalaran
-    tinsert(portals, { 53142, true }) -- P:Dalaran
-  end
   if class == 'HERO' then
     if IsSpellKnown(818045) then
       portals = spells[fac]
+      tinsert(portals, { 53140, false, 53142 }) -- TP:Dalaran
+      tinsert(portals, { 53142, true }) -- P:Dalaran
     else
       portals = {};
     end
     tinsert(portals, { 18960 }) -- TP:Moonglade
     tinsert(portals, { 556 }) -- Astral Recall
-  end
-  if class == 'MAGE' then
+  elseif class == 'MAGE' then
     portals = spells[fac]
+    tinsert(portals, { 53140, false, 53142 }) -- TP:Dalaran
+    tinsert(portals, { 53142, true }) -- P:Dalaran
   elseif class == 'DEATHKNIGHT' then
     portals = {
       { 50977 } -- Death Gate
@@ -336,7 +335,8 @@ local function dewdropAdd(ID, type, faction, factionLock, xpac, mage, isPortal, 
     'text', text,
     'secure', secure,
     'icon', icon,
-    'func', function() 
+    'tooltipText',"Alt click to add/remove favorites",
+    'func', function()
       addFavorites(ID, secure.type1, faction, factionLock, xpac, mage, isPortal, swapPortal)
       if isPortal and chatType and PortalsDB.announce then
         SendChatMessage(L['ANNOUNCEMENT'] .. ' ' .. name, chatType)
@@ -696,6 +696,7 @@ local function UpdateMenu(level, value)
       dewdrop:AddLine(
             'text', "Default",
             'checked', checked,
+            'tooltipText',"Default can not be removed.",
             'func', function()
                 activeProfile = "Default"
                 favoritesdb = PortalsDB.favorites[activeProfile]
@@ -709,6 +710,7 @@ local function UpdateMenu(level, value)
           dewdrop:AddLine(
             'text', profile,
             'checked', checked,
+            'tooltipText',"Alt click to remove.",
             'func', function()
               if IsAltKeyDown() then
                 StaticPopupDialogs.BROKER_PORTALS_DELETE_PROFILE.profile = profile
