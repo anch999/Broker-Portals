@@ -270,7 +270,6 @@ local function SetupSpells()
       { 556 }
     }
   end
-end
 
 --used to add items or spells to the favorites
 local function addFavorites(spellID, type, faction, factionLock, xpac, mage, isPortal, portalSpellID)
@@ -303,9 +302,7 @@ local function getCooldown(ID, text, type)
   else
     startTime, duration = GetSpellCooldown(text)
   end
-  local cooldown = math.ceil(((duration - (GetTime() - startTime))/60))
-  if cooldown > 0 then
-    return text.." |cFF00FFFF("..cooldown.." ".. L['MIN'] .. ")"
+  
   end
 end
 
