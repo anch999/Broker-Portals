@@ -1,15 +1,12 @@
 ## Interface: 30300
 ## Title: Broker - |cffffffffPortals|r
-## Notes: Provides access to all Portal and Teleport spells on right click of one button.
-## Author: CrazyBenny of Stormrage-EU
-## X-Email: s_m AT centrum DOT cz
-## LastUpdate: 2010-10-07T17:48:31Z
-## Version: 1.8.10
+## Notes: Provides access to all Portal/Teleport spells and Ascension Stones of Retreats on right click of one button. Alt click any spell to add it to favorites. Alt click favorites to remove.
+## Author: Ascension: Anch/Mattibalize/Neumie (Orginal: CrazyBenny of Stormrage-EU)
+## LastUpdate: 07-02-2023
+## Version: 1.4.0
 ## OptionalDeps: LibDBIcon-1.0
-## X-Curse-Packaged-Version: 1.8.10
-## X-Curse-Project-Name: Broker_Portals
-## X-Curse-Project-ID: broker-portals
-## X-Curse-Repository-ID: wow/broker-portals/mainline
+## X-Discord: https://discord.gg/bgsqskycPd
+## X-Github-Repository: https://github.com/Ascension-Addons/Broker-Portals
 
 ## SavedVariables: PortalsDB
 
