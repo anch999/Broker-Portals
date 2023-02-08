@@ -270,6 +270,7 @@ local function SetupSpells()
       { 556 }
     }
   end
+end
 
 --used to add items or spells to the favorites
 local function addFavorites(spellID, type, faction, factionLock, xpac, mage, isPortal, portalSpellID)
@@ -283,7 +284,7 @@ local function addFavorites(spellID, type, faction, factionLock, xpac, mage, isP
   end
 end
 
---set group headers with or withou spaces
+--set group headers with or without spacers
 local function setHeader(text, headerSet, noSpacer)
   if headerSet then return true end
   if not noSpacer then dewdrop:AddLine() end
@@ -302,7 +303,9 @@ local function getCooldown(ID, text, type)
   else
     startTime, duration = GetSpellCooldown(text)
   end
-  
+  local cooldown = math.ceil(((duration - (GetTime() - startTime))/60))
+  if cooldown > 0 then
+    return text.." |cFF00FFFF("..cooldown.." ".. L['MIN'] .. ")"
   end
 end
 
