@@ -138,6 +138,10 @@ local runes = {
   979810 -- Holy Rune
 }
 
+local hearthspells = {
+  556, -- Astral Recall 
+}
+
 -- Ascension: Scrolls of Defense
 local sod = {
   83126, -- Ashenvale
@@ -148,6 +152,12 @@ local sod = {
 local sor = {
   Horde = 1175627, -- Orgrimmar
   Alliance = 1175626 -- Stormwind
+}
+
+local otherportals = {
+  28148, -- P:Karazhan
+  18960, -- TP:Moonglade
+  50977, -- Death Gate
 }
 
 
@@ -251,8 +261,6 @@ local function SetupSpells()
     else
       portals = {};
     end
-    tinsert(portals, { 18960 }) -- TP:Moonglade
-    tinsert(portals, { 556 }) -- Astral Recall
   elseif class == 'MAGE' then
     portals = spells[fac]
     tinsert(portals, { 53140, false, 53142 }) -- TP:Dalaran
@@ -444,6 +452,12 @@ local function ShowHearthstone()
       dewdropAdd(spellID, "spell")
     end
   end
+
+  for _,spellID in ipairs(hearthspells) do
+    if IsSpellKnown(spellID) and (not favoritesdb[spellID] or not favoritesdb[spellID][1]) then
+      dewdropAdd(spellID, "spell")
+    end
+  end
 end
 
 --Stones of retreat
@@ -504,9 +518,21 @@ end
 
 --other items things like Engineering teleport trinkets
 local function ShowOtherItems()
+  local headerSet = false
   for _, itemID in ipairs(items) do
     if hasItem(itemID) and (not favoritesdb[itemID] or not favoritesdb[itemID][1]) then
+      headerSet = setHeader("Other Items", headerSet)
       dewdropAdd(itemID, "item")
+    end
+  end
+end
+
+local function ShowOtherPorts()
+  local headerSet = false
+  for _,spellID in ipairs(otherportals) do
+    if IsSpellKnown(spellID) and (not favoritesdb[spellID] or not favoritesdb[spellID][1]) then
+      headerSet = setHeader("Other Teleports/Portals", headerSet)
+      dewdropAdd(spellID, "spell")
     end
   end
 end
@@ -584,6 +610,8 @@ local function UpdateMenu(level, value)
     showClassSpells()
 
     ShowHearthstone()
+
+    ShowOtherPorts()
 
     if PortalsDB.showItems then
       ShowScrolls()
@@ -790,6 +818,7 @@ function obj.OnEnter(self)
 
   GameTooltip:AddLine('Broker Portals')
   GameTooltip:AddDoubleLine(L['RCLICK'], L['SEE_SPELLS'], 0.9, 0.6, 0.2, 0.2, 1, 0.2)
+  GameTooltip:AddDoubleLine(L['ALTCLICK'], L['MOVE_SPELLS'], 0.9, 0.6, 0.2, 0.2, 1, 0.2)
   GameTooltip:AddLine(' ')
   GameTooltip:AddDoubleLine(L['HEARTHSTONE'] .. ': ' .. GetBindLocation(), GetHearthCooldown(), 0.9, 0.6, 0.2, 0.2, 1,
     0.2)
