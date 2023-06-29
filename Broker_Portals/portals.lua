@@ -254,7 +254,7 @@ local function SetupSpells()
 
   local _, class = UnitClass('player')
   if class == 'HERO' then
-    if IsSpellKnown(818045) then
+    if CA_IsSpellKnown(818045) then
       portals = spells[fac]
       tinsert(portals, { 53140, false, 53142 }) -- TP:Dalaran
       tinsert(portals, { 53142, true }) -- P:Dalaran
@@ -362,7 +362,7 @@ local function showClassSpells()
   local headerSet = false
   if portals then
     for _, v in ipairs(portals) do
-      if IsSpellKnown(818045) and IsSpellKnown(v[1]) and (not favoritesdb[v[1]] or not favoritesdb[v[1]][1]) then
+      if CA_IsSpellKnown(818045) and IsSpellKnown(v[1]) and (not favoritesdb[v[1]] or not favoritesdb[v[1]][1]) then
         if not v[2] or (v[2] and not PortalsDB.showPortals and not PortalsDB.swapPortals) or (PortalsDB.showPortals and v[2] and not PortalsDB.swapPortals) and (GetNumPartyMembers() > 0 or UnitInRaid("player")) then
           headerSet = setHeader("Mage Portals", headerSet)
           local name = GetSpellInfo(v[1])
@@ -570,8 +570,8 @@ local function showFavorites()
       --addFavorites(spellID 1, type 2, fac 3, factionLock 4, xpac 5, mage 6, isPortal 7, portalSpellID 8)
       if not (v[4] and v[3] ~= fac ) and (not v[5] or xpacLevel >= v[5]) then --xpacLevel and locked cities check
         if PortalsDB.showEnemy or (v[3] == fac or v[3] == "Neutral") or v[6] then --faction or showEnemy check
-          if  (v[6] and not v[7] and IsSpellKnown(818045) and IsSpellKnown(v[1])) or
-              (v[6] and v[7] and PortalsDB.showPortals and not PortalsDB.swapPortals and IsSpellKnown(818045) and IsSpellKnown(v[1]) and ((GetNumPartyMembers() > 0 or UnitInRaid("player")))) or
+          if  (v[6] and not v[7] and CA_IsSpellKnown(818045) and IsSpellKnown(v[1])) or
+              (v[6] and v[7] and PortalsDB.showPortals and not PortalsDB.swapPortals and CA_IsSpellKnown(818045) and IsSpellKnown(v[1]) and ((GetNumPartyMembers() > 0 or UnitInRaid("player")))) or
               (not v[6] and IsSpellKnown(v[1])) or hasItem(v[1]) then
                 headerSet = setHeader("Favorites", headerSet)
                 dewdropAdd(v[1], v[2], v[3], v[4], v[5], v[6], v[7], v[8])
