@@ -64,71 +64,132 @@ local stones = {
   Kalimdor = {
     expansion = 1,
     header = "Kalimdor",
-    { 777023, "Neutral", 1 }, -- Azshara
-    { 777013, "Neutral", 1 }, -- Cenarion Hold
     { 777007, "Neutral", 1 }, -- Everlook
     { 777009, "Neutral", 1 }, -- Gadgetzan
-    { 777026, "Neutral", 1 }, -- Gates of Ahn'Quiraj
-    { 777012, "Neutral", 1 }, -- Mudsprocket
-    { 777027, "Neutral", 1 }, -- Onyxia's Lair
     { 777010, "Neutral", 1 }, -- Ratchet
+    { 777012, "Neutral", 1 }, -- Mudsprocket
+    { 777013, "Neutral", 1 }, -- Cenarion Hold
+    { 777021, "Neutral", 1 }, -- Bloodvenom Post
+    { 777023, "Neutral", 1 }, -- Azshara
+    { 777026, "Neutral", 1 }, -- Gates of Ahn'Qiraj
+    { 777027, "Neutral", 1 }, -- Onyxia's Lair
+    { 1777024, "Neutral", 1 }, -- Camp Mojache
     { 1777025, "Neutral", 1 }, -- Feathermoon Stronghold
-		{ 777015, "Alliance", 1, true }, -- The Exodar
-    { 777004 , "Alliance", 1 }, -- Darnassus
-    { 1777044, "Alliance", 1 }, -- Nijei's Point
-    { 777000 , "Horde", 1, true }, -- Orgrimmar
-    { 777002 , "Horde", 1 }, -- Thunder Bluff
-    { 777021 , "Horde", 1 }, -- Bloodvenom Post
-    { 1777024, "Horde", 1 }, -- Camp Mojache
+    { 1777045, "Neutral", 1 }, -- Marshal's Refuge
+    { 1777058, "Neutral", 1 }, -- Emerald Sanctuary
+    { 777004, "Alliance", 1 }, -- Darnassus
+    { 777015, "Alliance", 1, true }, -- The Exodar
+    { 1777044, "Alliance", 1 }, -- Nijel's Point
+    { 1777046, "Alliance", 1 }, -- Thalanaar
+    { 1777048, "Alliance", 1 }, -- Theramore Isle
+    { 1777054, "Alliance", 1 }, -- Stonetalon Peak
+    { 1777056, "Alliance", 1 }, -- Talrendis Point
+    { 1777059, "Alliance", 1 }, -- Auberdine
+    { 1777060, "Alliance", 1 }, -- Grove of the Ancients
+    { 1777061, "Alliance", 1 }, -- Astranaar
+    { 1777062, "Alliance", 1 }, -- Forest Song
+    { 1777087, "Alliance", 1 }, -- Dolanaar
+    { 777000, "Horde", 1, true }, -- Orgrimmar
+    { 777002, "Horde", 1 }, -- Thunder Bluff
     { 1777043, "Horde", 1 }, -- Shadowprey Village
+    { 1777047, "Horde", 1 }, -- Freewind Post
+    { 1777049, "Horde", 1 }, -- Brackenwall Village
+    { 1777050, "Horde", 1 }, -- Camp Taurajo
+    { 1777051, "Horde", 1 }, -- The Crossroads
+    { 1777052, "Horde", 1 }, -- Mor'shan Base Camp
+    { 1777053, "Horde", 1 }, -- Sun Rock Retreat
+    { 1777055, "Horde", 1 }, -- Ghost Walker Post
+    { 1777057, "Horde", 1 }, -- Valormok
+    { 1777063, "Horde", 1 }, -- Splintertree Post
+    { 1777064, "Horde", 1 }, -- Zoram'gar Outpost
+    { 1777088, "Horde", 1 }, -- Sen'jin Village
+    { 1777089, "Horde", 1 }, -- Razor Hill
+    { 1777090, "Horde", 1 }, -- Bloodhoof Village
   },
 
   EasternKingdoms = {
     expansion = 1,
     header = "Eastern Kingdoms",
-    { 777008, "Neutral", 1 }, -- Booty Bay
-    { 777025, "Neutral", 1 }, -- Blackrock Mountain
-    { 777020, "Neutral", 1 }, -- Gurubashi Arena
     { 777006, "Neutral", 1 }, -- Light's Hope
+    { 777008, "Neutral", 1 }, -- Booty Bay
     { 777011, "Neutral", 1 }, -- Thorium Point
-    { 1777023, "Neutral", 1 }, -- Yojamba Isle
+    { 777020, "Neutral", 1 }, -- Gurubashi Arena
     { 777024, "Neutral", 1 }, -- Zul'Gurub
-    { 777003 , "Alliance", 1, true },-- Stormwind
-    { 777005 , "Alliance", 1 },-- Ironforge
-    { 1777036, "Alliance", 1 }, -- Aerie Peak
+    { 777025, "Neutral", 1 }, -- Blackrock Mountain
+    { 1777023, "Neutral", 1 }, -- Yojamba Isle
+    { 1777070, "Neutral", 1 }, -- Nesingwary's Expedition
+    { 1777080, "Neutral", 1 }, -- Faldir's Cove
+    { 777003, "Alliance", 1, true }, -- Stormwind
+    { 777005, "Alliance", 1 }, -- Ironforge
     { 1777026, "Alliance", 1 }, -- Nethergarde Keep
-		{ 777014, "Horde", 1, true }, -- Silvermoon City 
-    { 777001 , "Horde", 1 }, -- Undercity
-    { 1777037, "Horde", 1 }, -- Revantusk Village
+    { 1777036, "Alliance", 1 }, -- Aerie Peak
+    { 1777065, "Alliance", 1 }, -- Darkshire
+    { 1777066, "Alliance", 1 }, -- Eastvale Logging Camp
+    { 1777067, "Alliance", 1 }, -- Sentinel Hill
+    { 1777069, "Alliance", 1 }, -- Rebel Camp
+    { 1777071, "Alliance", 1 }, -- Lakeshire
+    { 1777072, "Alliance", 1 }, -- Morgan's Vigil
+    { 1777074, "Alliance", 1 }, -- Hammertoe Digsite
+    { 1777075, "Alliance", 1 }, -- Farstrider Lodge
+    { 1777076, "Alliance", 1 }, -- Thelsamar
+    { 1777077, "Alliance", 1 }, -- Menethil Harbor
+    { 1777078, "Alliance", 1 }, -- Refuge Pointe
+    { 1777081, "Alliance", 1 }, -- Southshore
+    { 1777084, "Alliance", 1 }, -- Kharanos
+    { 1777086, "Alliance", 1 }, -- Goldshire
+    { 1777092, "Alliance", 1 }, -- The Harborage
+    { 1777093, "Alliance", 1 }, -- Ambermill
+    { 777001, "Horde", 1 }, -- Undercity
+    { 777014, "Horde", 1, true }, -- Silvermoon City
     { 1777027, "Horde", 1 }, -- Stonard
+    { 1777037, "Horde", 1 }, -- Revantusk Village
+    { 1777068, "Horde", 1 }, -- Grom'gol Basecamp
+    { 1777073, "Horde", 1 }, -- Kargath
+    { 1777079, "Horde", 1 }, -- Hammerfall
+    { 1777082, "Horde", 1 }, -- Tarren Mill
+    { 1777083, "Horde", 1 }, -- The Sepulcher
+    { 1777085, "Horde", 1 }, -- Brill
+    { 1777091, "Horde", 1 }, -- Flame Crest
+    { 1777094, "Horde", 1 }, -- The Bulwark
   },
 
   Outlands = {
     expansion = 2,
     header = "Outlands",
-    { 777017, "Neutral", 2 }, -- Area 52
-    { 1175646, "Neutral", 2 }, -- Altar of Sha'tar
-    { 1175645, "Neutral", 2 }, -- Sanctum of the Stars
-    { 102182, "Neutral", 2 }, -- Cenarion Refuge
-    { 102186, "Neutral", 2 }, -- Ogri'la
-    { 102196, "Neutral", 2 }, -- Stormspire
-    { 102180, "Neutral", 2 }, -- Cenarion Refuge
-    { 777016, "Neutral", 2 }, -- Shattrath
-    { 102197, "Horde", 2 }, -- Thrallmar
-    { 102189, "Horde", 2 }, -- Shadowmoon Village
-    { 102184, "Horde", 2 }, -- Garadar
-    { 102190, "Horde", 2 }, -- Stonebreaker Hold
-    { 102201, "Horde", 2 }, -- Zabra'jin
-    { 102185, "Alliance", 2 }, -- Honor Hold
-    { 102193, "Alliance", 2 }, -- Telaar
-    { 102178, "Alliance", 2 }, -- Allerian Stronghold
-    { 102187, "Alliance", 2 }, -- Orebor Harborage
-    { 102200, "Alliance", 2 }, -- Wildhammer Stronghold
+    { 102179, "Neutral", 1 }, -- Altar of Shatar
+    { 102180, "Neutral", 1 }, -- Cenarion Refuge
+    { 102181, "Neutral", 1 }, -- Cosmowrench
+    { 102182, "Neutral", 1 }, -- Evergrove
+    { 102183, "Neutral", 1 }, -- Falcon Watch
+    { 102186, "Neutral", 1 }, -- Ogri'la
+    { 102188, "Neutral", 1 }, -- Sanctum of the Stars
+    { 102191, "Neutral", 1 }, -- Swamprat Post
+    { 102192, "Neutral", 1 }, -- Sylvanaar
+    { 102194, "Neutral", 1 }, -- Telredor
+    { 102195, "Neutral", 1 }, -- Temple of Telhamat
+    { 102196, "Neutral", 1 }, -- The Stormspire
+    { 102198, "Neutral", 1 }, -- Thunderlord Stronghold
+    { 102199, "Neutral", 1 }, -- Toshley's Station
+    { 777016, "Neutral", 1 }, -- Shattrath
+    { 777017, "Neutral", 1 }, -- Area 52
+    { 777018, "Neutral", 1 }, -- Altar of Sha'tar
+    { 777019, "Neutral", 1 }, -- Sanctum of the Stars
+    { 777022, "Neutral", 1 }, -- Area 52
+    { 102178, "Alliance", 1 }, -- Allerian Stronghold
+    { 102185, "Alliance", 1 }, -- Honor Hold
+    { 102187, "Alliance", 1 }, -- Orebor Harborage
+    { 102193, "Alliance", 1 }, -- Telaar
+    { 102200, "Alliance", 1 }, -- Wildhammer Stronghold
+    { 102184, "Horde", 1 }, -- Garadar
+    { 102189, "Horde", 1 }, -- Shadowmoon Village
+    { 102190, "Horde", 1 }, -- Stonebreaker Hold
+    { 102197, "Horde", 1 }, -- Thrallmar
+    { 102201, "Horde", 1 }, -- Zabra'jin
   }
 
 }
 
-  -- Ascension: Runes of Retreat
+-- Ascension: Runes of Retreat
 local runes = {
   979807, -- Flaming
   80133,  -- Frostforged
