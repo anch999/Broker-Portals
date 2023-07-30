@@ -423,7 +423,7 @@ local function showClassSpells()
   local headerSet = false
   if portals then
     for _, v in ipairs(portals) do
-      if CA_IsSpellKnown(818045) and IsSpellKnown(v[1]) and (not favoritesdb[v[1]] or not favoritesdb[v[1]][1]) then
+      if CA_IsSpellKnown(818045) and CA_IsSpellKnown(v[1]) and (not favoritesdb[v[1]] or not favoritesdb[v[1]][1]) then
         if not v[2] or (v[2] and not PortalsDB.showPortals and not PortalsDB.swapPortals) or (PortalsDB.showPortals and v[2] and not PortalsDB.swapPortals) and (GetNumPartyMembers() > 0 or UnitInRaid("player")) then
           headerSet = setHeader("Mage Portals", headerSet)
           local name = GetSpellInfo(v[1])
@@ -502,20 +502,20 @@ local function ShowHearthstone()
 
   local runeRandom = {}
   for _, spellID in ipairs(runes) do
-    if IsSpellKnown(spellID) and (not favoritesdb[spellID] or not favoritesdb[spellID][1]) then
+    if CA_IsSpellKnown(spellID) and (not favoritesdb[spellID] or not favoritesdb[spellID][1]) then
       tinsert(runeRandom, spellID)
     end
   end
 
   if #runeRandom > 0 then
     local spellID = runeRandom[math.random(1, #runeRandom)]
-    if IsSpellKnown(spellID) then
+    if CA_IsSpellKnown(spellID) then
       dewdropAdd(spellID, "spell")
     end
   end
 
   for _,spellID in ipairs(hearthspells) do
-    if IsSpellKnown(spellID) and (not favoritesdb[spellID] or not favoritesdb[spellID][1]) then
+    if CA_IsSpellKnown(spellID) and (not favoritesdb[spellID] or not favoritesdb[spellID][1]) then
       dewdropAdd(spellID, "spell")
     end
   end
@@ -531,8 +531,8 @@ local function showStones(subMenu, spellCheck, noSpacer) --Kalimdor, true
 					if (not favoritesdb[v[1]] or not favoritesdb[v[1]][1]) and not (v[4] and v[2] ~= fac ) and (xpacLevel >= v[3]) then --xpacLevel and locked cities check
 						if PortalsDB.showEnemy or (v[2] == fac or v[2] == "Neutral") then --faction or showEnemy check
 							--returns on the first found stone to turn the menu on
-              if spellCheck and IsSpellKnown(v[1]) then return true end
-							if IsSpellKnown(v[1]) then
+              if spellCheck and CA_IsSpellKnown(v[1]) then return true end
+							if CA_IsSpellKnown(v[1]) then
                 local name = GetSpellInfo(v[1])
                 sorted[name] = {v[1], v[2], v[4], v[3]}
               end
@@ -566,7 +566,7 @@ end
 local function ShowScrolls()
   local headerSet = false
   for _,spellID in ipairs(sod) do
-    if IsSpellKnown(spellID) and (not favoritesdb[spellID] or not favoritesdb[spellID][1]) then
+    if CA_IsSpellKnown(spellID) and (not favoritesdb[spellID] or not favoritesdb[spellID][1]) then
       headerSet = setHeader("Scrolls Of Defense", headerSet)
       dewdropAdd(spellID, "spell")
     end
@@ -591,7 +591,7 @@ end
 local function ShowOtherPorts()
   local headerSet = false
   for _,spellID in ipairs(otherportals) do
-    if IsSpellKnown(spellID) and (not favoritesdb[spellID] or not favoritesdb[spellID][1]) then
+    if CA_IsSpellKnown(spellID) and (not favoritesdb[spellID] or not favoritesdb[spellID][1]) then
       headerSet = setHeader("Other Teleports/Portals", headerSet)
       dewdropAdd(spellID, "spell")
     end
@@ -621,7 +621,7 @@ local function showFavorites()
         else
           name = GetSpellInfo(ID)
         end
-        if IsSpellKnown(ID) or hasItem(ID) then
+        if CA_IsSpellKnown(ID) or hasItem(ID) then
           sorted[name] = {ID, v[2], v[3], v[4], v[5], v[6], v[7], v[8]}
         end
       end
@@ -631,9 +631,10 @@ local function showFavorites()
       --addFavorites(spellID 1, type 2, fac 3, factionLock 4, xpac 5, mage 6, isPortal 7, portalSpellID 8)
       if not (v[4] and v[3] ~= fac ) and (not v[5] or xpacLevel >= v[5]) then --xpacLevel and locked cities check
         if PortalsDB.showEnemy or (v[3] == fac or v[3] == "Neutral") or v[6] then --faction or showEnemy check
-          if  (v[6] and not v[7] and CA_IsSpellKnown(818045) and IsSpellKnown(v[1])) or
-              (v[6] and v[7] and PortalsDB.showPortals and not PortalsDB.swapPortals and CA_IsSpellKnown(818045) and IsSpellKnown(v[1]) and ((GetNumPartyMembers() > 0 or UnitInRaid("player")))) or
-              (not v[6] and IsSpellKnown(v[1])) or hasItem(v[1]) then
+          if  (v[6] and not v[7] and CA_IsSpellKnown(818045) and CA_IsSpellKnown(v[1])) or
+              (v[6] and v[7] and PortalsDB.showPortals and not PortalsDB.swapPortals and CA_IsSpellKnown(818045) and CA_IsSpellKnown(v[1]) and ((GetNumPartyMembers() > 0 or UnitInRaid("player")))) or
+              (v[6] and v[7] and not PortalsDB.showPortals and not PortalsDB.swapPortals and CA_IsSpellKnown(818045) and CA_IsSpellKnown(v[1])) or
+              (not v[6] and CA_IsSpellKnown(v[1])) or hasItem(v[1]) then
                 headerSet = setHeader("Favorites", headerSet)
                 dewdropAdd(v[1], v[2], v[3], v[4], v[5], v[6], v[7], v[8])
           end
