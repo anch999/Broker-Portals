@@ -509,13 +509,23 @@ local function ShowHearthstone()
 
   if #runeRandom > 0 then
     local spellID = runeRandom[math.random(1, #runeRandom)]
+<<<<<<< Updated upstream
     if CA_IsSpellKnown(spellID) then
+=======
+    if IsSpellKnown(spellID) then
+      headerSet = setHeader("Hearthstone: "..GetBindLocation(), headerSet)
+>>>>>>> Stashed changes
       dewdropAdd(spellID, "spell")
     end
   end
 
   for _,spellID in ipairs(hearthspells) do
+<<<<<<< Updated upstream
     if CA_IsSpellKnown(spellID) and (not favoritesdb[spellID] or not favoritesdb[spellID][1]) then
+=======
+    if IsSpellKnown(spellID) and (not favoritesdb[spellID] or not favoritesdb[spellID][1]) then
+      headerSet = setHeader("Hearthstone: "..GetBindLocation(), headerSet)
+>>>>>>> Stashed changes
       dewdropAdd(spellID, "spell")
     end
   end
