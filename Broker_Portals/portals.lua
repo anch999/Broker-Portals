@@ -2,8 +2,8 @@ if not LibStub then return end
 
 local dewdrop = LibStub('Dewdrop-2.0', true)
 local icon = LibStub('LibDBIcon-1.0')
-
 local math_floor = math.floor
+local aceTimer = LibStub('AceTimer-3.0')
 
 local xpacLevel = GetAccountExpansionLevel() + 1;
 
@@ -11,6 +11,29 @@ local addonName, addonTable = ...
 local L = addonTable.L
 local fac = UnitFactionGroup('player')
 local favoritesdb, activeProfile
+
+
+local UnknownList = {}
+function aceTimer:learnUnknown()
+  for i, v in pairs(UnknownList) do
+    if not v then return end
+    if not CA_IsSpellKnown(v) then
+    RequestDeliverVanityCollectionItem(i)
+    else
+      UnknownList[i] = nil
+    end
+  end
+  aceTimer:ScheduleTimer("learnUnknown", .1)
+end
+
+local function learnUnknownStones()
+  for _,v in pairs(VANITY_ITEMS) do
+    if C_VanityCollection.IsCollectionItemOwned(v.itemid) and not CA_IsSpellKnown(v.learnedSpell) and v.name:match("Stone of Retreat") then
+      UnknownList[v.itemid] = v.learnedSpell
+    end
+  end
+  aceTimer:learnUnknown()
+end
 
 -- IDs of items usable for transportation
 local items = {
@@ -702,6 +725,13 @@ local function UpdateMenu(level, value)
   elseif level == 2 and value == 'Outlands' then
     showStones("Outlands", nil, true)
   elseif level == 2 and value == 'options' then
+    dewdrop:AddLine(
+      'text', "Learn All Unknown Stones",
+      'func', function() 
+        learnUnknownStones()
+      end,
+      'closeWhenClicked', true
+    )
     dewdrop:AddLine(
       'text', L['SHOW_ITEMS'],
       'checked', PortalsDB.showItems,
