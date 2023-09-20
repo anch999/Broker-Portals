@@ -97,11 +97,11 @@ local stones = {
     { 777026, "Neutral", 1 }, -- Gates of Ahn'Qiraj
     { 777027, "Neutral", 1 }, -- Onyxia's Lair
     { 1777024, "Neutral", 1 }, -- Camp Mojache
-    { 1777025, "Neutral", 1 }, -- Feathermoon Stronghold
     { 1777045, "Neutral", 1 }, -- Marshal's Refuge
     { 1777058, "Neutral", 1 }, -- Emerald Sanctuary
     { 777004, "Alliance", 1 }, -- Darnassus
     { 777015, "Alliance", 1, true }, -- The Exodar
+    { 1777025, "Alliance", 1 }, -- Feathermoon Stronghold
     { 1777044, "Alliance", 1 }, -- Nijel's Point
     { 1777046, "Alliance", 1 }, -- Thalanaar
     { 1777048, "Alliance", 1 }, -- Theramore Isle
