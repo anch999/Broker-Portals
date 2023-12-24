@@ -11,14 +11,14 @@ local addonName, addonTable = ...
 local L = addonTable.L
 local fac = UnitFactionGroup('player')
 local favoritesdb, activeProfile
-
+local hasItem
 
 local UnknownList = {}
 function aceTimer:learnUnknown()
   for i, v in pairs(UnknownList) do
     if not v then return end
-    if not CA_IsSpellKnown(v) then
-    RequestDeliverVanityCollectionItem(i)
+    if not CA_IsSpellKnown(v) and not hasItem(i) then
+      RequestDeliverVanityCollectionItem(i)
     else
       UnknownList[i] = nil
     end
@@ -69,6 +69,7 @@ local items = {
   35230, -- Darnarian's Scroll of Teleportation
   50287, -- Boots of the Bay
   52251, -- Jaina's Locket
+  10, -- Flight Master's Whistle
 }
 
 -- IDs of items usable instead of hearthstone
@@ -87,129 +88,246 @@ local stones = {
   Kalimdor = {
     expansion = 1,
     header = "Kalimdor",
-    { 777007, "Neutral", 1 }, -- Everlook
-    { 777009, "Neutral", 1 }, -- Gadgetzan
-    { 777010, "Neutral", 1 }, -- Ratchet
-    { 777012, "Neutral", 1 }, -- Mudsprocket
-    { 777013, "Neutral", 1 }, -- Cenarion Hold
-    { 777021, "Neutral", 1 }, -- Bloodvenom Post
-    { 777023, "Neutral", 1 }, -- Azshara
-    { 777026, "Neutral", 1 }, -- Gates of Ahn'Qiraj
-    { 777027, "Neutral", 1 }, -- Onyxia's Lair
-    { 1777024, "Neutral", 1 }, -- Camp Mojache
-    { 1777025, "Neutral", 1 }, -- Feathermoon Stronghold
-    { 1777045, "Neutral", 1 }, -- Marshal's Refuge
-    { 1777058, "Neutral", 1 }, -- Emerald Sanctuary
-    { 777004, "Alliance", 1 }, -- Darnassus
-    { 777015, "Alliance", 1, true }, -- The Exodar
-    { 1777044, "Alliance", 1 }, -- Nijel's Point
-    { 1777046, "Alliance", 1 }, -- Thalanaar
-    { 1777048, "Alliance", 1 }, -- Theramore Isle
-    { 1777054, "Alliance", 1 }, -- Stonetalon Peak
-    { 1777056, "Alliance", 1 }, -- Talrendis Point
-    { 1777059, "Alliance", 1 }, -- Auberdine
-    { 1777060, "Alliance", 1 }, -- Grove of the Ancients
-    { 1777061, "Alliance", 1 }, -- Astranaar
-    { 1777062, "Alliance", 1 }, -- Forest Song
-    { 1777087, "Alliance", 1 }, -- Dolanaar
-    { 777000, "Horde", 1, true }, -- Orgrimmar
-    { 777002, "Horde", 1 }, -- Thunder Bluff
-    { 1777043, "Horde", 1 }, -- Shadowprey Village
-    { 1777047, "Horde", 1 }, -- Freewind Post
-    { 1777049, "Horde", 1 }, -- Brackenwall Village
-    { 1777050, "Horde", 1 }, -- Camp Taurajo
-    { 1777051, "Horde", 1 }, -- The Crossroads
-    { 1777052, "Horde", 1 }, -- Mor'shan Base Camp
-    { 1777053, "Horde", 1 }, -- Sun Rock Retreat
-    { 1777055, "Horde", 1 }, -- Ghost Walker Post
-    { 1777057, "Horde", 1 }, -- Valormok
-    { 1777063, "Horde", 1 }, -- Splintertree Post
-    { 1777064, "Horde", 1 }, -- Zoram'gar Outpost
-    { 1777088, "Horde", 1 }, -- Sen'jin Village
-    { 1777089, "Horde", 1 }, -- Razor Hill
-    { 1777090, "Horde", 1 }, -- Bloodhoof Village
+    777007, -- Everlook
+    777009, -- Gadgetzan
+    777010, -- Ratchet
+    777012, -- Mudsprocket
+    777013, -- Cenarion Hold
+    777021, -- Bloodvenom Post
+    777023, -- Azshara
+    777026, -- Gates of Ahn'Qiraj
+    777027, -- Onyxia's Lair
+    1777024, -- Camp Mojache
+    1777025, -- Feathermoon Stronghold
+    1777045, -- Marshal's Refuge
+    1777058, -- Emerald Sanctuary
+    777004, -- Darnassus
+    777015, -- The Exodar
+    1777044, -- Nijel's Point
+    1777046, -- Thalanaar
+    1777048, -- Theramore Isle
+    1777054, -- Stonetalon Peak
+    1777056, -- Talrendis Point
+    1777059, -- Auberdine
+    1777060, -- Grove of the Ancients
+    1777061, -- Astranaar
+    1777062, -- Forest Song
+    1777087, -- Dolanaar
+    777000, -- Orgrimmar
+    777002, -- Thunder Bluff
+    1777043, -- Shadowprey Village
+    1777047, -- Freewind Post
+    1777049, -- Brackenwall Village
+    1777050, -- Camp Taurajo
+    1777051, -- The Crossroads
+    1777052, -- Mor'shan Base Camp
+    1777053, -- Sun Rock Retreat
+    1777055, -- Ghost Walker Post
+    1777057, -- Valormok
+    1777063, -- Splintertree Post
+    1777064, -- Zoram'gar Outpost
+    1777088, -- Sen'jin Village
+    1777089, -- Razor Hill
+    1777090, -- Bloodhoof Village
   },
 
   EasternKingdoms = {
     expansion = 1,
     header = "Eastern Kingdoms",
-    { 777006, "Neutral", 1 }, -- Light's Hope
-    { 777008, "Neutral", 1 }, -- Booty Bay
-    { 777011, "Neutral", 1 }, -- Thorium Point
-    { 777020, "Neutral", 1 }, -- Gurubashi Arena
-    { 777024, "Neutral", 1 }, -- Zul'Gurub
-    { 777025, "Neutral", 1 }, -- Blackrock Mountain
-    { 1777023, "Neutral", 1 }, -- Yojamba Isle
-    { 1777070, "Neutral", 1 }, -- Nesingwary's Expedition
-    { 1777080, "Neutral", 1 }, -- Faldir's Cove
-    { 777003, "Alliance", 1, true }, -- Stormwind
-    { 777005, "Alliance", 1 }, -- Ironforge
-    { 1777026, "Alliance", 1 }, -- Nethergarde Keep
-    { 1777036, "Alliance", 1 }, -- Aerie Peak
-    { 1777065, "Alliance", 1 }, -- Darkshire
-    { 1777066, "Alliance", 1 }, -- Eastvale Logging Camp
-    { 1777067, "Alliance", 1 }, -- Sentinel Hill
-    { 1777069, "Alliance", 1 }, -- Rebel Camp
-    { 1777071, "Alliance", 1 }, -- Lakeshire
-    { 1777072, "Alliance", 1 }, -- Morgan's Vigil
-    { 1777074, "Alliance", 1 }, -- Hammertoe Digsite
-    { 1777075, "Alliance", 1 }, -- Farstrider Lodge
-    { 1777076, "Alliance", 1 }, -- Thelsamar
-    { 1777077, "Alliance", 1 }, -- Menethil Harbor
-    { 1777078, "Alliance", 1 }, -- Refuge Pointe
-    { 1777081, "Alliance", 1 }, -- Southshore
-    { 1777084, "Alliance", 1 }, -- Kharanos
-    { 1777086, "Alliance", 1 }, -- Goldshire
-    { 1777092, "Alliance", 1 }, -- The Harborage
-    { 1777093, "Alliance", 1 }, -- Ambermill
-    { 777001, "Horde", 1 }, -- Undercity
-    { 777014, "Horde", 1, true }, -- Silvermoon City
-    { 1777027, "Horde", 1 }, -- Stonard
-    { 1777037, "Horde", 1 }, -- Revantusk Village
-    { 1777068, "Horde", 1 }, -- Grom'gol Basecamp
-    { 1777073, "Horde", 1 }, -- Kargath
-    { 1777079, "Horde", 1 }, -- Hammerfall
-    { 1777082, "Horde", 1 }, -- Tarren Mill
-    { 1777083, "Horde", 1 }, -- The Sepulcher
-    { 1777085, "Horde", 1 }, -- Brill
-    { 1777091, "Horde", 1 }, -- Flame Crest
-    { 1777094, "Horde", 1 }, -- The Bulwark
+    777006, -- Light's Hope
+    777008, -- Booty Bay
+    777011, -- Thorium Point
+    777020, -- Gurubashi Arena
+    777024, -- Zul'Gurub
+    777025, -- Blackrock Mountain
+    1777023, -- Yojamba Isle
+    1777070, -- Nesingwary's Expedition
+    1777080, -- Faldir's Cove
+    777003, -- Stormwind
+    777005, -- Ironforge
+    1777026, -- Nethergarde Keep
+    1777036, -- Aerie Peak
+    1777065, -- Darkshire
+    1777066, -- Eastvale Logging Camp
+    1777067, -- Sentinel Hill
+    1777069, -- Rebel Camp
+    1777071, -- Lakeshire
+    1777072, -- Morgan's Vigil
+    1777074, -- Hammertoe Digsite
+    1777075, -- Farstrider Lodge
+    1777076, -- Thelsamar
+    1777077, -- Menethil Harbor
+    1777078, -- Refuge Pointe
+    1777081, -- Southshore
+    1777084, -- Kharanos
+    1777086, -- Goldshire
+    1777092, -- The Harborage
+    1777093, -- Ambermill
+    777001, -- Undercity
+    777014, -- Silvermoon City
+    1777027, -- Stonard
+    1777037, -- Revantusk Village
+    1777068, -- Grom'gol Basecamp
+    1777073, -- Kargath
+    1777079, -- Hammerfall
+    1777082, -- Tarren Mill
+    1777083, -- The Sepulcher
+    1777085, -- Brill
+    1777091, -- Flame Crest
+    1777094, -- The Bulwark
   },
 
   Outlands = {
     expansion = 2,
     header = "Outlands",
-    { 102179, "Neutral", 1 }, -- Altar of Shatar
-    { 102180, "Neutral", 1 }, -- Cenarion Refuge
-    { 102181, "Neutral", 1 }, -- Cosmowrench
-    { 102182, "Neutral", 1 }, -- Evergrove
-    { 102183, "Neutral", 1 }, -- Falcon Watch
-    { 102186, "Neutral", 1 }, -- Ogri'la
-    { 102188, "Neutral", 1 }, -- Sanctum of the Stars
-    { 102191, "Neutral", 1 }, -- Swamprat Post
-    { 102192, "Neutral", 1 }, -- Sylvanaar
-    { 102194, "Neutral", 1 }, -- Telredor
-    { 102195, "Neutral", 1 }, -- Temple of Telhamat
-    { 102196, "Neutral", 1 }, -- The Stormspire
-    { 102198, "Neutral", 1 }, -- Thunderlord Stronghold
-    { 102199, "Neutral", 1 }, -- Toshley's Station
-    { 777016, "Neutral", 1 }, -- Shattrath
-    { 777017, "Neutral", 1 }, -- Area 52
-    { 777018, "Neutral", 1 }, -- Altar of Sha'tar
-    { 777019, "Neutral", 1 }, -- Sanctum of the Stars
-    { 777022, "Neutral", 1 }, -- Area 52
-    { 102178, "Alliance", 1 }, -- Allerian Stronghold
-    { 102185, "Alliance", 1 }, -- Honor Hold
-    { 102187, "Alliance", 1 }, -- Orebor Harborage
-    { 102193, "Alliance", 1 }, -- Telaar
-    { 102200, "Alliance", 1 }, -- Wildhammer Stronghold
-    { 102184, "Horde", 1 }, -- Garadar
-    { 102189, "Horde", 1 }, -- Shadowmoon Village
-    { 102190, "Horde", 1 }, -- Stonebreaker Hold
-    { 102197, "Horde", 1 }, -- Thrallmar
-    { 102201, "Horde", 1 }, -- Zabra'jin
+    102179, -- Altar of Shatar
+    102180, -- Cenarion Refuge
+    102181, -- Cosmowrench
+    102182, -- Evergrove
+    102183, -- Falcon Watch
+    102186, -- Ogri'la
+    102188, -- Sanctum of the Stars
+    102191, -- Swamprat Post
+    102192, -- Sylvanaar
+    102194, -- Telredor
+    102195, -- Temple of Telhamat
+    102196, -- The Stormspire
+    102198, -- Thunderlord Stronghold
+    102199, -- Toshley's Station
+    777016, -- Shattrath
+    777017, -- Area 52
+    777018, -- Altar of Sha'tar
+    777019, -- Sanctum of the Stars
+    777022, -- Area 52
+    102178, -- Allerian Stronghold
+    102185, -- Honor Hold
+    102187, -- Orebor Harborage
+    102193, -- Telaar
+    102200, -- Wildhammer Stronghold
+    102184, -- Garadar
+    102189, -- Shadowmoon Village
+    102190, -- Stonebreaker Hold
+    102197, -- Thrallmar
+    102201, -- Zabra'jin
   }
 
+}
+
+local stoneInfo = {
+    --Kalimdor
+    [777007] = { fac = "Neutral", expac = 1 , zone = "Winterspring" }, -- Everlook
+    [777009] = { fac = "Neutral", expac = 1 , zone = "Tanaris" }, -- Gadgetzan
+    [777010] = { fac = "Neutral", expac = 1 , zone = "The Barrens" }, -- Ratchet
+    [777012] = { fac = "Neutral", expac = 1 , zone = "Dustwallow Marsh" }, -- Mudsprocket
+    [777013] = { fac = "Neutral", expac = 1 , zone = "Silithus" }, -- Cenarion Hold
+    [777021] = { fac = "Neutral", expac = 1 , zone = "Felwood" }, -- Bloodvenom Post
+    [777023] = { fac = "Neutral", expac = 1 , zone = "Azshara" }, -- Azshara
+    [777026] = { fac = "Neutral", expac = 1 , zone = "Silithus" }, -- Gates of Ahn'Qiraj
+    [777027] = { fac = "Neutral", expac = 1 , zone = "Onyxia's Lair" }, -- Onyxia's Lair
+    [1777024] = { fac = "Neutral", expac = 1 , zone = "Feralas" }, -- Camp Mojache
+    [1777025] = { fac = "Neutral", expac = 1 , zone = "Feralas" }, -- Feathermoon Stronghold
+    [1777045] = { fac = "Neutral", expac = 1 , zone = "Un'Goro Crater" }, -- Marshal's Refuge
+    [1777058] = { fac = "Neutral", expac = 1 , zone = "Feralas" }, -- Emerald Sanctuary
+    [777004] = { fac = "Alliance", expac = 1 , zone = "Teldrassil" }, -- Darnassus
+    [777015] = { fac = "Alliance", expac = 2, zone = "Azuremyst Isle", factionLock = true }, -- The Exodar
+    [1777044] = { fac = "Alliance", expac = 1 , zone = "Desolace" }, -- Nijel's Point
+    [1777046] = { fac = "Alliance", expac = 1 , zone = "Feralas" }, -- Thalanaar
+    [1777048] = { fac = "Alliance", expac = 1 , zone = "Dustwallow Marsh" }, -- Theramore Isle
+    [1777054] = { fac = "Alliance", expac = 1 , zone = "Stonetalon Mountains" }, -- Stonetalon Peak
+    [1777056] = { fac = "Alliance", expac = 1 , zone = "Azshara" }, -- Talrendis Point
+    [1777059] = { fac = "Alliance", expac = 1 , zone = "Darkshore" }, -- Auberdine
+    [1777060] = { fac = "Alliance", expac = 1 , zone = "Darkshore" }, -- Grove of the Ancients
+    [1777061] = { fac = "Alliance", expac = 1 , zone = "Ashenvale" }, -- Astranaar
+    [1777062] = { fac = "Alliance", expac = 1 , zone = "Ashenvale" }, -- Forest Song
+    [1777087] = { fac = "Alliance", expac = 1 , zone = "Teldrassil" }, -- Dolanaar
+    [777000] = { fac = "Horde", expac = 1, zone = "Durotar", factionLock = true }, -- Orgrimmar
+    [777002] = { fac = "Horde", expac = 1 , zone = "Mulgore" }, -- Thunder Bluff
+    [1777043] = { fac = "Horde", expac = 1 , zone = "Desolace" }, -- Shadowprey Village
+    [1777047] = { fac = "Horde", expac = 1 , zone = "Thousand Needles" }, -- Freewind Post
+    [1777049] = { fac = "Horde", expac = 1 , zone = "Dustwallow Marsh" }, -- Brackenwall Village
+    [1777050] = { fac = "Horde", expac = 1 , zone = "The Barrens" }, -- Camp Taurajo
+    [1777051] = { fac = "Horde", expac = 1 , zone = "The Barrens" }, -- The Crossroads
+    [1777052] = { fac = "Horde", expac = 1 , zone = "The Barrens" }, -- Mor'shan Base Camp
+    [1777053] = { fac = "Horde", expac = 1 , zone = "Stonetalon Mountains" }, -- Sun Rock Retreat
+    [1777055] = { fac = "Horde", expac = 1 , zone = "Desolas" }, -- Ghost Walker Post
+    [1777057] = { fac = "Horde", expac = 1 , zone = "Azshara" }, -- Valormok
+    [1777063] = { fac = "Horde", expac = 1 , zone = "Ashenvale" }, -- Splintertree Post
+    [1777064] = { fac = "Horde", expac = 1 , zone = "Ashenvale" }, -- Zoram'gar Outpost
+    [1777088] = { fac = "Horde", expac = 1 , zone = "Durotar" }, -- Sen'jin Village
+    [1777089] = { fac = "Horde", expac = 1 , zone = "Durotar" }, -- Razor Hill
+    [1777090] = { fac = "Horde", expac = 1 , zone = "Mulgore" }, -- Bloodhoof Village
+    --EasternKingdoms
+    [777006] = { fac = "Neutral", expac = 1 , zone = "Eastern Plaguelands" }, -- Light's Hope
+    [777008] = { fac = "Neutral", expac = 1 , zone = "Stranglethorn Vale" }, -- Booty Bay
+    [777011] = { fac = "Neutral", expac = 1 , zone = "Searing Gorge" }, -- Thorium Point
+    [777020] = { fac = "Neutral", expac = 1 , zone = "Stranglethorn Vale" }, -- Gurubashi Arena
+    [777024] = { fac = "Neutral", expac = 1 , zone = "Stranglethorn Vale" }, -- Zul'Gurub
+    [777025] = { fac = "Neutral", expac = 1 , zone = "Burning Steppes" }, -- Blackrock Mountain
+    [1777023] = { fac = "Neutral", expac = 1 , zone = "Stranglethorn Vale" }, -- Yojamba Isle
+    [1777070] = { fac = "Neutral", expac = 1 , zone = "Stranglethorn Vale" }, -- Nesingwary's Expedition
+    [1777080] = { fac = "Neutral", expac = 1 , zone = "Arathi Highlands" }, -- Faldir's Cove
+    [777003] = { fac = "Alliance", expac = 1, zone = "Elwynn Forest", factionLock = true }, -- Stormwind
+    [777005] = { fac = "Alliance", expac = 1 , zone = "Dun Morogh" }, -- Ironforge
+    [1777026] = { fac = "Alliance", expac = 1 , zone = "Blasted Lands" }, -- Nethergarde Keep
+    [1777036] = { fac = "Alliance", expac = 1 , zone = "The Hinterlands" }, -- Aerie Peak
+    [1777065] = { fac = "Alliance", expac = 1 , zone = "Duskwood" }, -- Darkshire
+    [1777066] = { fac = "Alliance", expac = 1 , zone = "Elwynn Forest" }, -- Eastvale Logging Camp
+    [1777067] = { fac = "Alliance", expac = 1 , zone = "Westfall" }, -- Sentinel Hill
+    [1777069] = { fac = "Alliance", expac = 1 , zone = "Stranglethorn Vale" }, -- Rebel Camp
+    [1777071] = { fac = "Alliance", expac = 1 , zone = "Redridge Mountains" }, -- Lakeshire
+    [1777072] = { fac = "Alliance", expac = 1 , zone = "Burning Steppes" }, -- Morgan's Vigil
+    [1777074] = { fac = "Alliance", expac = 1 , zone = "Badlands" }, -- Hammertoe Digsite
+    [1777075] = { fac = "Alliance", expac = 1 , zone = "Loch Modan" }, -- Farstrider Lodge
+    [1777076] = { fac = "Alliance", expac = 1 , zone = "Loch Modan" }, -- Thelsamar
+    [1777077] = { fac = "Alliance", expac = 1 , zone = "Wetlands" }, -- Menethil Harbor
+    [1777078] = { fac = "Alliance", expac = 1 , zone = "Arathi Highlands" }, -- Refuge Pointe
+    [1777081] = { fac = "Alliance", expac = 1 , zone = "Hillsbrad Foothills" }, -- Southshore
+    [1777084] = { fac = "Alliance", expac = 1 , zone = "Dun Morogh" }, -- Kharanos
+    [1777086] = { fac = "Alliance", expac = 1 , zone = "Elwynn Forest" }, -- Goldshire
+    [1777092] = { fac = "Alliance", expac = 1 , zone = "Swamp of Sorrows" }, -- The Harborage
+    [1777093] = { fac = "Alliance", expac = 1 , zone = "Silverpine Forest" }, -- Ambermill
+    [777001] = { fac = "Horde", expac = 1 , zone = "Tirisfal Glades" }, -- Undercity
+    [777014] = { fac = "Horde", expac = 2, zone = "Eversong Woods", factionLock = true }, -- Silvermoon City
+    [1777027] = { fac = "Horde", expac = 1 , zone = "Swamp of Sorrows" }, -- Stonard
+    [1777037] = { fac = "Horde", expac = 1 , zone = "The Hinterlands" }, -- Revantusk Village
+    [1777068] = { fac = "Horde", expac = 1 , zone = "Stranglethorn Vale" }, -- Grom'gol Basecamp
+    [1777073] = { fac = "Horde", expac = 1 , zone = "Badlands" }, -- Kargath
+    [1777079] = { fac = "Horde", expac = 1 , zone = "Arathi Highlands" }, -- Hammerfall
+    [1777082] = { fac = "Horde", expac = 1 , zone = "Hillsbrad Foothills" }, -- Tarren Mill
+    [1777083] = { fac = "Horde", expac = 1 , zone = "Silverpine Forest" }, -- The Sepulcher
+    [1777085] = { fac = "Horde", expac = 1 , zone = "Tirisfal Glades" }, -- Brill
+    [1777091] = { fac = "Horde", expac = 1 , zone = "Burning Steppes" }, -- Flame Crest
+    [1777094] = { fac = "Horde", expac = 1 , zone = "Tirisfal Glades" }, -- The Bulwark
+    --OutLands
+    [102179] = { fac = "Neutral", expac = 2 , zone = "Shadowmoon Valley" }, -- Altar of Shatar
+    [102180] = { fac = "Neutral", expac = 2 , zone = "Zangarmarsh" }, -- Cenarion Refuge
+    [102181] = { fac = "Neutral", expac = 2 , zone = "Netherstorm" }, -- Cosmowrench
+    [102182] = { fac = "Neutral", expac = 2 , zone = "Blade's Edge Mountains" }, -- Evergrove
+    [102183] = { fac = "Neutral", expac = 2 , zone = "Hellfire Peninsula" }, -- Falcon Watch
+    [102186] = { fac = "Neutral", expac = 2 , zone = "Blade's Edge Mountains" }, -- Ogri'la
+    [102188] = { fac = "Neutral", expac = 2 , zone = "Shadowmoon Valley" }, -- Sanctum of the Stars
+    [102191] = { fac = "Neutral", expac = 2 , zone = "Zangarmarsh" }, -- Swamprat Post
+    [102192] = { fac = "Neutral", expac = 2 , zone = "Blade's Edge Mountains" }, -- Sylvanaar
+    [102194] = { fac = "Neutral", expac = 2 , zone = "Zangarmarsh" }, -- Telredor
+    [102195] = { fac = "Neutral", expac = 2 , zone = "Hellfire Peninsula" }, -- Temple of Telhamat
+    [102196] = { fac = "Neutral", expac = 2 , zone = "Netherstorm" }, -- The Stormspire
+    [102198] = { fac = "Neutral", expac = 2 , zone = "Blade's Edge Mountains" }, -- Thunderlord Stronghold
+    [102199] = { fac = "Neutral", expac = 2 , zone = "Blade's Edge Mountains" }, -- Toshley's Station
+    [777016] = { fac = "Neutral", expac = 2 , zone = "Terrokar Forest" }, -- Shattrath
+    [777017] = { fac = "Neutral", expac = 2 , zone = "Netherstorm" }, -- Area 52
+    [777018] = { fac = "Neutral", expac = 2 , zone = "Shadowmoon Valley" }, -- Altar of Sha'tar
+    [777019] = { fac = "Neutral", expac = 2 , zone = "Shadowmoon Valley" }, -- Sanctum of the Stars
+    [777022] = { fac = "Neutral", expac = 2 , zone = "Netherstorm" }, -- Area 52
+    [102178] = { fac = "Alliance", expac = 2 , zone = "Terrokar Forest" }, -- Allerian Stronghold
+    [102185] = { fac = "Alliance", expac = 2 , zone = "Hellfire Peninsula" }, -- Honor Hold
+    [102187] = { fac = "Alliance", expac = 2 , zone = "Zangarmarsh" }, -- Orebor Harborage
+    [102193] = { fac = "Alliance", expac = 2 , zone = "Nagrand" }, -- Telaar
+    [102200] = { fac = "Alliance", expac = 2 , zone = "Shadowmoon Valley" }, -- Wildhammer Stronghold
+    [102184] = { fac = "Horde", expac = 2 , zone = "Nagrand" }, -- Garadar
+    [102189] = { fac = "Horde", expac = 2 , zone = "Shadowmoon Valley" }, -- Shadowmoon Village
+    [102190] = { fac = "Horde", expac = 2 , zone = "Terrokar Forest" }, -- Stonebreaker Hold
+    [102197] = { fac = "Horde", expac = 2 , zone = "Hellfire Peninsula" }, -- Thrallmar
+    [102201] = { fac = "Horde", expac = 2 , zone = "Zangarmarsh" }, -- Zabra'jin
 }
 
 -- Ascension: Runes of Retreat
@@ -241,6 +359,7 @@ local sor = {
 local otherportals = {
   28148, -- P:Karazhan
   18960, -- TP:Moonglade
+  1518960, -- TP:Moonglade Vanity
   50977, -- Death Gate
 }
 
@@ -276,7 +395,7 @@ local function pairsByKeys(t)
 end
 
 -- returns true, if player has item with given ID in inventory or bags and it's not on cooldown
-local function hasItem(itemID)
+hasItem = function(itemID)
   local item, found, id
   -- scan inventory
   for slotId = 1, 19 do
@@ -365,13 +484,12 @@ local function SetupSpells()
 end
 
 --used to add items or spells to the favorites
-local function addFavorites(spellID, type, faction, factionLock, xpac, mage, isPortal, portalSpellID)
+local function addFavorites(spellID, type, mage, isPortal, portalSpellID)
   if IsAltKeyDown() then
-    if not faction then faction = "Neutral" end
     if favoritesdb[spellID] and favoritesdb[spellID][1] then
       favoritesdb[spellID] = {false}
     else
-      favoritesdb[spellID] = {true, type, faction, factionLock, xpac, mage, isPortal, portalSpellID}
+      favoritesdb[spellID] = {true, type, mage, isPortal, portalSpellID}
     end
   end
 end
@@ -402,7 +520,7 @@ local function getCooldown(ID, text, type)
 end
 
 --main function used to add any items or spells to the drop down list
-local function dewdropAdd(ID, type, faction, factionLock, xpac, mage, isPortal, swapPortal)
+local function dewdropAdd(ID, type, mage, isPortal, swapPortal)
   local chatType = PortalsDB.announceType
   local name, icon
 
@@ -423,13 +541,16 @@ local function dewdropAdd(ID, type, faction, factionLock, xpac, mage, isPortal, 
     type1 = type,
     [type] = name,
   }
+  if stoneInfo[ID] then
+    text = gsub(text, "Stone of Retreat", stoneInfo[ID].zone)
+  end
   dewdrop:AddLine(
     'text', text,
     'secure', secure,
     'icon', icon,
     'tooltipText',"Alt click to add/remove favorites",
     'func', function()
-      addFavorites(ID, secure.type1, faction, factionLock, xpac, mage, isPortal, swapPortal)
+      addFavorites(ID, secure.type1, mage, isPortal, swapPortal)
       if isPortal and chatType and PortalsDB.announce then
         SendChatMessage(L['ANNOUNCEMENT'] .. ' ' .. name, chatType)
       end
@@ -461,7 +582,7 @@ local function showClassSpells()
   end
   for _, v in pairsByKeys(methods) do
     if (not favoritesdb[v.spellID] or not favoritesdb[v.spellID][1]) then
-      dewdropAdd(v.spellID, "spell", nil, nil, nil, true, v.isPortal, v.portalSpellID)
+      dewdropAdd(v.spellID, "spell", true, v.isPortal, v.portalSpellID)
     end
   end
 end
@@ -552,14 +673,19 @@ local function showStones(subMenu, spellCheck, noSpacer) --Kalimdor, true
   local function tableSort(zone)
     local sorted = {}
     local headerSet = false
-      for _,v in ipairs(stones[zone]) do
-					if (not favoritesdb[v[1]] or not favoritesdb[v[1]][1]) and not (v[4] and v[2] ~= fac ) and (xpacLevel >= v[3]) then --xpacLevel and locked cities check
-						if PortalsDB.showEnemy or (v[2] == fac or v[2] == "Neutral") then --faction or showEnemy check
+      for ID,v in ipairs(stones[zone]) do
+					if (not favoritesdb[v] or not favoritesdb[v][1]) and not (stoneInfo[v].factionLock and stoneInfo[v].fac ~= fac ) and (xpacLevel >= stoneInfo[v].expac) then --xpacLevel and locked cities check
+						if PortalsDB.showEnemy or (stoneInfo[v].fac == fac or stoneInfo[v].fac == "Neutral") then --faction or showEnemy check
 							--returns on the first found stone to turn the menu on
-              if spellCheck and CA_IsSpellKnown(v[1]) then return true end
-							if CA_IsSpellKnown(v[1]) then
-                local name = GetSpellInfo(v[1])
-                sorted[name] = {v[1], v[2], v[4], v[3]}
+              if spellCheck and CA_IsSpellKnown(v) then return true end
+							if CA_IsSpellKnown(v) then
+                local name =  stoneInfo[v].zone
+                if sorted[name] then
+                  name = name..ID
+                  sorted[name] = {v}
+                else
+                  sorted[name] = {v}
+                end
               end
 						end
 					end
@@ -567,7 +693,7 @@ local function showStones(subMenu, spellCheck, noSpacer) --Kalimdor, true
       table.sort(sorted)
       for _,v in pairsByKeys(sorted) do
         headerSet = setHeader(stones[zone].header, headerSet, noSpacer)
-        dewdropAdd(v[1], "spell", v[2], v[3])
+        dewdropAdd(v[1], "spell")
       end
   end
 
@@ -579,11 +705,11 @@ local function showStones(subMenu, spellCheck, noSpacer) --Kalimdor, true
 	if subMenu == "All" then
 		for continent, v in pairs(stones) do
 			if xpacLevel >= v.expansion then
-        addTable(continent);
+        addTable(continent)
       end
 		end
 	else
-		return addTable(subMenu);
+		return addTable(subMenu)
 	end
 end
 
@@ -639,29 +765,39 @@ local function showFavorites()
     local headerSet = false
     local sorted = {}
     for ID ,v in pairs(favoritesdb) do
-      if v[1] then
-        local name
-        if v[2] == "item" then
-          name = GetItemInfo(ID)
-        else
-          name = GetSpellInfo(ID)
-        end
-        if CA_IsSpellKnown(ID) or hasItem(ID) then
-          sorted[name] = {ID, v[2], v[3], v[4], v[5], v[6], v[7], v[8]}
+      if type(v) == "table" then
+        if v[1] then
+          local name
+          if v[2] == "item" then
+            name = GetItemInfo(ID)
+          else
+            name = GetSpellInfo(ID)
+          end
+          if CA_IsSpellKnown(ID) or hasItem(ID) then
+            if stoneInfo[ID] then
+              name = stoneInfo[ID].zone
+            end
+            if sorted[name] then
+              name = name..ID
+              sorted[name] = {ID, v[2], v[3], v[4], v[5]}
+            else
+              sorted[name] = {ID, v[2], v[3], v[4], v[5]}
+            end
+          end
         end
       end
     end
     table.sort(sorted)
     for _,v in pairsByKeys(sorted) do
-      --addFavorites(spellID 1, type 2, fac 3, factionLock 4, xpac 5, mage 6, isPortal 7, portalSpellID 8)
-      if not (v[4] and v[3] ~= fac ) and (not v[5] or xpacLevel >= v[5]) then --xpacLevel and locked cities check
-        if PortalsDB.showEnemy or (v[3] == fac or v[3] == "Neutral") or v[6] then --faction or showEnemy check
-          if  (v[6] and not v[7] and CA_IsSpellKnown(818045) and CA_IsSpellKnown(v[1])) or
-              (v[6] and v[7] and PortalsDB.showPortals and not PortalsDB.swapPortals and CA_IsSpellKnown(818045) and CA_IsSpellKnown(v[1]) and ((GetNumPartyMembers() > 0 or UnitInRaid("player")))) or
-              (v[6] and v[7] and not PortalsDB.showPortals and not PortalsDB.swapPortals and CA_IsSpellKnown(818045) and CA_IsSpellKnown(v[1])) or
-              (not v[6] and CA_IsSpellKnown(v[1])) or hasItem(v[1]) then
+      --addFavorites(spellID 1, type 2, mage 3, isPortal 4, portalSpellID 5)
+      if not stoneInfo[v[1]] or (stoneInfo[v[1]] and not (stoneInfo[v[1]].factionLock and stoneInfo[v[1]].fac ~= fac ) and (xpacLevel >= stoneInfo[v[1]].expac)) then --xpacLevel and locked cities check
+        if PortalsDB.showEnemy or (stoneInfo[v[1]].fac == fac or stoneInfo[v[1]].fac == "Neutral") or v[3] then --faction or showEnemy check
+          if  ( v[3] and (not v[4] and CA_IsSpellKnown(818045) and CA_IsSpellKnown(v[1])) or
+              (v[4] and PortalsDB.showPortals and not PortalsDB.swapPortals and CA_IsSpellKnown(818045) and CA_IsSpellKnown(v[1]) and ((GetNumPartyMembers() > 0 or UnitInRaid("player")))) or
+              (v[4] and not PortalsDB.showPortals and not PortalsDB.swapPortals and CA_IsSpellKnown(818045) and CA_IsSpellKnown(v[1]))) or
+              (not v[3] and CA_IsSpellKnown(v[1])) or hasItem(v[1]) then
                 headerSet = setHeader("Favorites", headerSet)
-                dewdropAdd(v[1], v[2], v[3], v[4], v[5], v[6], v[7], v[8])
+                dewdropAdd(v[1], v[2], v[3], v[4], v[5])
           end
         end
       end
@@ -878,6 +1014,22 @@ function frame:PLAYER_LOGIN()
     activeProfile = "Default"
   end
   favoritesdb = PortalsDB.favorites[activeProfile] or PortalsDB.favorites["Default"]
+  if not favoritesdb.version then favoritesdb.version = 0 end
+  if favoritesdb.version == 0 then
+    for _, db in pairs(favoritesdb) do
+      if type(db) == "table" then
+        db[3] = db[6]
+        db[4] = db[7]
+        db[5] = db[8]
+        db[6] = nil
+        db[7] = nil
+        db[8] = nil
+        db[9] = nil
+        end
+    end
+    favoritesdb.version = 0.01
+  end
+
   if icon then
     icon:Register('Broker_Portals', obj, PortalsDB.minimap)
   end
