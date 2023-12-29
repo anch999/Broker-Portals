@@ -224,10 +224,10 @@ local stoneInfo = {
     [777023] = { fac = "Neutral", expac = 1 , zone = "Azshara" }, -- Azshara
     [777026] = { fac = "Neutral", expac = 1 , zone = "Silithus" }, -- Gates of Ahn'Qiraj
     [777027] = { fac = "Neutral", expac = 1 , zone = "Onyxia's Lair" }, -- Onyxia's Lair
-    [1777024] = { fac = "Neutral", expac = 1 , zone = "Feralas" }, -- Camp Mojache
-    [1777025] = { fac = "Neutral", expac = 1 , zone = "Feralas" }, -- Feathermoon Stronghold
+    [1777024] = { fac = "Horde", expac = 1 , zone = "Feralas" }, -- Camp Mojache
+    [1777025] = { fac = "Alliance", expac = 1 , zone = "Feralas" }, -- Feathermoon Stronghold
     [1777045] = { fac = "Neutral", expac = 1 , zone = "Un'Goro Crater" }, -- Marshal's Refuge
-    [1777058] = { fac = "Neutral", expac = 1 , zone = "Feralas" }, -- Emerald Sanctuary
+    [1777058] = { fac = "Neutral", expac = 1 , zone = "Felwood" }, -- Emerald Sanctuary
     [777004] = { fac = "Alliance", expac = 1 , zone = "Teldrassil" }, -- Darnassus
     [777015] = { fac = "Alliance", expac = 2, zone = "Azuremyst Isle", factionLock = true }, -- The Exodar
     [1777044] = { fac = "Alliance", expac = 1 , zone = "Desolace" }, -- Nijel's Point
