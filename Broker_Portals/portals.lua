@@ -35,6 +35,29 @@ local function learnUnknownStones()
   aceTimer:learnUnknown()
 end
 
+
+local UnknownList = {}
+function aceTimer:learnUnknown()
+  for i, v in pairs(UnknownList) do
+    if not v then return end
+    if not CA_IsSpellKnown(v) then
+    RequestDeliverVanityCollectionItem(i)
+    else
+      UnknownList[i] = nil
+    end
+  end
+  aceTimer:ScheduleTimer("learnUnknown", .1)
+end
+
+local function learnUnknownStones()
+  for _,v in pairs(VANITY_ITEMS) do
+    if C_VanityCollection.IsCollectionItemOwned(v.itemid) and not CA_IsSpellKnown(v.learnedSpell) and v.name:match("Stone of Retreat") then
+      UnknownList[v.itemid] = v.learnedSpell
+    end
+  end
+  aceTimer:learnUnknown()
+end
+
 -- IDs of items usable for transportation
 local items = {
   -- Dalaran rings
