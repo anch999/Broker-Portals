@@ -4,6 +4,7 @@ local dewdrop = LibStub('Dewdrop-2.0', true)
 local icon = LibStub('LibDBIcon-1.0')
 local math_floor = math.floor
 local aceTimer = LibStub('AceTimer-3.0')
+local UpdateMenu
 
 local xpacLevel = GetAccountExpansionLevel() + 1;
 
@@ -47,15 +48,6 @@ function aceTimer:learnUnknown()
     end
   end
   aceTimer:ScheduleTimer("learnUnknown", .1)
-end
-
-local function learnUnknownStones()
-  for _,v in pairs(VANITY_ITEMS) do
-    if C_VanityCollection.IsCollectionItemOwned(v.itemid) and not CA_IsSpellKnown(v.learnedSpell) and v.name:match("Stone of Retreat") then
-      UnknownList[v.itemid] = v.learnedSpell
-    end
-  end
-  aceTimer:learnUnknown()
 end
 
 -- IDs of items usable for transportation
@@ -772,13 +764,18 @@ local function ShowOtherPorts()
   end
 end
 
-local function ToggleMinimap()
-  local hide = not PortalsDB.minimap.hide
-  PortalsDB.minimap.hide = hide
-  if hide then
-    icon:Hide('Broker_Portals')
+local function ToggleMinimap(msg)
+  if msg == "macromenu" then
+    if dewdrop:IsOpen(GetMouseFocus()) then dewdrop:Close() return end
+    dewdrop:Open(GetMouseFocus(), 'children', function(level, value) UpdateMenu(level, value) end)
   else
-    icon:Show('Broker_Portals')
+    local hide = not PortalsDB.minimap.hide
+    PortalsDB.minimap.hide = hide
+    if hide then
+      icon:Hide('Broker_Portals')
+    else
+      icon:Show('Broker_Portals')
+    end
   end
 end
 
@@ -819,7 +816,7 @@ local function showFavorites()
               (v[4] and PortalsDB.showPortals and not PortalsDB.swapPortals and CA_IsSpellKnown(818045) and CA_IsSpellKnown(v[1]) and ((GetNumPartyMembers() > 0 or UnitInRaid("player")))) or
               (v[4] and not PortalsDB.showPortals and not PortalsDB.swapPortals and CA_IsSpellKnown(818045) and CA_IsSpellKnown(v[1]))) or
               (not v[3] and CA_IsSpellKnown(v[1])) or hasItem(v[1]) then
-                headerSet = setHeader("Favorites", headerSet)
+                headerSet = setHeader("Favorites", headerSet, true)
                 dewdropAdd(v[1], v[2], v[3], v[4], v[5])
           end
         end
@@ -828,12 +825,8 @@ local function showFavorites()
   end
 end
 
-local function UpdateMenu(level, value)
+UpdateMenu = function(level, value)
   if level == 1 then
-    dewdrop:AddLine(
-      'text', 'Broker_Portals',
-      'isTitle', true
-    )
     showFavorites()
 
     if PortalsDB.stonesSubMenu then
@@ -1070,10 +1063,8 @@ local function GetTipAnchor(frame)
 end
 
 function obj.OnClick(self, button)
-  GameTooltip:Hide()
-  if button == 'RightButton' then
+    GameTooltip:Hide()
     dewdrop:Open(self, 'children', function(level, value) UpdateMenu(level, value) end)
-  end
 end
 
 function obj.OnLeave()
@@ -1106,7 +1097,7 @@ function obj.OnEnter(self)
 end
 
 -- slashcommand definition
-SlashCmdList['BROKER_PORTALS'] = function() ToggleMinimap() end
+SlashCmdList['BROKER_PORTALS'] = function(msg) ToggleMinimap(msg) end
 SLASH_BROKER_PORTALS1 = '/portals'
 
 StaticPopupDialogs["BROKER_PORTALS_ADD_PROFILE"] = {
