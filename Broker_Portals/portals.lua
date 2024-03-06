@@ -36,8 +36,6 @@ local function learnUnknownStones()
   aceTimer:learnUnknown()
 end
 
-
-local UnknownList = {}
 function aceTimer:learnUnknown()
   for i, v in pairs(UnknownList) do
     if not v then return end
