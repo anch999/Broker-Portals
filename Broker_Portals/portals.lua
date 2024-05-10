@@ -36,18 +36,6 @@ local function learnUnknownStones()
   aceTimer:learnUnknown()
 end
 
-function aceTimer:learnUnknown()
-  for i, v in pairs(UnknownList) do
-    if not v then return end
-    if not CA_IsSpellKnown(v) then
-    RequestDeliverVanityCollectionItem(i)
-    else
-      UnknownList[i] = nil
-    end
-  end
-  aceTimer:ScheduleTimer("learnUnknown", .1)
-end
-
 -- IDs of items usable for transportation
 local items = {
   -- Dalaran rings
@@ -563,13 +551,16 @@ local function dewdropAdd(ID, type, mage, isPortal, swapPortal)
     'icon', icon,
     'tooltipText',"Alt click to add/remove favorites",
     'func', function()
-      addFavorites(ID, secure.type1, mage, isPortal, swapPortal)
+      if IsAltKeyDown() then
+        addFavorites(ID, secure.type1, mage, isPortal, swapPortal)
+      else
+        dewdrop:Close()
+      end
       if isPortal and chatType and PortalsDB.announce then
         SendChatMessage(L['ANNOUNCEMENT'] .. ' ' .. name, chatType)
       end
       obj.icon = icon
-    end,
-    'closeWhenClicked', true
+    end
   )
 end
 
@@ -990,6 +981,7 @@ UpdateMenu = function(level, value)
               else
                 activeProfile = profile
                 favoritesdb = PortalsDB.favorites[activeProfile]
+                PortalsDB.setProfile[GetRealmName()][UnitName("player")] = activeProfile
               end
             end,
             'closeWhenClicked', true
