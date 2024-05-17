@@ -1,6 +1,10 @@
-local addonName, addonTable = ...
-local L = {}
-addonTable.L = L
+--Create the library instance
+local AceLocale = LibStub:GetLibrary("AceLocale-3.0");
+
+local L = AceLocale:NewLocale("BrokerPortals", "enUS", false);
+
+--Register translations
+if L then
 
 L["ATT_MINIMAP"] = "Attach to minimap"
 L["HEARTHSTONE"] = "Hearthstone"
@@ -22,3 +26,5 @@ L["P"] = "Portals"
 L["TP_RUNE"] = "Rune of Teleportation"
 L["ANNOUNCE"] = "Announce cast of portals"
 L["ANNOUNCEMENT"] = "Casting"
+
+end

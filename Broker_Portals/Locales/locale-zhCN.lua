@@ -1,6 +1,10 @@
-if GetLocale() == "zhCN" then
-  local addonName, addonTable = ...
-  local L = addonTable.L
+--Create the library instance
+local AceLocale = LibStub:GetLibrary("AceLocale-3.0");
+
+local L = AceLocale:NewLocale("BrokerPortals", "zhCN", false);
+
+--Register translations
+if L then
 
 -- L["ANNOUNCE"] = "Announce cast of portals"
 -- L["ANNOUNCEMENT"] = "Casting"

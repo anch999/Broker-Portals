@@ -1,6 +1,11 @@
-if GetLocale() == "ruRU" then
-  local addonName, addonTable = ...
-  local L = addonTable.L
+
+--Create the library instance
+local AceLocale = LibStub:GetLibrary("AceLocale-3.0");
+
+local L = AceLocale:NewLocale("BrokerPortals", "ruRU", false);
+
+--Register translations
+if L then
 
 -- L["ANNOUNCE"] = "Announce cast of portals"
 -- L["ANNOUNCEMENT"] = "Casting"
@@ -20,7 +25,5 @@ L["SHOW_ITEMS"] = "Показывать предметы"
 L["SHOW_ITEM_COOLDOWNS"] = "Показывать время восстановления"
 L["TP"] = "Телепорты"
 L["TP_RUNE"] = "Руна телепортации"
-
-
 end
 

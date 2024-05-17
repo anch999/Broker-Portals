@@ -18,14 +18,9 @@ libs\AceLibrary\AceLibrary.lua
 libs\Dewdrop-2.0\Dewdrop-2.0.lua
 libs\LibDBIcon-1.0\LibDBIcon-1.0.lua
 
-locale-enUS.lua
-locale-deDE.lua
-locale-esES.lua
-locale-esMX.lua
-locale-frFR.lua
-locale-koKR.lua
-locale-ruRU.lua
-locale-zhCN.lua
-locale-zhTW.lua
-
+Locales\Locales.xml
 portals.lua
+Utils.lua
+PortalsAndItems.lua
+StonesOfRetreat.lua
+Minimap.lua
