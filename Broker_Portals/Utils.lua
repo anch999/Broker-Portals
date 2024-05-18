@@ -115,3 +115,14 @@ function Portals:LearnUnknownStones()
   end
   Portals:LearnUnknown()
 end
+
+function Portals:GOSSIP_SHOW()
+  if not self.db.deleteItem or GossipFrameNpcNameText:GetText() ~= "Travel Permit" then return end
+  self:RegisterEvent("GOSSIP_CLOSED")
+end
+
+function Portals:GOSSIP_CLOSED()
+  self:UnregisterEvent("GOSSIP_CLOSED")
+  self.deleteItem = 977028
+  Portals:RemoveItem("Travel Permit")
+end

@@ -631,7 +631,8 @@ function Portals:OnInitialize()
 end
 
 function Portals:OnEnable()
-  Portals:InitializeMinimap()
+  self:RegisterEvent("GOSSIP_SHOW")
+  self:InitializeMinimap()
 end
 
 function Portals:UNIT_SPELLCAST_SUCCEEDED(event, arg1, arg2)
