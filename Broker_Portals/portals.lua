@@ -275,7 +275,7 @@ function Portals:ShowStones(subMenu, spellCheck, noSpacer) --Kalimdor, true
 						if self.db.showEnemy or (Portals.stoneInfo[v].fac == fac or Portals.stoneInfo[v].fac == "Neutral") then --faction or showEnemy check
 							--returns on the first found stone to turn the menu on
               if spellCheck and CA_IsSpellKnown(v) then return true end
-							if (CA_IsSpellKnown(v) or C_VanityCollection.IsCollectionItemOwned(v)) then
+							if (CA_IsSpellKnown(v) or C_VanityCollection.IsCollectionItemOwned(VANITY_SPELL_REFERENCE[v] or v)) then
                 local name =  Portals.stoneInfo[v].zone
                 if sorted[name] then
                   name = name..ID
@@ -314,7 +314,7 @@ end
 function Portals:ShowScrolls()
   local headerSet = false
   for _,spellID in ipairs(Portals.sod) do
-    if (CA_IsSpellKnown(spellID) or C_VanityCollection.IsCollectionItemOwned(VANITY_SPELL_REFERENCE[spellID])) and (not favoritesdb[spellID] or not favoritesdb[spellID][1]) then
+    if (CA_IsSpellKnown(spellID) or C_VanityCollection.IsCollectionItemOwned(VANITY_SPELL_REFERENCE[spellID] or spellID)) and (not favoritesdb[spellID] or not favoritesdb[spellID][1]) then
       headerSet = Portals:SetHeader("Scrolls Of Defense", headerSet)
       Portals:DewDropAdd(spellID, "spell")
     end
@@ -345,7 +345,7 @@ end
 function Portals:ShowOtherPorts()
   local headerSet = false
   for _,spellID in ipairs(Portals.otherportals) do
-    if CA_IsSpellKnown(spellID) and (not favoritesdb[spellID] or not favoritesdb[spellID][1]) then
+    if (CA_IsSpellKnown(spellID) or C_VanityCollection.IsCollectionItemOwned(VANITY_SPELL_REFERENCE[spellID] or spellID)) and (not favoritesdb[spellID] or not favoritesdb[spellID][1]) then
       headerSet = Portals:SetHeader("Other Teleports/Portals", headerSet)
       Portals:DewDropAdd(spellID, "spell")
     end
