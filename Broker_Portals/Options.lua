@@ -44,7 +44,7 @@ function Portals:CreateOptionsUI()
 			self.options[name]:SetScript("OnEnter", onEnter)
 			self.options[name]:SetScript("OnLeave", onLeave or GameTooltip:Hide())
 		end
-		
+
 		local function CreateOptionsButton(addonName, name, lable, setPoint, onClick, onEnter, onLeave, size)
 			self.options[name] = CreateFrame("Button", addonName..name, _G[addonName.."Frame"], "OptionsButtonTemplate")
 			self.options[name]:SetSize(unpack(size))
@@ -138,7 +138,7 @@ function Portals:CreateOptionsUI()
 				Type = "CheckButton",
 				Name = "AutoMenu",
 				Lable = "Open menu on mouse over",
-				Func = function() self.db.deleteItem = not self.db.deleteItem end
+				Func = function() self.db.autoMenu = not self.db.autoMenu end
 			},
 			{
 				Type = "CheckButton",
