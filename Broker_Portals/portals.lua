@@ -519,7 +519,6 @@ function Portals:UpdateMenu(level, value, showUnlock)
           'textHeight', self.db.txtSize,
           'textWidth', self.db.txtSize,
           'func', self.UnlockFrame,
-          'notCheckable', true,
           'closeWhenClicked', true
       )
   end
