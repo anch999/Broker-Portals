@@ -69,7 +69,6 @@ function Portals:CreateOptionsUI()
 		end
 
 		local function CreateSlider(addonName, name, lable, minMax, setPoint, onShow, onValueChanged, size, step)
-			print(minMax[1], minMax[2])
 			self.options[name] = CreateFrame("Slider", addonName..name, _G[addonName.."Frame"], "OptionsSliderTemplate")
 			self.options[name]:SetPoint(unpack(setPoint))
 			self.options[name]:SetSize(unpack(size))

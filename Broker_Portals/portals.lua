@@ -36,10 +36,9 @@ CheckBox = Global name of the checkbox if it has one and first numbered table en
 Text = Global name of where the text and first numbered table entry is the default text 
 Frame = Frame or button etc you want hidden/shown at start based on condition ]]
 local function setupSettings(db, defaultList)
-  _G[db] = _G[db] or {}
-  db = _G[db]
+  db = db or {}
   for table, v in pairs(defaultList) do
-      if not db[table] then
+      if not db[table] and db[table] ~= false then
           if type(v) == "table" then
               db[table] = v[1]
           else
@@ -63,8 +62,8 @@ end
 
 function Portals:OnInitialize()
 
-  self.db = setupSettings("PortalsDB", DefaultSettings)
-  self.charDB = setupSettings("PortalsCharDB", CharDefaultSettings)
+  self.db = setupSettings(PortalsDB, DefaultSettings)
+  self.charDB = setupSettings(PortalsCharDB, CharDefaultSettings)
   if not self.db.setProfile[GetRealmName()] then self.db.setProfile[GetRealmName()] = {} end
   if not self.db.setProfile[GetRealmName()][UnitName("player")] then self.db.setProfile[GetRealmName()][UnitName("player")] = "Default" end
   self.activeProfile = self.db.setProfile[GetRealmName()][UnitName("player")]
