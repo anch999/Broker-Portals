@@ -6,7 +6,83 @@ Portals.defaultIcon = "Interface\\Icons\\INV_Misc_Rune_06"
 
 local xpacLevel = GetAccountExpansionLevel() + 1;
 local fac = UnitFactionGroup('player')
-local favoritesdb, activeProfile
+
+--Set Savedvariables defaults
+local DefaultSettings  = {
+  enableAutoHide = { false, CheckBox = "BrokerPortalsOptionsEnableAutoHide" },
+  hideMenu        = { true, Frame = "BrokerPortalsStandaloneButton", CheckBox = "BrokerPortalsOptionsHideMenu"},
+  minimap         = { false, CheckBox = "BrokerPortalsOptionsHideMinimap"},
+  hideRandomPet   = { true },
+  txtSize         = 12,
+  autoMenu        = { false, CheckBox = "BrokerPortalsOptionsAutoMenu"},
+  deleteItem      = { false, CheckBox = "BrokerPortalsOptionsAutoDelete" },
+  setProfile      = { {} },
+  selectedProfile = "default",
+  announceType    = "PARTYRAID",
+  showItems       = { true, CheckBox = "BrokerPortalsOptionsShowItems"},
+  showItemCooldowns = { true, CheckBox = "BrokerPortalsOptionsShowItemCooldowns"},
+  announce        = { false, CheckBox = "BrokerPortalsOptionsAnnounce"},
+  showPortals     = { false, CheckBox = "BrokerPortalsOptionsShowPortals"},
+  swapPortals     = { true,  CheckBox = "BrokerPortalsOptionsSwapTeleports"},
+  showEnemy       = { false, CheckBox = "BrokerPortalsOptionsShowEnemy"},
+  stonesSubMenu      = { true,  CheckBox = "BrokerPortalsOptionsShowStones"},
+  favorites       = { { Default = {} } },
+}
+
+local CharDefaultSettings = {}
+
+--[[ DB = Name of the db you want to setup
+CheckBox = Global name of the checkbox if it has one and first numbered table entry is the boolean
+Text = Global name of where the text and first numbered table entry is the default text 
+Frame = Frame or button etc you want hidden/shown at start based on condition ]]
+local function setupSettings(db, defaultList)
+  _G[db] = _G[db] or {}
+  db = _G[db]
+  for table, v in pairs(defaultList) do
+      if not db[table] then
+          if type(v) == "table" then
+              db[table] = v[1]
+          else
+              db[table] = v
+          end
+      end
+      if type(v) == "table" then
+          if v.CheckBox and _G[v.CheckBox] then
+              _G[v.CheckBox]:SetChecked(db[table])
+          end
+          if v.Text and _G[v.Text] then
+              _G[v.Text]:SetText(db[table])
+          end
+          if v.Frame and _G[v.Frame] then
+              if db[table] then _G[v.Frame]:Hide() else _G[v.Frame]:Show() end
+          end
+      end
+  end
+  return db
+end
+
+function Portals:OnInitialize()
+
+  self.db = setupSettings("PortalsDB", DefaultSettings)
+  self.charDB = setupSettings("PortalsCharDB", CharDefaultSettings)
+  if not self.db.setProfile[GetRealmName()] then self.db.setProfile[GetRealmName()] = {} end
+  if not self.db.setProfile[GetRealmName()][UnitName("player")] then self.db.setProfile[GetRealmName()][UnitName("player")] = "Default" end
+  self.activeProfile = self.db.setProfile[GetRealmName()][UnitName("player")]
+  if not self.db.favorites[self.activeProfile] then
+    self.db.setProfile[GetRealmName()][UnitName("player")] = "Default"
+    self.activeProfile = "Default"
+  end
+  self.favoritesdb = self.db.favorites[self.activeProfile] or self.db.favorites["Default"]
+end
+
+function Portals:OnEnable()
+  self:RegisterEvent("GOSSIP_SHOW")
+  self:InitializeMinimap()
+  self:SetMenuPos()
+  self:ToggleMainButton(self.db.enableAutoHide)
+  self.standaloneButton:SetScale(self.db.buttonScale or 1)
+end
+
 
 function Portals:SetupSpells()
   local portals = {}
@@ -73,10 +149,10 @@ end
 --used to add items or spells to the favorites
 function Portals:AddFavorites(spellID, type, mage, isPortal, portalSpellID)
   if IsAltKeyDown() then
-    if favoritesdb[spellID] and favoritesdb[spellID][1] then
-      favoritesdb[spellID] = {false}
+    if self.favoritesdb[spellID] and self.favoritesdb[spellID][1] then
+      self.favoritesdb[spellID] = {false}
     else
-      favoritesdb[spellID] = {true, type, mage, isPortal, portalSpellID}
+      self.favoritesdb[spellID] = {true, type, mage, isPortal, portalSpellID}
     end
   end
 end
@@ -86,6 +162,8 @@ function Portals:SetHeader(text, headerSet, noSpacer)
   if headerSet then return true end
   if not noSpacer then dewdrop:AddLine() end
   dewdrop:AddLine(
+    'textHeight', self.db.txtSize,
+    'textWidth', self.db.txtSize,
     'text', text,
     'isTitle', true
   )
@@ -134,6 +212,8 @@ function Portals:DewDropAdd(ID, Type, mage, isPortal, swapPortal)
     text = gsub(text, "Stone of Retreat", Portals.stoneInfo[ID].zone)
   end
   dewdrop:AddLine(
+    'textHeight', self.db.txtSize,
+    'textWidth', self.db.txtSize,
     'text', text,
     'secure', secure,
     'icon', icon,
@@ -166,7 +246,7 @@ function Portals:ShowClassSpells()
   local headerSet = false
   if portals then
     for _, v in ipairs(portals) do
-      if CA_IsSpellKnown(818045) and CA_IsSpellKnown(v[1]) and (not favoritesdb[v[1]] or not favoritesdb[v[1]][1]) then
+      if CA_IsSpellKnown(818045) and CA_IsSpellKnown(v[1]) and (not self.favoritesdb[v[1]] or not self.favoritesdb[v[1]][1]) then
         if not v[2] or (v[2] and not self.db.showPortals and not self.db.swapPortals) or (self.db.showPortals and v[2] and not self.db.swapPortals) and (GetNumPartyMembers() > 0 or UnitInRaid("player")) then
           headerSet = Portals:SetHeader("Mage Portals", headerSet)
           local name = GetSpellInfo(v[1])
@@ -180,7 +260,7 @@ function Portals:ShowClassSpells()
     end
   end
   for _, v in Portals:PairsByKeys(methods) do
-    if (not favoritesdb[v.spellID] or not favoritesdb[v.spellID][1]) then
+    if (not self.favoritesdb[v.spellID] or not self.favoritesdb[v.spellID][1]) then
       Portals:DewDropAdd(v.spellID, "spell", true, v.isPortal, v.portalSpellID)
     end
   end
@@ -237,7 +317,7 @@ end
 function Portals:ShowHearthstone()
   local headerSet = false 
   for _, itemID in ipairs(Portals.scrolls) do
-    if (Portals:HasItem(itemID) or C_VanityCollection.IsCollectionItemOwned(itemID)) and (not favoritesdb[itemID] or not favoritesdb[itemID][1]) then
+    if (Portals:HasItem(itemID) or C_VanityCollection.IsCollectionItemOwned(itemID)) and (not self.favoritesdb[itemID] or not self.favoritesdb[itemID][1]) then
       headerSet = Portals:SetHeader("Hearthstone: "..GetBindLocation(), headerSet)
       Portals:DewDropAdd(itemID, "item")
     end
@@ -245,7 +325,7 @@ function Portals:ShowHearthstone()
 
   local runeRandom = {}
   for _, spellID in ipairs(Portals.runes) do
-    if (CA_IsSpellKnown(spellID) or C_VanityCollection.IsCollectionItemOwned(VANITY_SPELL_REFERENCE[spellID] or spellID)) and (not favoritesdb[spellID] or not favoritesdb[spellID][1]) then
+    if (CA_IsSpellKnown(spellID) or C_VanityCollection.IsCollectionItemOwned(VANITY_SPELL_REFERENCE[spellID] or spellID)) and (not self.favoritesdb[spellID] or not self.favoritesdb[spellID][1]) then
       tinsert(runeRandom, spellID)
     end
   end
@@ -257,7 +337,7 @@ function Portals:ShowHearthstone()
   end
 
   for _,spellID in ipairs(Portals.hearthspells) do
-    if CA_IsSpellKnown(spellID) and (not favoritesdb[spellID] or not favoritesdb[spellID][1]) then
+    if CA_IsSpellKnown(spellID) and (not self.favoritesdb[spellID] or not self.favoritesdb[spellID][1]) then
       headerSet = Portals:SetHeader("Hearthstone: "..GetBindLocation(), headerSet)
       Portals:DewDropAdd(spellID, "spell")
     end
@@ -271,7 +351,7 @@ function Portals:ShowStones(subMenu, spellCheck, noSpacer) --Kalimdor, true
     local sorted = {}
     local headerSet = false
       for ID,v in ipairs(Portals.stones[zone]) do
-					if (not favoritesdb[v] or not favoritesdb[v][1]) and not (Portals.stoneInfo[v].factionLock and Portals.stoneInfo[v].fac ~= fac ) and (xpacLevel >= Portals.stoneInfo[v].expac) then --xpacLevel and locked cities check
+					if (not self.favoritesdb[v] or not self.favoritesdb[v][1]) and not (Portals.stoneInfo[v].factionLock and Portals.stoneInfo[v].fac ~= fac ) and (xpacLevel >= Portals.stoneInfo[v].expac) then --xpacLevel and locked cities check
 						if self.db.showEnemy or (Portals.stoneInfo[v].fac == fac or Portals.stoneInfo[v].fac == "Neutral") then --faction or showEnemy check
 							--returns on the first found stone to turn the menu on
               if spellCheck and CA_IsSpellKnown(v) then return true end
@@ -314,12 +394,12 @@ end
 function Portals:ShowScrolls()
   local headerSet = false
   for _,spellID in ipairs(Portals.sod) do
-    if (CA_IsSpellKnown(spellID) or C_VanityCollection.IsCollectionItemOwned(VANITY_SPELL_REFERENCE[spellID] or spellID)) and (not favoritesdb[spellID] or not favoritesdb[spellID][1]) then
+    if (CA_IsSpellKnown(spellID) or C_VanityCollection.IsCollectionItemOwned(VANITY_SPELL_REFERENCE[spellID] or spellID)) and (not self.favoritesdb[spellID] or not self.favoritesdb[spellID][1]) then
       headerSet = Portals:SetHeader("Scrolls Of Defense", headerSet)
       Portals:DewDropAdd(spellID, "spell")
     end
   end
-  if (Portals:HasItem(Portals.sor[fac]) or C_VanityCollection.IsCollectionItemOwned(Portals.sor[fac])) and (not favoritesdb[Portals.sor[fac]] or not favoritesdb[Portals.sor[fac]][1]) then
+  if (Portals:HasItem(Portals.sor[fac]) or C_VanityCollection.IsCollectionItemOwned(Portals.sor[fac])) and (not self.favoritesdb[Portals.sor[fac]] or not self.favoritesdb[Portals.sor[fac]][1]) then
     Portals:DewDropAdd(Portals.sor[fac], "item", fac, true)
   end
 end
@@ -328,14 +408,14 @@ end
 function Portals:ShowOtherItems()
   local headerSet = false
   for _, itemID in ipairs(Portals.items) do
-    if (Portals:HasItem(itemID) or C_VanityCollection.IsCollectionItemOwned(itemID)) and (not favoritesdb[itemID] or not favoritesdb[itemID][1]) then
+    if (Portals:HasItem(itemID) or C_VanityCollection.IsCollectionItemOwned(itemID)) and (not self.favoritesdb[itemID] or not self.favoritesdb[itemID][1]) then
       headerSet = Portals:SetHeader("Other Items", headerSet)
       Portals:DewDropAdd(itemID, "item")
     end
   end
   if UnitLevel("player") <= 8 then
     local itemID = 977028
-    if (Portals:HasItem(itemID) or C_VanityCollection.IsCollectionItemOwned(itemID)) and (not favoritesdb[itemID] or not favoritesdb[itemID][1]) then
+    if (Portals:HasItem(itemID) or C_VanityCollection.IsCollectionItemOwned(itemID)) and (not self.favoritesdb[itemID] or not self.favoritesdb[itemID][1]) then
       headerSet = Portals:SetHeader("Other Items", headerSet)
       Portals:DewDropAdd(itemID, "item")
     end
@@ -345,7 +425,7 @@ end
 function Portals:ShowOtherPorts()
   local headerSet = false
   for _,spellID in ipairs(Portals.otherportals) do
-    if (CA_IsSpellKnown(spellID) or C_VanityCollection.IsCollectionItemOwned(VANITY_SPELL_REFERENCE[spellID] or spellID)) and (not favoritesdb[spellID] or not favoritesdb[spellID][1]) then
+    if (CA_IsSpellKnown(spellID) or C_VanityCollection.IsCollectionItemOwned(VANITY_SPELL_REFERENCE[spellID] or spellID)) and (not self.favoritesdb[spellID] or not self.favoritesdb[spellID][1]) then
       headerSet = Portals:SetHeader("Other Teleports/Portals", headerSet)
       Portals:DewDropAdd(spellID, "spell")
     end
@@ -354,10 +434,10 @@ end
 
 --show favorites at the top if there are any added to it
 function Portals:ShowFavorites()
-  if favoritesdb then
+  if self.favoritesdb then
     local headerSet = false
     local sorted = {}
-    for ID ,v in pairs(favoritesdb) do
+    for ID ,v in pairs(self.favoritesdb) do
       if type(v) == "table" then
         if v[1] then
           local name
@@ -398,7 +478,7 @@ function Portals:ShowFavorites()
   end
 end
 
-function Portals:UpdateMenu(level, value)
+function Portals:UpdateMenu(level, value, showUnlock)
   if level == 1 then
     Portals:ShowFavorites()
 
@@ -409,10 +489,12 @@ function Portals:UpdateMenu(level, value)
 				if Portals:ShowStones(continent, true) then
         mainHeaderSet = Portals:SetHeader("Stones Of Retreat", mainHeaderSet)
         dewdrop:AddLine(
-        'text', continent,
-        'hasArrow', true,
-        'value', continent
-        )
+          'textHeight', self.db.txtSize,
+          'textWidth', self.db.txtSize,
+          'text', continent,
+          'hasArrow', true,
+          'value', continent
+          )
 				end
 			end
     else
@@ -431,13 +513,27 @@ function Portals:UpdateMenu(level, value)
     end
 
     dewdrop:AddLine()
+    if showUnlock then
+      dewdrop:AddLine(
+          'text', "Unlock Frame",
+          'textHeight', self.db.txtSize,
+          'textWidth', self.db.txtSize,
+          'func', self.UnlockFrame,
+          'notCheckable', true,
+          'closeWhenClicked', true
+      )
+  end
     dewdrop:AddLine(
       'text', L['OPTIONS'],
-      'hasArrow', true,
-      'value', 'options'
+      'textHeight', self.db.txtSize,
+      'textWidth', self.db.txtSize,
+      'func', self.OptionsToggle,
+      'closeWhenClicked', true
     )
 
     dewdrop:AddLine(
+      'textHeight', self.db.txtSize,
+      'textWidth', self.db.txtSize,
       'text', CLOSE,
       'tooltipTitle', CLOSE,
       'tooltipText', CLOSE_DESC,
@@ -451,188 +547,7 @@ function Portals:UpdateMenu(level, value)
     Portals:ShowStones("Outlands", nil, true)
   elseif level == 2 and value == 'Northrend' then
     Portals:ShowStones("Northrend", nil, true)
-  elseif level == 2 and value == 'options' then
-    dewdrop:AddLine(
-      'text', "Learn All Unknown Stones",
-      'func', function() 
-        Portals:LearnUnknownStones()
-      end,
-      'closeWhenClicked', true
-    )
-    dewdrop:AddLine(
-      'text', L['SHOW_ITEMS'],
-      'checked', self.db.showItems,
-      'func', function() self.db.showItems = not self.db.showItems end,
-      'closeWhenClicked', true
-    )
-    dewdrop:AddLine(
-      'text', L['SHOW_ITEM_COOLDOWNS'],
-      'checked', self.db.showItemCooldowns,
-      'func', function() self.db.showItemCooldowns = not self.db.showItemCooldowns end,
-      'closeWhenClicked', true
-    )
-    dewdrop:AddLine(
-      'text', L['ATT_MINIMAP'],
-      'checked', not self.db.minimap.hide,
-      'func', function() Portals:ToggleMinimap() end,
-      'closeWhenClicked', true
-    )
-    dewdrop:AddLine(
-      'text', L['ANNOUNCE'],
-      'checked', self.db.announce,
-      'func', function() self.db.announce = not self.db.announce end,
-      'closeWhenClicked', true
-    )
-    if self.db.announce then
-      dewdrop:AddLine(
-        'text', 'Announce in',
-        'hasArrow', true,
-        'value', 'announce'
-      )
-    end
-    dewdrop:AddLine(
-      'text', 'Show portals only in Party/Raid',
-      'checked', self.db.showPortals,
-      'func', function() self.db.showPortals = not self.db.showPortals end,
-      'closeWhenClicked', true
-    )
-    dewdrop:AddLine(
-      'text', 'Swap teleport to portal spells in Party/Raid',
-      'checked', self.db.swapPortals,
-      'func', function() self.db.swapPortals = not self.db.swapPortals end,
-      'closeWhenClicked', true
-    )
-    dewdrop:AddLine(
-      'text', 'Show Stones Of Retreats As Menus',
-      'checked', self.db.stonesSubMenu,
-      'func', function() self.db.stonesSubMenu = not self.db.stonesSubMenu end,
-      'closeWhenClicked', true
-    )
-		dewdrop:AddLine(
-      'text', 'Show enemy faction Stones of Retreats',
-      'checked', self.db.showEnemy,
-      'func', function() self.db.showEnemy = not self.db.showEnemy end,
-      'closeWhenClicked', true
-    )
-    dewdrop:AddLine(
-      'text', 'Auto delete vanity items after they have been used',
-      'checked', self.db.deleteItem,
-      'func', function() self.db.deleteItem = not self.db.deleteItem end,
-      'closeWhenClicked', true
-    )
-    dewdrop:AddLine(
-        'text', "Favorites Profiles",
-        'hasArrow', true,
-        'value', "profile"
-      )
-  elseif level == 3 then 
-    if value == 'announce' then
-      dewdrop:AddLine(
-        'text', 'Say',
-        'checked', self.db.announceType == 'SAY',
-        'func', function() self.db.announceType = 'SAY' end,
-        'closeWhenClicked', true
-      )
-      dewdrop:AddLine(
-        'text', '|cffff0000Yell|r',
-        'checked', self.db.announceType == 'YELL',
-        'func', function() self.db.announceType = 'YELL' end,
-        'closeWhenClicked', true
-      )
-      dewdrop:AddLine(
-        'text', '|cff00ffffParty|r/|cffff7f00Raid',
-        'checked', self.db.announceType == 'PARTYRAID',
-        'func', function() self.db.announceType = 'PARTYRAID' end,
-        'closeWhenClicked', true
-      )
-    elseif value == "profile" then
-      local checked = false
-      if activeProfile == "Default" then checked = true end
-      dewdrop:AddLine(
-            'text', "Default",
-            'checked', checked,
-            'tooltipText',"Default can not be removed.",
-            'func', function()
-                activeProfile = "Default"
-                favoritesdb = self.db.favorites[activeProfile]
-            end,
-            'closeWhenClicked', true
-          )
-      for profile, _ in pairs(self.db.favorites) do
-        local checked = false
-        if profile ~= "Default" then
-          if profile == activeProfile then checked = true end
-          dewdrop:AddLine(
-            'text', profile,
-            'checked', checked,
-            'tooltipText',"Alt click to remove.",
-            'func', function()
-              if IsAltKeyDown() then
-                StaticPopupDialogs.BROKER_PORTALS_DELETE_PROFILE.profile = profile
-                StaticPopup_Show("BROKER_PORTALS_DELETE_PROFILE")
-              else
-                activeProfile = profile
-                favoritesdb = self.db.favorites[activeProfile]
-                self.db.setProfile[GetRealmName()][UnitName("player")] = activeProfile
-              end
-            end,
-            'closeWhenClicked', true
-          )
-        end
-      end
-        dewdrop:AddLine(
-        'text', "Add Profile",
-        'func', function() StaticPopup_Show("BROKER_PORTALS_ADD_PROFILE") end,
-        'closeWhenClicked', true
-        )
-    end
   end
-end
-
-function Portals:OnInitialize()
-  if (not PortalsDB) then
-    PortalsDB = {}
-    PortalsDB.minimap = {}
-    PortalsDB.minimap.hide = false
-    PortalsDB.showItems = true
-    PortalsDB.showItemCooldowns = true
-    PortalsDB.announce = false
-  end
-  self.db = PortalsDB
-  if not self.db.announceType then self.db.announceType = 'PARTYRAID' end
-  if not self.db.showPortals then self.db.showPortals = false end
-	if not self.db.showEnemy then self.db.showEnemy = false end
-  if not self.db.favorites then self.db.favorites = {} end
-  if not self.db.favorites.Default then self.db.favorites.Default = {} end
-  if not self.db.setProfile then self.db.setProfile = {} end
-  if not self.db.setProfile[GetRealmName()] then self.db.setProfile[GetRealmName()] = {} end
-  if not self.db.setProfile[GetRealmName()][UnitName("player")] then self.db.setProfile[GetRealmName()][UnitName("player")] = "Default" end
-  activeProfile = self.db.setProfile[GetRealmName()][UnitName("player")]
-  if not self.db.favorites[activeProfile] then
-    self.db.setProfile[GetRealmName()][UnitName("player")] = "Default"
-    activeProfile = "Default"
-  end
-  favoritesdb = self.db.favorites[activeProfile] or self.db.favorites["Default"]
-  if not favoritesdb.version then favoritesdb.version = 0 end
-  if favoritesdb.version == 0 then
-    for _, db in pairs(favoritesdb) do
-      if type(db) == "table" then
-        db[3] = db[6]
-        db[4] = db[7]
-        db[5] = db[8]
-        db[6] = nil
-        db[7] = nil
-        db[8] = nil
-        db[9] = nil
-        end
-    end
-    favoritesdb.version = 0.01
-  end
-end
-
-function Portals:OnEnable()
-  self:RegisterEvent("GOSSIP_SHOW")
-  self:InitializeMinimap()
 end
 
 function Portals:UNIT_SPELLCAST_SUCCEEDED(event, arg1, arg2)
@@ -642,48 +557,3 @@ end
 -- slashcommand definition
 SlashCmdList['BROKER_PORTALS'] = function(msg) Portals:ToggleMinimap(msg) end
 SLASH_BROKER_PORTALS1 = '/portals'
-
-StaticPopupDialogs["BROKER_PORTALS_ADD_PROFILE"] = {
-  text = "Add New Profile",
-  button1 = "Confirm",
-  button2 = "Cancel",
-  hasEditBox = true,
-  OnShow = function(self)
-  self:SetFrameStrata("TOOLTIP");
-end,
-  OnAccept = function (self)
-      local text = self.editBox:GetText()
-      if text ~= "" then
-        PortalsDB.favorites[text] = {}
-        activeProfile = text
-        favoritesdb = PortalsDB.favorites[activeProfile]
-      end
-  end,
-  timeout = 0,
-  whileDead = true,
-  hideOnEscape = true,
-  preferredIndex = 3,
-  enterClicksFirstButton = true,
-}
-
-StaticPopupDialogs["BROKER_PORTALS_DELETE_PROFILE"] = {
-  text = "Delete Profile?",
-  button1 = "Confirm",
-  button2 = "Cancel",
-  OnShow = function(self)
-  self:SetFrameStrata("TOOLTIP");
-  end,
-  OnAccept = function (self)
-    local profile = StaticPopupDialogs.BROKER_PORTALS_DELETE_PROFILE.profile
-    if activeProfile == profile then
-      activeProfile = "Default"
-      favoritesdb = PortalsDB.favorites[activeProfile]
-    end
-    PortalsDB.favorites[profile] = nil
-  end,
-  timeout = 0,
-  whileDead = true,
-  hideOnEscape = true,
-  preferredIndex = 3,
-  enterClicksFirstButton = true,
-}

@@ -1,6 +1,8 @@
 local Portals = LibStub("AceAddon-3.0"):GetAddon("BrokerPortals")
-
+local L = LibStub("AceLocale-3.0"):GetLocale("BrokerPortals")
 local cTip = CreateFrame("GameTooltip","cTooltip",nil,"GameTooltipTemplate")
+local dewdrop = LibStub('Dewdrop-2.0', true)
+local WHITE = "|cffFFFFFF"
 
 function Portals:IsRealmbound(bag, slot)
     cTip:SetOwner(UIParent, "ANCHOR_NONE")
@@ -94,6 +96,14 @@ function Portals:HasItem(itemID)
     return iter
 end
 
+function Portals:GetTipAnchor(frame)
+  local x, y = frame:GetCenter()
+  if not x or not y then return 'TOPLEFT', 'BOTTOMLEFT' end
+  local hhalf = (x > UIParent:GetWidth() * 2 / 3) and 'RIGHT' or (x < UIParent:GetWidth() / 3) and 'LEFT' or ''
+  local vhalf = (y > UIParent:GetHeight() / 2) and 'TOP' or 'BOTTOM'
+  return vhalf .. hhalf, frame, (vhalf == 'TOP' and 'BOTTOM' or 'TOP') .. hhalf
+end
+
 local UnknownList = {}
 function Portals:LearnUnknown()
   for i, v in pairs(UnknownList) do
@@ -116,6 +126,19 @@ function Portals:LearnUnknownStones()
   Portals:LearnUnknown()
 end
 
+--for a adding a divider to dew drop menus 
+function Portals:AddDividerLine(maxLenght)
+  local text = WHITE.."----------------------------------------------------------------------------------------------------"
+    dewdrop:AddLine(
+      'text' , text:sub(1, maxLenght),
+      'textHeight', self.db.txtSize,
+      'textWidth', self.db.txtSize,
+      'isTitle', true,
+      "notCheckable", true
+  )
+  return true
+end
+
 function Portals:GOSSIP_SHOW()
   if not self.db.deleteItem or GossipFrameNpcNameText:GetText() ~= "Travel Permit" then return end
   self:RegisterEvent("GOSSIP_CLOSED")
@@ -125,4 +148,55 @@ function Portals:GOSSIP_CLOSED()
   self:UnregisterEvent("GOSSIP_CLOSED")
   self.deleteItem = 977028
   Portals:RemoveItem("Travel Permit")
+end
+
+function Portals:OnEnter(button)
+
+    if self.db.autoMenu and not UnitAffectingCombat("player") then
+      Portals:OpenMenu(button)
+    else
+      GameTooltip:SetOwner(button, 'ANCHOR_NONE')
+      GameTooltip:SetPoint(Portals:GetTipAnchor(button))
+      GameTooltip:ClearLines()
+
+      GameTooltip:AddLine('Broker Portals')
+      GameTooltip:AddDoubleLine(L['RCLICK'], L['SEE_SPELLS'], 0.9, 0.6, 0.2, 0.2, 1, 0.2)
+      GameTooltip:AddDoubleLine(L['ALTCLICK'], L['MOVE_SPELLS'], 0.9, 0.6, 0.2, 0.2, 1, 0.2)
+      GameTooltip:AddLine(' ')
+      GameTooltip:AddDoubleLine(L['HEARTHSTONE'] .. ': ' .. GetBindLocation(), Portals:GetHearthCooldown(), 0.9, 0.6, 0.2, 0.2, 1,
+        0.2)
+
+      if PortalsDB.showItemCooldowns then
+        local cooldowns = Portals:GetItemCooldowns()
+        if cooldowns ~= nil then
+          GameTooltip:AddLine(' ')
+          for name, cooldown in pairs(cooldowns) do
+            GameTooltip:AddDoubleLine(name, cooldown, 0.9, 0.6, 0.2, 0.2, 1, 0.2)
+          end
+        end
+      end
+
+    GameTooltip:Show()
+  end
+end
+
+local worldFrameHook
+function Portals:OpenMenu(button, showUnlock)
+  GameTooltip:Hide()
+  dewdrop:Open(button,
+  'point', function(parent)
+    return "TOP", "BOTTOM"
+  end,
+  'children', function(level, value)
+      Portals:UpdateMenu(level, value, showUnlock)
+  end)
+
+  if not worldFrameHook then
+    WorldFrame:HookScript("OnEnter", function()
+        if dewdrop:IsOpen(button) then
+            dewdrop:Close()
+        end
+    end)
+    worldFrameHook = true
+end
 end
