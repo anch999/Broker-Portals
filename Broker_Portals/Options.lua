@@ -201,7 +201,7 @@ function BrokerPortals_Options_Menu_Initialize()
 		info = {
 			text = i;
 			func = function() 
-				Portals.db.TxtSize = i
+				Portals.db.txtSize = i
 				local thisID = this:GetID();
 				UIDropDownMenu_SetSelectedID(BrokerPortalsOptionstxtSizeMenu, thisID)
 			end;
@@ -209,13 +209,12 @@ function BrokerPortals_Options_Menu_Initialize()
 			UIDropDownMenu_AddButton(info)
 	end
 	UIDropDownMenu_SetWidth(BrokerPortalsOptionstxtSizeMenu, 150)
-	UIDropDownMenu_SetSelectedID(BrokerPortalsOptionstxtSizeMenu, Portals.db.TxtSize - 9)
+	UIDropDownMenu_SetSelectedID(BrokerPortalsOptionstxtSizeMenu, Portals.db.txtSize - 9)
 end
 
 function BrokerPortals_Options_Announce_Initialize()
 	local info, selected
 	for i, announceType in ipairs(BrokerPortalsOptionsannounceMenu.Menu) do
-
 		if (Portals.db.announceType == announceType[2]) then
 			selected =  i
 		end
