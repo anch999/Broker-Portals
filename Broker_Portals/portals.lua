@@ -1,4 +1,4 @@
-local Portals = LibStub("AceAddon-3.0"):NewAddon("BrokerPortals", "AceTimer-3.0", "AceEvent-3.0")
+local Portals = LibStub("AceAddon-3.0"):NewAddon("BrokerPortals", "AceTimer-3.0", "AceEvent-3.0", "SettingsCreater-1.0")
 BROKERPORTALS = Portals
 local dewdrop = LibStub('Dewdrop-2.0', true)
 local L = LibStub("AceLocale-3.0"):GetLocale("BrokerPortals")
@@ -9,61 +9,31 @@ local fac = UnitFactionGroup('player')
 
 --Set Savedvariables defaults
 local DefaultSettings  = {
-  enableAutoHide = { false, CheckBox = "BrokerPortalsOptionsEnableAutoHide" },
-  hideMenu        = { true, Frame = "BrokerPortalsStandaloneButton", CheckBox = "BrokerPortalsOptionsHideMenu"},
-  minimap         = { false, CheckBox = "BrokerPortalsOptionsHideMinimap"},
-  hideRandomPet   = { true },
+  enableAutoHide = { false },
+  hideMenu        = { true, HideFrame = "BrokerPortalsStandaloneButton"},
+  minimap         = { false },
   txtSize         = 12,
-  autoMenu        = { false, CheckBox = "BrokerPortalsOptionsAutoMenu"},
-  deleteItem      = { false, CheckBox = "BrokerPortalsOptionsAutoDelete" },
+  autoMenu        = { false },
+  deleteItem      = { false },
   setProfile      = { {} },
   selectedProfile = "default",
   announceType    = "PARTYRAID",
-  showItems       = { true, CheckBox = "BrokerPortalsOptionsShowItems"},
-  showItemCooldowns = { true, CheckBox = "BrokerPortalsOptionsShowItemCooldowns"},
-  announce        = { false, CheckBox = "BrokerPortalsOptionsAnnounce"},
-  showPortals     = { false, CheckBox = "BrokerPortalsOptionsShowPortals"},
-  swapPortals     = { true,  CheckBox = "BrokerPortalsOptionsSwapTeleports"},
-  showEnemy       = { false, CheckBox = "BrokerPortalsOptionsShowEnemy"},
-  stonesSubMenu      = { true,  CheckBox = "BrokerPortalsOptionsShowStones"},
+  showItems       = { true },
+  showItemCooldowns = { true },
+  announce        = { false },
+  showPortals     = { false },
+  swapPortals     = { true },
+  showEnemy       = { false },
+  stonesSubMenu      = { true },
   favorites       = { { Default = {} } },
 }
 
 local CharDefaultSettings = {}
 
---[[ DB = Name of the db you want to setup
-CheckBox = Global name of the checkbox if it has one and first numbered table entry is the boolean
-Text = Global name of where the text and first numbered table entry is the default text 
-Frame = Frame or button etc you want hidden/shown at start based on condition ]]
-local function setupSettings(db, defaultList)
-  db = db or {}
-  for table, v in pairs(defaultList) do
-      if not db[table] and db[table] ~= false then
-          if type(v) == "table" then
-              db[table] = v[1]
-          else
-              db[table] = v
-          end
-      end
-      if type(v) == "table" then
-          if v.CheckBox and _G[v.CheckBox] then
-              _G[v.CheckBox]:SetChecked(db[table])
-          end
-          if v.Text and _G[v.Text] then
-              _G[v.Text]:SetText(db[table])
-          end
-          if v.Frame and _G[v.Frame] then
-              if db[table] then _G[v.Frame]:Hide() else _G[v.Frame]:Show() end
-          end
-      end
-  end
-  return db
-end
-
 function Portals:OnInitialize()
 
-  self.db = setupSettings(PortalsDB, DefaultSettings)
-  self.charDB = setupSettings(PortalsCharDB, CharDefaultSettings)
+  self.db = self:SetupDB(PortalsDB, DefaultSettings)
+  self.charDB = self:SetupDB(PortalsCharDB, CharDefaultSettings)
   if not self.db.setProfile[GetRealmName()] then self.db.setProfile[GetRealmName()] = {} end
   if not self.db.setProfile[GetRealmName()][UnitName("player")] then self.db.setProfile[GetRealmName()][UnitName("player")] = "Default" end
   self.activeProfile = self.db.setProfile[GetRealmName()][UnitName("player")]
@@ -72,6 +42,7 @@ function Portals:OnInitialize()
     self.activeProfile = "Default"
   end
   self.favoritesdb = self.db.favorites[self.activeProfile] or self.db.favorites["Default"]
+  self:CreateOptionsUI()
 end
 
 function Portals:OnEnable()

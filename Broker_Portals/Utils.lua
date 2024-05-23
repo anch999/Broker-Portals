@@ -150,10 +150,10 @@ function Portals:GOSSIP_CLOSED()
   Portals:RemoveItem("Travel Permit")
 end
 
-function Portals:OnEnter(button)
+function Portals:OnEnter(button, unlock)
 
     if self.db.autoMenu and not UnitAffectingCombat("player") then
-      Portals:OpenMenu(button)
+      Portals:OpenMenu(button, unlock)
     else
       GameTooltip:SetOwner(button, 'ANCHOR_NONE')
       GameTooltip:SetPoint(Portals:GetTipAnchor(button))
@@ -185,7 +185,8 @@ function Portals:OpenMenu(button, showUnlock)
   GameTooltip:Hide()
   dewdrop:Open(button,
   'point', function(parent)
-    return "TOP", "BOTTOM"
+    local point1, _, point2 = self:GetTipAnchor(button)
+    return point1, point2
   end,
   'children', function(level, value)
       Portals:UpdateMenu(level, value, showUnlock)
