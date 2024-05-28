@@ -142,6 +142,7 @@ function Portals:CreateOptionsUI()
 			},
 			{
 				Type = "Button",
+				Position = "Right",
 				Name = "ProfileDelete",
 				Lable = "Delete Profile",
 				Size = {100,25},
@@ -159,7 +160,6 @@ function Portals:CreateOptionsUI()
 				Size = {240,16},
 				OnShow = function() self.options.buttonScale:SetValue(self.db.buttonScale or 1) end,
 				OnValueChanged = function()
-					_G[self.options.buttonScale:GetName().."Text"]:SetText("Standalone Button Scale: ".." ("..round(self.options.buttonScale:GetValue(),2)..")")
 					self.db.buttonScale = self.options.buttonScale:GetValue()
 					if self.standaloneButton then
 						self.standaloneButton:SetScale(self.db.buttonScale)
