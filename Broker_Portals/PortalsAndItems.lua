@@ -1,5 +1,9 @@
 local Portals = LibStub("AceAddon-3.0"):GetAddon("BrokerPortals")
 
+Portals.dontDeleteAfterCast = {
+  [10] = "Flight Master's Whistle", -- Flight Master's Whistle
+  [977028] = "Travel Permit",
+}
 -- IDs of items usable for transportation
 Portals.items = {
     -- Dalaran rings
@@ -36,7 +40,7 @@ Portals.items = {
     52251, -- Jaina's Locket
     10, -- Flight Master's Whistle
   }
-  
+
   -- IDs of items usable instead of hearthstone
   Portals.scrolls = {
     6948, -- Hearthstone

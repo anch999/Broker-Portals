@@ -139,15 +139,23 @@ function Portals:AddDividerLine(maxLenght)
   return true
 end
 
+local gossipInfo
 function Portals:GOSSIP_SHOW()
-  if not self.db.deleteItem or GossipFrameNpcNameText:GetText() ~= "Travel Permit" then return end
-  self:RegisterEvent("GOSSIP_CLOSED")
+  gossipInfo = nil
+  if not self.db.deleteItem then return end
+  for ID, frame in pairs(self.dontDeleteAfterCast) do
+    if GossipFrameNpcNameText:GetText() == frame then
+      gossipInfo = {ID, frame}
+      return self:RegisterEvent("GOSSIP_CLOSED")
+    end
+  end
 end
 
 function Portals:GOSSIP_CLOSED()
   self:UnregisterEvent("GOSSIP_CLOSED")
-  self.deleteItem = 977028
-  Portals:RemoveItem("Travel Permit")
+  if not gossipInfo then return end
+  self.deleteItem = gossipInfo[1]
+  Timer.After(1, function() self:RemoveItem(gossipInfo[2]) end)
 end
 
 function Portals:OnEnter(button, unlock)

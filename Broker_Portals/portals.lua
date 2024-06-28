@@ -195,7 +195,7 @@ function Portals:DewDropAdd(ID, Type, mage, isPortal, swapPortal)
       elseif not hasVanity and C_VanityCollection.IsCollectionItemOwned(VANITY_SPELL_REFERENCE[ID] or ID) then
         RequestDeliverVanityCollectionItem(VANITY_SPELL_REFERENCE[ID] or ID)
       else
-        if Type == "item" and self.db.deleteItem then
+        if Type == "item" and not self.dontDeleteAfterCast[ID] and self.db.deleteItem then
           self.deleteItem = ID
           self:RegisterEvent("UNIT_SPELLCAST_SUCCEEDED")
         end
@@ -412,11 +412,11 @@ function Portals:ShowFavorites()
         if v[1] then
           local name
           if v[2] == "item" then
-            name = GetItemInfo(ID)
+            name = GetItemInfoInstant(ID)
           else
             name = GetSpellInfo(ID)
           end
-          if CA_IsSpellKnown(ID) or Portals:HasItem(ID) then
+          if CA_IsSpellKnown(ID) or C_VanityCollection.IsCollectionItemOwned(VANITY_SPELL_REFERENCE[ID] or ID) or Portals:HasItem(ID) then
             if Portals.stoneInfo[ID] then
               name = Portals.stoneInfo[ID].zone
             end
@@ -438,7 +438,7 @@ function Portals:ShowFavorites()
           if  ( v[3] and (not v[4] and CA_IsSpellKnown(818045) and CA_IsSpellKnown(v[1])) or
               (v[4] and self.db.showPortals and not self.db.swapPortals and CA_IsSpellKnown(818045) and CA_IsSpellKnown(v[1]) and ((GetNumPartyMembers() > 0 or UnitInRaid("player")))) or
               (v[4] and not self.db.showPortals and not self.db.swapPortals and CA_IsSpellKnown(818045) and CA_IsSpellKnown(v[1]))) or
-              (not v[3] and CA_IsSpellKnown(v[1])) or Portals:HasItem(v[1]) then
+              (not v[3] and CA_IsSpellKnown(v[1])) or C_VanityCollection.IsCollectionItemOwned(VANITY_SPELL_REFERENCE[v[1]] or v[1]) or Portals:HasItem(v[1]) then
                 headerSet = Portals:SetHeader("Favorites", headerSet, true)
                 Portals:DewDropAdd(v[1], v[2], v[3], v[4], v[5])
           end

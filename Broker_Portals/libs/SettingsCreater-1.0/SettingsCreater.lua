@@ -1,4 +1,4 @@
-local MAJOR, MINOR = "SettingsCreater-1.0", 1
+local MAJOR, MINOR = "SettingsCreater-1.0", 2
 
 if not AceLibrary then error(MAJOR .. " requires AceLibrary") end
 if not AceLibrary:IsNewVersion(MAJOR, MINOR) then return end
@@ -90,13 +90,11 @@ local function CreateSlider(options, db, frame, addonName, setPoint, opTable)
     _G[options[opTable.Name]:GetName().."Text"]:SetText(opTable.Lable)
     _G[options[opTable.Name]:GetName().."Low"]:SetText(opTable.MinMax[1])
     _G[options[opTable.Name]:GetName().."High"]:SetText(opTable.MinMax[2])
-    options[opTable.Name]:SetScript("OnValueChanged", function()
-        opTable.OnValueChanged()
+    options[opTable.Name]:SetScript("OnValueChanged", function(slider)
+        opTable.OnValueChanged(slider)
         options[opTable.Name].editBox:SetText(round(options[opTable.Name]:GetValue(),2))
     end)
-    options[opTable.Name]:SetScript("OnShow", function()
-        opTable.OnShow()
-    end)
+    options[opTable.Name]:SetScript("OnShow", opTable.OnShow)
     options[opTable.Name]:SetValueStep(opTable.Step)
     options[opTable.Name].editBox = CreateFrame("EditBox", addonName.."Options"..opTable.Name.."SliderInputBox", options[opTable.Name], "InputBoxTemplate2")
     options[opTable.Name].editBox:SetSize(50, 25)
