@@ -4,6 +4,7 @@ local dewdrop = LibStub('Dewdrop-2.0', true)
 local icon = LibStub('LibDBIcon-1.0')
 local math_floor = math.floor
 local aceTimer = LibStub('AceTimer-3.0')
+local UpdateMenu
 
 local xpacLevel = GetAccountExpansionLevel() + 1;
 
@@ -35,8 +36,6 @@ local function learnUnknownStones()
   aceTimer:learnUnknown()
 end
 
-
-local UnknownList = {}
 function aceTimer:learnUnknown()
   for i, v in pairs(UnknownList) do
     if not v then return end
@@ -47,15 +46,6 @@ function aceTimer:learnUnknown()
     end
   end
   aceTimer:ScheduleTimer("learnUnknown", .1)
-end
-
-local function learnUnknownStones()
-  for _,v in pairs(VANITY_ITEMS) do
-    if C_VanityCollection.IsCollectionItemOwned(v.itemid) and not CA_IsSpellKnown(v.learnedSpell) and v.name:match("Stone of Retreat") then
-      UnknownList[v.itemid] = v.learnedSpell
-    end
-  end
-  aceTimer:learnUnknown()
 end
 
 -- IDs of items usable for transportation
@@ -232,6 +222,51 @@ local stones = {
     102190, -- Stonebreaker Hold
     102197, -- Thrallmar
     102201, -- Zabra'jin
+  },
+  Northrend = {
+    expansion = 3,
+    header = "Northrend",
+    76876, -- Warsong Hold
+    76877, -- Valiance Keep
+    76878, -- Coldarra
+    76879, -- Unu'pe
+    76880, -- Vengeance Landing
+    76881, -- New Agamand
+    76882, -- Utgarde Keep
+    76883, -- Valgarde
+    76884, -- Westguard Keep
+    76885, -- Naxxramas (Dragonblight)
+    76886, -- Wintergarde Keep
+    76887, -- Wyrmrest Temple
+    76888, -- Moa'ki Harbor
+    76889, -- Agmar's Hammer
+    76890, -- Azjol-Nerub
+    76891, -- Venture Bay
+    76892, -- Conquest Hold
+    76893, -- Westfall Brigade Encampment
+    76894, -- The Argent Stand
+    76895, -- Drak'Tharon Keep
+    76896, -- Gundrak
+    76897, -- Ladeside Landing
+    76898, -- Nesingwary Base Camp
+    76899, -- Ulduar
+    76900, -- K3
+    76901, -- Grom'arsh Crash-Site
+    76902, -- Frosthold
+    76903, -- Brunnhildar Village
+    76904, -- Dun Niffelem
+    76905, -- Argent Tournament Grounds
+    76906, -- The Shadow Vault
+    76907, -- Blackwatch
+    76908, -- Icecrown Citadel
+    76909, -- The Argent Vanguard
+    76910, -- Zim'Torga
+    76911, -- Amberpine Lodge
+    76912, -- Camp Oneqwah
+    76913, -- Camp Winterhoof
+    76914, -- Stars' Rest
+    76915, -- Venomspite
+    777028, -- Dalaran City
   }
 
 }
@@ -351,6 +386,48 @@ local stoneInfo = {
     [102190] = { fac = "Horde", expac = 2 , zone = "Terrokar Forest" }, -- Stonebreaker Hold
     [102197] = { fac = "Horde", expac = 2 , zone = "Hellfire Peninsula" }, -- Thrallmar
     [102201] = { fac = "Horde", expac = 2 , zone = "Zangarmarsh" }, -- Zabra'jin
+    --Northend
+    [76876] = { fac = "Horde", expac = 3 , zone = "Borean Tundra" }, -- Warsong Hold
+    [76877] = { fac = "Alliance", expac = 3 , zone = "Borean Tundra" }, -- Valiance Keep
+    [76878] = { fac = "Neutral", expac = 3 , zone = "Coldarra" }, -- Coldarra
+    [76879] = { fac = "Neutral", expac = 3 , zone = "Borean Tundra" }, -- Unu'pe
+    [76880] = { fac = "Horde", expac = 3 , zone = "Howling Fjord" }, -- Vengeance Landing
+    [76881] = { fac = "Horde", expac = 3 , zone = "Howling Fjord" }, -- New Agamand
+    [76882] = { fac = "Neutral", expac = 3 , zone = "Howling Fjord" }, -- Utgarde Keep
+    [76883] = { fac = "Alliance", expac = 3 , zone = "Howling Fjord" }, -- Valgarde
+    [76884] = { fac = "Alliance", expac = 3 , zone = "Howling Fjord" }, -- Westguard Keep
+    [76885] = { fac = "Neutral", expac = 3 , zone = "Dragonblight" }, -- Naxxramas (Dragonblight)
+    [76886] = { fac = "Alliance", expac = 3 , zone = "Dragonblight" }, -- Wintergarde Keep
+    [76887] = { fac = "Neutral", expac = 3 , zone = "Dragonblight" }, -- Wyrmrest Temple
+    [76888] = { fac = "Neutral", expac = 3 , zone = "Dragonblight" }, -- Moa'ki Harbor
+    [76889] = { fac = "Horde", expac = 3 , zone = "Dragonblight" }, -- Agmar's Hammer
+    [76890] = { fac = "Neutral", expac = 3 , zone = "Azjol-Nerub" }, -- Azjol-Nerub
+    [76891] = { fac = "Neutral", expac = 3 , zone = "Grizzly Hills" }, -- Venture Bay
+    [76892] = { fac = "Horde", expac = 3 , zone = "Grizzly Hills" }, -- Conquest Hold
+    [76893] = { fac = "Alliance", expac = 3 , zone = "Grizzly Hills" }, -- Westfall Brigade Encampment
+    [76894] = { fac = "Alliance", expac = 3 , zone = "Zul'Drak" }, -- The Argent Stand
+    [76895] = { fac = "Neutral", expac = 3 , zone = "Zul'Drak" }, -- Drak'Tharon Keep
+    [76896] = { fac = "Neutral", expac = 3 , zone = "Zul'Drak" }, -- Gundrak
+    [76897] = { fac = "Neutral", expac = 3 , zone = "Sholazar Basin" }, -- Lakeside Landing
+    [76898] = { fac = "Neutral", expac = 3 , zone = "Sholazar Basin" }, -- Nesingwary Base Camp
+    [76899] = { fac = "Neutral", expac = 3 , zone = "The Storm Peaks" }, -- Ulduar
+    [76900] = { fac = "Neutral", expac = 3 , zone = "The Storm Peaks" }, -- K3
+    [76901] = { fac = "Horde", expac = 3 , zone = "The Storm Peaks" }, -- Grom'arsh Crash-Site
+    [76902] = { fac = "Alliance", expac = 3 , zone = "The Storm Peaks" }, -- Frosthold
+    [76903] = { fac = "Neutral", expac = 3 , zone = "The Storm Peaks" }, -- Brunnhildar Village
+    [76904] = { fac = "Neutral", expac = 3 , zone = "The Storm Peaks" }, -- Dun Niffelem
+    [76905] = { fac = "Neutral", expac = 3 , zone = "Icecrown" }, -- Argent Tournament Grounds
+    [76906] = { fac = "Neutral", expac = 3 , zone = "Icecrown" }, -- The Shadow Vault
+    [76907] = { fac = "Neutral", expac = 3 , zone = "Icecrown" }, -- Blackwatch
+    [76908] = { fac = "Neutral", expac = 3 , zone = "Icecrown" }, -- Icecrown Citadel
+    [76909] = { fac = "Neutral", expac = 3 , zone = "Icecrown" }, -- The Argent Vanguard
+    [76910] = { fac = "Neutral", expac = 3 , zone = "Zul'Drak" }, -- Zim'Torga
+    [76911] = { fac = "Alliance", expac = 3 , zone = "Grizzly Hills" }, -- Amberpine Lodge
+    [76912] = { fac = "Horde", expac = 3 , zone = "Grizzly Hills" }, -- Camp Oneqwah
+    [76913] = { fac = "Horde", expac = 3 , zone = "Grizzly Hills" }, -- Camp Winterhoof
+    [76914] = { fac = "Alliance", expac = 3 , zone = "Dragonblight" }, -- Stars' Rest
+    [76915] = { fac = "Horde", expac = 3 , zone = "Dragonblight" }, -- Venomspite
+    [777028] = { fac = "Neutral", expac = 3 , zone = "Crystalsong Forest" } -- Dalaran City
 }
 
 -- Ascension: Runes of Retreat
@@ -772,13 +849,18 @@ local function ShowOtherPorts()
   end
 end
 
-local function ToggleMinimap()
-  local hide = not PortalsDB.minimap.hide
-  PortalsDB.minimap.hide = hide
-  if hide then
-    icon:Hide('Broker_Portals')
+local function ToggleMinimap(msg)
+  if msg == "macromenu" then
+    if dewdrop:IsOpen(GetMouseFocus()) then dewdrop:Close() return end
+    dewdrop:Open(GetMouseFocus(), 'children', function(level, value) UpdateMenu(level, value) end)
   else
-    icon:Show('Broker_Portals')
+    local hide = not PortalsDB.minimap.hide
+    PortalsDB.minimap.hide = hide
+    if hide then
+      icon:Hide('Broker_Portals')
+    else
+      icon:Show('Broker_Portals')
+    end
   end
 end
 
@@ -819,7 +901,7 @@ local function showFavorites()
               (v[4] and PortalsDB.showPortals and not PortalsDB.swapPortals and CA_IsSpellKnown(818045) and CA_IsSpellKnown(v[1]) and ((GetNumPartyMembers() > 0 or UnitInRaid("player")))) or
               (v[4] and not PortalsDB.showPortals and not PortalsDB.swapPortals and CA_IsSpellKnown(818045) and CA_IsSpellKnown(v[1]))) or
               (not v[3] and CA_IsSpellKnown(v[1])) or hasItem(v[1]) then
-                headerSet = setHeader("Favorites", headerSet)
+                headerSet = setHeader("Favorites", headerSet, true)
                 dewdropAdd(v[1], v[2], v[3], v[4], v[5])
           end
         end
@@ -828,12 +910,8 @@ local function showFavorites()
   end
 end
 
-local function UpdateMenu(level, value)
+UpdateMenu = function(level, value)
   if level == 1 then
-    dewdrop:AddLine(
-      'text', 'Broker_Portals',
-      'isTitle', true
-    )
     showFavorites()
 
     if PortalsDB.stonesSubMenu then
@@ -883,6 +961,8 @@ local function UpdateMenu(level, value)
     showStones("EasternKingdoms", nil, true)
   elseif level == 2 and value == 'Outlands' then
     showStones("Outlands", nil, true)
+  elseif level == 2 and value == 'Northrend' then
+    showStones("Northrend", nil, true)
   elseif level == 2 and value == 'options' then
     dewdrop:AddLine(
       'text', "Learn All Unknown Stones",
@@ -1070,10 +1150,8 @@ local function GetTipAnchor(frame)
 end
 
 function obj.OnClick(self, button)
-  GameTooltip:Hide()
-  if button == 'RightButton' then
+    GameTooltip:Hide()
     dewdrop:Open(self, 'children', function(level, value) UpdateMenu(level, value) end)
-  end
 end
 
 function obj.OnLeave()
@@ -1106,7 +1184,7 @@ function obj.OnEnter(self)
 end
 
 -- slashcommand definition
-SlashCmdList['BROKER_PORTALS'] = function() ToggleMinimap() end
+SlashCmdList['BROKER_PORTALS'] = function(msg) ToggleMinimap(msg) end
 SLASH_BROKER_PORTALS1 = '/portals'
 
 StaticPopupDialogs["BROKER_PORTALS_ADD_PROFILE"] = {
