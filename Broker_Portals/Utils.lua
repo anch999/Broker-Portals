@@ -174,7 +174,7 @@ function Portals:OnEnter(button, unlock)
       GameTooltip:AddDoubleLine(L['HEARTHSTONE'] .. ': ' .. GetBindLocation(), Portals:GetHearthCooldown(), 0.9, 0.6, 0.2, 0.2, 1,
         0.2)
 
-      if PortalsDB.showItemCooldowns then
+      if self.db.showItemCooldowns then
         local cooldowns = Portals:GetItemCooldowns()
         if cooldowns ~= nil then
           GameTooltip:AddLine(' ')

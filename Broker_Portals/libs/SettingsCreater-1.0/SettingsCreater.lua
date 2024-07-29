@@ -1,4 +1,4 @@
-local MAJOR, MINOR = "SettingsCreater-1.0", 2
+local MAJOR, MINOR = "SettingsCreater-1.0", 3
 
 if not AceLibrary then error(MAJOR .. " requires AceLibrary") end
 if not AceLibrary:IsNewVersion(MAJOR, MINOR) then return end
@@ -15,8 +15,9 @@ local function round(num, idp)
 CheckBox = Global name of the checkbox if it has one and first numbered table entry is the boolean
 Text = Global name of where the text and first numbered table entry is the default text 
 Frame = Frame or button etc you want hidden/shown at start based on condition ]]
-function SettingsCreater:SetupDB(db, defaultList)
-    db = db or {}
+function SettingsCreater:SetupDB(dbName, defaultList)
+    _G[dbName] = _G[dbName] or {}
+    local db = _G[dbName]
     for table, v in pairs(defaultList) do
         if not db[table] and db[table] ~= false then
             if type(v) == "table" then

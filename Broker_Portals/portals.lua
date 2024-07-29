@@ -32,8 +32,8 @@ local CharDefaultSettings = {}
 
 function Portals:OnInitialize()
 
-  self.db = self:SetupDB(PortalsDB, DefaultSettings)
-  self.charDB = self:SetupDB(PortalsCharDB, CharDefaultSettings)
+  self.db = self:SetupDB("PortalsDB", DefaultSettings)
+  self.charDB = self:SetupDB("PortalsCharDB", CharDefaultSettings)
   if not self.db.setProfile[GetRealmName()] then self.db.setProfile[GetRealmName()] = {} end
   if not self.db.setProfile[GetRealmName()][UnitName("player")] then self.db.setProfile[GetRealmName()][UnitName("player")] = "Default" end
   self.activeProfile = self.db.setProfile[GetRealmName()][UnitName("player")]
@@ -434,7 +434,7 @@ function Portals:ShowFavorites()
     for _,v in Portals:PairsByKeys(sorted) do
       --Portals:AddFavorites(spellID 1, type 2, mage 3, isPortal 4, portalSpellID 5)
       if not Portals.stoneInfo[v[1]] or (Portals.stoneInfo[v[1]] and not (Portals.stoneInfo[v[1]].factionLock and Portals.stoneInfo[v[1]].fac ~= fac ) and (xpacLevel >= Portals.stoneInfo[v[1]].expac)) then --xpacLevel and locked cities check
-        if self.db.showEnemy or (Portals.stoneInfo[v[1]].fac == fac or Portals.stoneInfo[v[1]].fac == "Neutral") or v[3] then --faction or showEnemy check
+        if self.db.showEnemy or (Portals.stoneInfo[v[1]] and (Portals.stoneInfo[v[1]].fac == fac or Portals.stoneInfo[v[1]].fac == "Neutral")) or v[3] then --faction or showEnemy check
           if  ( v[3] and (not v[4] and CA_IsSpellKnown(818045) and CA_IsSpellKnown(v[1])) or
               (v[4] and self.db.showPortals and not self.db.swapPortals and CA_IsSpellKnown(818045) and CA_IsSpellKnown(v[1]) and ((GetNumPartyMembers() > 0 or UnitInRaid("player")))) or
               (v[4] and not self.db.showPortals and not self.db.swapPortals and CA_IsSpellKnown(818045) and CA_IsSpellKnown(v[1]))) or

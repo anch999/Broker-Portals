@@ -27,6 +27,8 @@ function Portals:ToggleMinimap(msg)
         dewdrop:Open(GetMouseFocus(), 'children', function(level, value) self:UpdateMenu(level, value) end)
     elseif msg == "learnstones" then
       self:LearnUnknownStones()
+    elseif msg == "resetfavorites" then
+      self.db.favorites = { Default = {} }
     else
       self.db.minimap = not self.db.minimap
       if self.db.minimap then
