@@ -78,16 +78,16 @@ Portals.items = {
     Horde = 1175627, -- Orgrimmar
     Alliance = 1175626 -- Stormwind
   }
-  
+
   Portals.otherportals = {
     28148, -- P:Karazhan
     18960, -- TP:Moonglade
     1518960, -- TP:Moonglade Vanity
     50977, -- Death Gate
-    800577, -- Molten Core
-    800578, -- Zul,grub
-    800579, -- Ahn'Qiraj
-    800580, -- Blackwing Lair
-    800581, -- Onyxia's Lair
-    800582 -- Naxxramas
+    992030, -- Molten Core
+    992032, -- Zul,grub
+    992036, -- Ahn'Qiraj
+    992034, -- Blackwing Lair
+    992040, -- Onyxia's Lair
+    992038 -- Naxxramas
   }

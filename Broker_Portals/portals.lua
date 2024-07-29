@@ -11,7 +11,7 @@ local fac = UnitFactionGroup('player')
 local DefaultSettings  = {
   enableAutoHide = { false },
   hideMenu        = { true, HideFrame = "BrokerPortalsStandaloneButton"},
-  minimap         = { false },
+  minimap         = { true },
   txtSize         = 12,
   autoMenu        = { false },
   deleteItem      = { false },
