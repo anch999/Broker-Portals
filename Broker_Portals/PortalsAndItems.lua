@@ -84,4 +84,10 @@ Portals.items = {
     18960, -- TP:Moonglade
     1518960, -- TP:Moonglade Vanity
     50977, -- Death Gate
+    800577, -- Molten Core
+    800578, -- Zul,grub
+    800579, -- Ahn'Qiraj
+    800580, -- Blackwing Lair
+    800581, -- Onyxia's Lair
+    800582 -- Naxxramas
   }
