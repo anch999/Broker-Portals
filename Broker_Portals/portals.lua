@@ -430,6 +430,15 @@ local stoneInfo = {
     [777028] = { fac = "Neutral", expac = 3 , zone = "Crystalsong Forest" } -- Dalaran City
 }
 
+local raidPortal ={
+  992032, -- Zul'gurub
+  992040, -- Onyxia
+  992038, -- Naxxramas
+  992030, -- Molten Core
+  992034, -- BWL
+  992036, -- Ahn'Qiraj
+}
+
 -- Ascension: Runes of Retreat
 local runes = {
   979807, -- Flaming
@@ -767,6 +776,16 @@ local function ShowHearthstone()
   end
 end
 
+local function showRaidPortal()
+  local headerSet = false
+  for _,spellID in ipairs(raidPortal) do
+    if CA_IsSpellKnown(spellID) and (not favoritesdb[spellID] or not favoritesdb[spellID][1]) then
+      headerSet = setHeader("Raid Portals", headerSet)
+      dewdropAdd(spellID, "spell", false, true)
+    end
+  end
+end
+
 --Stones of retreat
 local function showStones(subMenu, spellCheck, noSpacer) --Kalimdor, true
 
@@ -932,6 +951,8 @@ UpdateMenu = function(level, value)
     end
 
     showClassSpells()
+
+    showRaidPortal()
 
     ShowHearthstone()
 
