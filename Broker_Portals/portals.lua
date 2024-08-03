@@ -26,6 +26,7 @@ local DefaultSettings  = {
   showEnemy       = { false },
   stonesSubMenu      = { true },
   favorites       = { { Default = {} } },
+  selfCast        = { true }
 }
 
 local CharDefaultSettings = {}
@@ -167,16 +168,20 @@ function Portals:DewDropAdd(ID, Type, mage, isPortal, swapPortal)
 
   if Type == "item" then
     name, _, _, _, _, _, _, _, _, icon = GetItemInfo(ID)
+    Type = "use"
   elseif (self.db.swapPortals and swapPortal and (GetNumPartyMembers() > 0 or UnitInRaid("player"))) then
     name, _, icon = GetSpellInfo(swapPortal)
+    Type = "cast"
   else
     name, _, icon = GetSpellInfo(ID)
+    Type = "cast"
   end
 
   local text = Portals:GetCooldown(ID, name, Type) or name
+  local selfCast = self.db.selfCast and "[@player] " or ""
   local secure = {
-    type1 = Type,
-    [Type] = name,
+    type1 = "macro",
+    macrotext = "/"..Type.." "..selfCast..name,
   }
   if Portals.stoneInfo[ID] then
     text = gsub(text, "Stone of Retreat", Portals.stoneInfo[ID].zone)

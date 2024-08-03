@@ -1,12 +1,6 @@
 local Portals = LibStub("AceAddon-3.0"):GetAddon("BrokerPortals")
 local L = LibStub("AceLocale-3.0"):GetLocale("BrokerPortals")
 
---Round number
-local function round(num, idp)
-	local mult = 10 ^ (idp or 0)
-	return math.floor(num * mult + 0.5) / mult
- end
-
 function Portals:OptionsToggle()
     if InterfaceOptionsFrame:IsVisible() then
 		InterfaceOptionsFrame:Hide()
@@ -105,6 +99,12 @@ function Portals:CreateOptionsUI()
 				Name = "showEnemy",
 				Lable = "Show enemy faction Stones of Retreats",
 				OnClick = function() self.db.showEnemy = not self.db.showEnemy end
+			},
+			{
+				Type = "CheckButton",
+				Name = "selfCast",
+				Lable = "Cast placeable items/spells on self",
+				OnClick = function() self.db.selfCast = not self.db.selfCast end
 			},
 		},
 		Right = {
