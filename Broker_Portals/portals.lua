@@ -177,14 +177,14 @@ function Portals:DewDropAdd(ID, Type, mage, isPortal, swapPortal)
     Type = "cast"
   end
 
-  local text = Portals:GetCooldown(ID, name, Type) or name
+  local text = self:GetCooldown(ID, name, Type) or name
   local selfCast = self.db.selfCast and "[@player] " or ""
   local secure = {
     type1 = "macro",
     macrotext = "/"..Type.." "..selfCast..name,
   }
-  if Portals.stoneInfo[ID] then
-    text = gsub(text, "Stone of Retreat", Portals.stoneInfo[ID].zone)
+  if self.stoneInfo[ID] then
+    text = gsub(text, "Stone of Retreat", self.stoneInfo[ID].zone)
   end
   dewdrop:AddLine(
     'textHeight', self.db.txtSize,
@@ -194,22 +194,23 @@ function Portals:DewDropAdd(ID, Type, mage, isPortal, swapPortal)
     'icon', icon,
     'tooltipText',"Alt click to add/remove favorites",
     'func', function()
-      local hasVanity = CA_IsSpellKnown(ID) or Portals:HasItem(ID)
+      local hasVanity = CA_IsSpellKnown(ID) or self:HasItem(ID)
       if IsAltKeyDown() then
-        Portals:AddFavorites(ID, secure.type1, mage, isPortal, swapPortal)
+        self:AddFavorites(ID, secure.type1, mage, isPortal, swapPortal)
       elseif not hasVanity and C_VanityCollection.IsCollectionItemOwned(VANITY_SPELL_REFERENCE[ID] or ID) then
         RequestDeliverVanityCollectionItem(VANITY_SPELL_REFERENCE[ID] or ID)
       else
-        if Type == "item" and not self.dontDeleteAfterCast[ID] and self.db.deleteItem then
+        if Type == "use" and not self.dontDeleteAfterCast[ID] and self.db.deleteItem then
           self.deleteItem = ID
           self:RegisterEvent("UNIT_SPELLCAST_SUCCEEDED")
+
         end
         dewdrop:Close()
       end
       if isPortal and chatType and self.db.announce then
         SendChatMessage(L['ANNOUNCEMENT'] .. ' ' .. name, chatType)
       end
-      Portals:SetMapIcon(icon)
+      self:SetMapIcon(icon)
     end
   )
 end
