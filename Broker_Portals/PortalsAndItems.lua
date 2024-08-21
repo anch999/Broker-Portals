@@ -45,14 +45,13 @@ Portals.items = {
   Portals.scrolls = {
     6948, -- Hearthstone
     1903515, -- Fel-Infused Gateway
+    97758, -- Homebound portal
     28585, -- Ruby Slippers
     44315, -- Scroll of Recall III
     44314, -- Scroll of Recall II
     37118 -- Scroll of Recall
   }
-  
-  
-  
+
   -- Ascension: Runes of Retreat
   Portals.runes = {
     979807, -- Flaming
@@ -62,17 +61,17 @@ Portals.items = {
     979809, -- Dark Rune
     979810 -- Holy Rune
   }
-  
+
   Portals.hearthspells = {
-    556, -- Astral Recall 
+    556, -- Astral Recall
   }
-  
+
   -- Ascension: Scrolls of Defense
   Portals.sod = {
     83126, -- Ashenvale
     83128 -- Hillsbrad Foothills
   }
-  
+
   -- Ascension: Scrolls of Retreat
   Portals.sor = {
     Horde = 1175627, -- Orgrimmar
