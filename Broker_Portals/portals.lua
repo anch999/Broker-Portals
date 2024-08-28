@@ -532,3 +532,4 @@ end
 -- slashcommand definition
 SlashCmdList['BROKER_PORTALS'] = function(msg) Portals:ToggleMinimap(msg) end
 SLASH_BROKER_PORTALS1 = '/portals'
+
