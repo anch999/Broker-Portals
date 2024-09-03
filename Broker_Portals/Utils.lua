@@ -30,7 +30,7 @@ end
 -- deletes item from players inventory if value 2 in the items table is set
 function Portals:RemoveItem(arg2)
 	if not self.db.deleteItem then return end
-        arg2 = Portals:ConvertCastName(arg2)
+        arg2 = self:ConvertCastName(arg2)
         if strfind(arg2, GetItemInfo(self.deleteItem):gsub("%-","")) then
             local found, bag, slot = self:HasItem(self.deleteItem)
             if found and C_VanityCollection.IsCollectionItemOwned(self.deleteItem) and self:IsRealmbound(bag, slot) then

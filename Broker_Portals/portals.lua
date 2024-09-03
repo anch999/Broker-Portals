@@ -26,6 +26,7 @@ local DefaultSettings  = {
   showEnemy       = { false },
   stonesSubMenu      = { true },
   favorites       = { { Default = {} } },
+  selfCast        = { true }
 }
 
 local CharDefaultSettings = {}
@@ -167,19 +168,23 @@ function Portals:DewDropAdd(ID, Type, mage, isPortal, swapPortal)
 
   if Type == "item" then
     name, _, _, _, _, _, _, _, _, icon = GetItemInfo(ID)
+    Type = "use"
   elseif (self.db.swapPortals and swapPortal and (GetNumPartyMembers() > 0 or UnitInRaid("player"))) then
     name, _, icon = GetSpellInfo(swapPortal)
+    Type = "cast"
   else
     name, _, icon = GetSpellInfo(ID)
+    Type = "cast"
   end
 
-  local text = Portals:GetCooldown(ID, name, Type) or name
+  local text = self:GetCooldown(ID, name, Type) or name
+  local selfCast = self.db.selfCast and "[@player] " or ""
   local secure = {
-    type1 = Type,
-    [Type] = name,
+    type1 = "macro",
+    macrotext = "/"..Type.." "..selfCast..name,
   }
-  if Portals.stoneInfo[ID] then
-    text = gsub(text, "Stone of Retreat", Portals.stoneInfo[ID].zone)
+  if self.stoneInfo[ID] then
+    text = gsub(text, "Stone of Retreat", self.stoneInfo[ID].zone)
   end
   dewdrop:AddLine(
     'textHeight', self.db.txtSize,
@@ -189,22 +194,23 @@ function Portals:DewDropAdd(ID, Type, mage, isPortal, swapPortal)
     'icon', icon,
     'tooltipText',"Alt click to add/remove favorites",
     'func', function()
-      local hasVanity = CA_IsSpellKnown(ID) or Portals:HasItem(ID)
+      local hasVanity = CA_IsSpellKnown(ID) or self:HasItem(ID)
       if IsAltKeyDown() then
-        Portals:AddFavorites(ID, secure.type1, mage, isPortal, swapPortal)
+        self:AddFavorites(ID, secure.type1, mage, isPortal, swapPortal)
       elseif not hasVanity and C_VanityCollection.IsCollectionItemOwned(VANITY_SPELL_REFERENCE[ID] or ID) then
         RequestDeliverVanityCollectionItem(VANITY_SPELL_REFERENCE[ID] or ID)
       else
-        if Type == "item" and not self.dontDeleteAfterCast[ID] and self.db.deleteItem then
+        if Type == "use" and not self.dontDeleteAfterCast[ID] and self.db.deleteItem then
           self.deleteItem = ID
           self:RegisterEvent("UNIT_SPELLCAST_SUCCEEDED")
+
         end
         dewdrop:Close()
       end
       if isPortal and chatType and self.db.announce then
         SendChatMessage(L['ANNOUNCEMENT'] .. ' ' .. name, chatType)
       end
-      Portals:SetMapIcon(icon)
+      self:SetMapIcon(icon)
     end
   )
 end
@@ -526,3 +532,4 @@ end
 -- slashcommand definition
 SlashCmdList['BROKER_PORTALS'] = function(msg) Portals:ToggleMinimap(msg) end
 SLASH_BROKER_PORTALS1 = '/portals'
+
