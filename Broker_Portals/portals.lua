@@ -146,7 +146,7 @@ function Portals:GetCooldown(ID, text, type)
   local startTime, duration
   if type == "item" then
     startTime, duration = GetItemCooldown(ID)
-  else
+  elseif CA_IsSpellKnown(ID) then
     startTime, duration = GetSpellCooldown(text)
   end
   if not startTime then return end
@@ -167,7 +167,8 @@ function Portals:DewDropAdd(ID, Type, mage, isPortal, swapPortal)
   end
 
   if Type == "item" then
-    name, _, _, _, _, _, _, _, _, icon = GetItemInfo(ID)
+    local item = GetItemInfoInstant(ID)
+    name, icon = item.name, item.icon 
     Type = "use"
   elseif (self.db.swapPortals and swapPortal and (GetNumPartyMembers() > 0 or UnitInRaid("player"))) then
     name, _, icon = GetSpellInfo(swapPortal)
@@ -330,7 +331,7 @@ function Portals:ShowStones(subMenu, spellCheck, noSpacer) --Kalimdor, true
 					if (not self.favoritesdb[v] or not self.favoritesdb[v][1]) and not (Portals.stoneInfo[v].factionLock and Portals.stoneInfo[v].fac ~= fac ) and (xpacLevel >= Portals.stoneInfo[v].expac) then --xpacLevel and locked cities check
 						if self.db.showEnemy or (Portals.stoneInfo[v].fac == fac or Portals.stoneInfo[v].fac == "Neutral") then --faction or showEnemy check
 							--returns on the first found stone to turn the menu on
-              if spellCheck and CA_IsSpellKnown(v) then return true end
+              if spellCheck and (CA_IsSpellKnown(v) or C_VanityCollection.IsCollectionItemOwned(VANITY_SPELL_REFERENCE[v] or v)) then return true end
 							if (CA_IsSpellKnown(v) or C_VanityCollection.IsCollectionItemOwned(VANITY_SPELL_REFERENCE[v] or v)) then
                 local name =  Portals.stoneInfo[v].zone
                 if sorted[name] then
