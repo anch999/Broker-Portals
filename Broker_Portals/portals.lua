@@ -144,7 +144,7 @@ end
 --get item/spell cooldown
 function Portals:GetCooldown(ID, text, type)
   local startTime, duration
-  if type == "item" then
+  if type == "use" then
     startTime, duration = GetItemCooldown(ID)
   elseif CA_IsSpellKnown(ID) then
     startTime, duration = GetSpellCooldown(text)
@@ -267,9 +267,9 @@ function Portals:GetItemCooldowns()
   local cooldown, startTime, duration, cooldowns = nil, nil, nil, nil
 
   -- items
-  for _, item in pairs(Portals.items) do
-    if GetItemCount(item) > 0 or C_VanityCollection.IsCollectionItemOwned(item) then
-      startTime, duration = GetItemCooldown(item)
+  for _, ID in pairs(Portals.items) do
+    if GetItemCount(ID) > 0 or C_VanityCollection.IsCollectionItemOwned(ID) then
+      startTime, duration = GetItemCooldown(ID)
       cooldown = duration - (GetTime() - startTime)
       if cooldown >= 60 then
         cooldown = math.floor(cooldown / 60)
@@ -279,11 +279,11 @@ function Portals:GetItemCooldowns()
       else
         cooldown = cooldown .. ' ' .. L['SEC']
       end
-      local name = GetItemInfo(item)
+      local item = GetItemInfoInstant(ID)
       if cooldowns == nil then
         cooldowns = {}
       end
-      cooldowns[name] = cooldown
+      cooldowns[item.name] = cooldown
     end
   end
 
