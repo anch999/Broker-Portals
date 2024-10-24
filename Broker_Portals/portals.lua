@@ -11,7 +11,7 @@ local fac = UnitFactionGroup('player')
 local DefaultSettings  = {
   enableAutoHide = { false },
   hideMenu        = { true, HideFrame = "BrokerPortalsStandaloneButton"},
-  minimap         = { true },
+  minimap         = { false },
   txtSize         = 12,
   autoMenu        = { false },
   deleteItem      = { false },
@@ -531,6 +531,6 @@ function Portals:UNIT_SPELLCAST_SUCCEEDED(event, arg1, arg2)
 end
 
 -- slashcommand definition
-SlashCmdList['BROKER_PORTALS'] = function(msg) Portals:ToggleMinimap(msg) end
+SlashCmdList['BROKER_PORTALS'] = function(msg) Portals:SlashCommands(msg) end
 SLASH_BROKER_PORTALS1 = '/portals'
 

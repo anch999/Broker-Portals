@@ -119,8 +119,7 @@ function Portals:CreateOptionsUI()
 				Name = "minimap",
 				Lable = "Hide minimap icon",
 				OnClick = function()
-					self.db.minimap = not self.db.minimap
-					self:ToggleMainButton(self.db.enableAutoHide)
+					self:ToggleMinimap()
 				end
 			},
 			{
