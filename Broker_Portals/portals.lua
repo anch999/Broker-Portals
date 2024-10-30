@@ -26,7 +26,8 @@ local DefaultSettings  = {
   showEnemy       = { false },
   stonesSubMenu      = { true },
   favorites       = { { Default = {} } },
-  selfCast        = { true }
+  selfCast        = { true },
+  showStonesZone = { true }
 }
 
 local CharDefaultSettings = {}
@@ -185,7 +186,7 @@ function Portals:DewDropAdd(ID, Type, mage, isPortal, swapPortal)
     macrotext = "/"..Type.." "..selfCast..name,
   }
   if self.stoneInfo[ID] then
-    text = gsub(text, "Stone of Retreat", self.stoneInfo[ID].zone)
+    text = self.db.showStonesZone and gsub(text, "Stone of Retreat", self.stoneInfo[ID].zone) or gsub(text, "Stone of Retreat: ", "")
   end
   dewdrop:AddLine(
     'textHeight', self.db.txtSize,
@@ -333,8 +334,11 @@ function Portals:ShowStones(subMenu, spellCheck, noSpacer) --Kalimdor, true
 							--returns on the first found stone to turn the menu on
               if spellCheck and (CA_IsSpellKnown(v) or C_VanityCollection.IsCollectionItemOwned(VANITY_SPELL_REFERENCE[v] or v)) then return true end
 							if (CA_IsSpellKnown(v) or C_VanityCollection.IsCollectionItemOwned(VANITY_SPELL_REFERENCE[v] or v)) then
-                local name =  Portals.stoneInfo[v].zone
-                if sorted[name] then
+                local name =  self.stoneInfo[v].zone
+                if not self.db.showStonesZone then
+                  name = GetSpellInfo(v)
+                  sorted[name] = {v}
+                elseif sorted[name] then
                   name = name..ID
                   sorted[name] = {v}
                 else
@@ -424,8 +428,8 @@ function Portals:ShowFavorites()
             name = GetSpellInfo(ID)
           end
           if CA_IsSpellKnown(ID) or C_VanityCollection.IsCollectionItemOwned(VANITY_SPELL_REFERENCE[ID] or ID) or Portals:HasItem(ID) then
-            if Portals.stoneInfo[ID] then
-              name = Portals.stoneInfo[ID].zone
+            if self.db.showStonesZone and self.stoneInfo[ID] then
+              name = self.stoneInfo[ID].zone
             end
             if sorted[name] then
               name = name..ID

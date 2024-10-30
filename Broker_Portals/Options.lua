@@ -106,6 +106,12 @@ function Portals:CreateOptionsUI()
 				Lable = "Cast placeable items/spells on self",
 				OnClick = function() self.db.selfCast = not self.db.selfCast end
 			},
+			{
+				Type = "CheckButton",
+				Name = "showStonesZone",
+				Lable = "Show stone of retreat zones",
+				OnClick = function() self.db.showStonesZone = not self.db.showStonesZone end
+			},
 		},
 		Right = {
 			{
