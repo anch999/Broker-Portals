@@ -11,7 +11,7 @@ local fac = UnitFactionGroup('player')
 local DefaultSettings  = {
   enableAutoHide = { false },
   hideMenu        = { true, HideFrame = "BrokerPortalsStandaloneButton"},
-  minimap         = { true },
+  minimap         = { false },
   txtSize         = 12,
   autoMenu        = { false },
   deleteItem      = { false },
@@ -26,7 +26,8 @@ local DefaultSettings  = {
   showEnemy       = { false },
   stonesSubMenu      = { true },
   favorites       = { { Default = {} } },
-  selfCast        = { true }
+  selfCast        = { true },
+  showStonesZone = { true }
 }
 
 local CharDefaultSettings = {}
@@ -144,9 +145,9 @@ end
 --get item/spell cooldown
 function Portals:GetCooldown(ID, text, type)
   local startTime, duration
-  if type == "item" then
+  if type == "use" then
     startTime, duration = GetItemCooldown(ID)
-  else
+  elseif CA_IsSpellKnown(ID) then
     startTime, duration = GetSpellCooldown(text)
   end
   if not startTime then return end
@@ -167,7 +168,8 @@ function Portals:DewDropAdd(ID, Type, mage, isPortal, swapPortal)
   end
 
   if Type == "item" then
-    name, _, _, _, _, _, _, _, _, icon = GetItemInfo(ID)
+    local item = GetItemInfoInstant(ID)
+    name, icon = item.name, item.icon 
     Type = "use"
   elseif (self.db.swapPortals and swapPortal and (GetNumPartyMembers() > 0 or UnitInRaid("player"))) then
     name, _, icon = GetSpellInfo(swapPortal)
@@ -184,7 +186,7 @@ function Portals:DewDropAdd(ID, Type, mage, isPortal, swapPortal)
     macrotext = "/"..Type.." "..selfCast..name,
   }
   if self.stoneInfo[ID] then
-    text = gsub(text, "Stone of Retreat", self.stoneInfo[ID].zone)
+    text = self.db.showStonesZone and gsub(text, "Stone of Retreat", self.stoneInfo[ID].zone) or gsub(text, "Stone of Retreat: ", "")
   end
   dewdrop:AddLine(
     'textHeight', self.db.txtSize,
@@ -266,9 +268,9 @@ function Portals:GetItemCooldowns()
   local cooldown, startTime, duration, cooldowns = nil, nil, nil, nil
 
   -- items
-  for _, item in pairs(Portals.items) do
-    if GetItemCount(item) > 0 or C_VanityCollection.IsCollectionItemOwned(item) then
-      startTime, duration = GetItemCooldown(item)
+  for _, ID in pairs(Portals.items) do
+    if GetItemCount(ID) > 0 or C_VanityCollection.IsCollectionItemOwned(ID) then
+      startTime, duration = GetItemCooldown(ID)
       cooldown = duration - (GetTime() - startTime)
       if cooldown >= 60 then
         cooldown = math.floor(cooldown / 60)
@@ -278,11 +280,11 @@ function Portals:GetItemCooldowns()
       else
         cooldown = cooldown .. ' ' .. L['SEC']
       end
-      local name = GetItemInfo(item)
+      local item = GetItemInfoInstant(ID)
       if cooldowns == nil then
         cooldowns = {}
       end
-      cooldowns[name] = cooldown
+      cooldowns[item.name] = cooldown
     end
   end
 
@@ -330,10 +332,13 @@ function Portals:ShowStones(subMenu, spellCheck, noSpacer) --Kalimdor, true
 					if (not self.favoritesdb[v] or not self.favoritesdb[v][1]) and not (Portals.stoneInfo[v].factionLock and Portals.stoneInfo[v].fac ~= fac ) and (xpacLevel >= Portals.stoneInfo[v].expac) then --xpacLevel and locked cities check
 						if self.db.showEnemy or (Portals.stoneInfo[v].fac == fac or Portals.stoneInfo[v].fac == "Neutral") then --faction or showEnemy check
 							--returns on the first found stone to turn the menu on
-              if spellCheck and CA_IsSpellKnown(v) then return true end
+              if spellCheck and (CA_IsSpellKnown(v) or C_VanityCollection.IsCollectionItemOwned(VANITY_SPELL_REFERENCE[v] or v)) then return true end
 							if (CA_IsSpellKnown(v) or C_VanityCollection.IsCollectionItemOwned(VANITY_SPELL_REFERENCE[v] or v)) then
-                local name =  Portals.stoneInfo[v].zone
-                if sorted[name] then
+                local name =  self.stoneInfo[v].zone
+                if not self.db.showStonesZone then
+                  name = GetSpellInfo(v)
+                  sorted[name] = {v}
+                elseif sorted[name] then
                   name = name..ID
                   sorted[name] = {v}
                 else
@@ -423,8 +428,8 @@ function Portals:ShowFavorites()
             name = GetSpellInfo(ID)
           end
           if CA_IsSpellKnown(ID) or C_VanityCollection.IsCollectionItemOwned(VANITY_SPELL_REFERENCE[ID] or ID) or Portals:HasItem(ID) then
-            if Portals.stoneInfo[ID] then
-              name = Portals.stoneInfo[ID].zone
+            if self.db.showStonesZone and self.stoneInfo[ID] then
+              name = self.stoneInfo[ID].zone
             end
             if sorted[name] then
               name = name..ID
@@ -530,6 +535,6 @@ function Portals:UNIT_SPELLCAST_SUCCEEDED(event, arg1, arg2)
 end
 
 -- slashcommand definition
-SlashCmdList['BROKER_PORTALS'] = function(msg) Portals:ToggleMinimap(msg) end
+SlashCmdList['BROKER_PORTALS'] = function(msg) Portals:SlashCommands(msg) end
 SLASH_BROKER_PORTALS1 = '/portals'
 

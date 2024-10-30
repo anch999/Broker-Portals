@@ -106,6 +106,12 @@ function Portals:CreateOptionsUI()
 				Lable = "Cast placeable items/spells on self",
 				OnClick = function() self.db.selfCast = not self.db.selfCast end
 			},
+			{
+				Type = "CheckButton",
+				Name = "showStonesZone",
+				Lable = "Show stone of retreat zones",
+				OnClick = function() self.db.showStonesZone = not self.db.showStonesZone end
+			},
 		},
 		Right = {
 			{
@@ -119,8 +125,7 @@ function Portals:CreateOptionsUI()
 				Name = "minimap",
 				Lable = "Hide minimap icon",
 				OnClick = function()
-					self.db.minimap = not self.db.minimap
-					self:ToggleMainButton(self.db.enableAutoHide)
+					self:ToggleMinimap()
 				end
 			},
 			{

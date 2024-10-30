@@ -31,7 +31,8 @@ end
 function Portals:RemoveItem(arg2)
 	if not self.db.deleteItem then return end
         arg2 = self:ConvertCastName(arg2)
-        if strfind(arg2, GetItemInfo(self.deleteItem):gsub("%-","")) then
+        local item = GetItemInfoInstant(self.deleteItem)
+        if strfind(arg2, item:gsub("%-","")) then
             local found, bag, slot = self:HasItem(self.deleteItem)
             if found and C_VanityCollection.IsCollectionItemOwned(self.deleteItem) and self:IsRealmbound(bag, slot) then
                 PickupContainerItem(bag, slot)

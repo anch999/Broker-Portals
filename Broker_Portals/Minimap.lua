@@ -21,7 +21,7 @@ function minimap.OnEnter(button)
   Portals:OnEnter(button)
 end
 
-function Portals:ToggleMinimap(msg)
+function Portals:SlashCommands(msg)
     if msg == "macromenu" then
         if dewdrop:IsOpen(GetMouseFocus()) then dewdrop:Close() return end
         dewdrop:Open(GetMouseFocus(), 'children', function(level, value) self:UpdateMenu(level, value) end)
@@ -30,13 +30,23 @@ function Portals:ToggleMinimap(msg)
     elseif msg == "resetfavorites" then
       self.db.favorites = { Default = {} }
     else
-      self.db.minimap = not self.db.minimap
-      if self.db.minimap then
-        icon:Hide('BrokerPortals')
+      self:ToggleMinimap()
+      if self.db.minimap and not self.options.minimap:GetChecked() then
+        self.options.minimap:SetChecked()
       else
-        icon:Show('BrokerPortals')
+        self.options.minimap:SetChecked(false)
       end
     end
+end
+
+
+function Portals:ToggleMinimap()
+  self.db.minimap = not self.db.minimap
+  if self.db.minimap then
+    icon:Hide('BrokerPortals')
+  else
+    icon:Show('BrokerPortals')
+  end
 end
 
 function Portals:InitializeMinimap()
