@@ -93,6 +93,7 @@ Portals.stones = {
       1777085, -- Brill
       1777091, -- Flame Crest
       1777094, -- The Bulwark
+      777031, -- Karazhan
     },
   
     Outlands = {
@@ -229,6 +230,7 @@ Portals.stones = {
       [1777023] = { fac = "Neutral", expac = 1 , zone = "Stranglethorn Vale" }, -- Yojamba Isle
       [1777070] = { fac = "Neutral", expac = 1 , zone = "Stranglethorn Vale" }, -- Nesingwary's Expedition
       [1777080] = { fac = "Neutral", expac = 1 , zone = "Arathi Highlands" }, -- Faldir's Cove
+      [777031] = { fac = "Neutral", expac = 1 , zone = "Deadwind Pass" }, -- Karazhan
       [777003] = { fac = "Alliance", expac = 1, zone = "Elwynn Forest", factionLock = true }, -- Stormwind
       [777005] = { fac = "Alliance", expac = 1 , zone = "Dun Morogh" }, -- Ironforge
       [1777026] = { fac = "Alliance", expac = 1 , zone = "Blasted Lands" }, -- Nethergarde Keep
