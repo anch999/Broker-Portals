@@ -328,21 +328,21 @@ function Portals:ShowStones(subMenu, spellCheck, noSpacer) --Kalimdor, true
   local function tableSort(zone)
     local sorted = {}
     local headerSet = false
-      for ID,v in ipairs(Portals.stones[zone]) do
-					if (not self.favoritesdb[v] or not self.favoritesdb[v][1]) and not (Portals.stoneInfo[v].factionLock and Portals.stoneInfo[v].fac ~= fac ) and (xpacLevel >= Portals.stoneInfo[v].expac) then --xpacLevel and locked cities check
-						if self.db.showEnemy or (Portals.stoneInfo[v].fac == fac or Portals.stoneInfo[v].fac == "Neutral") then --faction or showEnemy check
+      for ID, spellID in ipairs(Portals.stones[zone]) do
+					if (not self.favoritesdb[spellID] or not self.favoritesdb[spellID][1]) and not (Portals.stoneInfo[spellID].factionLock and Portals.stoneInfo[spellID].fac ~= fac ) and (xpacLevel >= Portals.stoneInfo[spellID].expac) then --xpacLevel and locked cities check
+						if self.db.showEnemy or (Portals.stoneInfo[spellID].fac == fac or Portals.stoneInfo[spellID].fac == "Neutral") then --faction or showEnemy check
 							--returns on the first found stone to turn the menu on
-              if spellCheck and (CA_IsSpellKnown(v) or C_VanityCollection.IsCollectionItemOwned(VANITY_SPELL_REFERENCE[v] or v)) then return true end
-							if (CA_IsSpellKnown(v) or C_VanityCollection.IsCollectionItemOwned(VANITY_SPELL_REFERENCE[v] or v)) then
-                local name =  self.stoneInfo[v].zone
+              if spellCheck and (CA_IsSpellKnown(spellID) or C_VanityCollection.IsCollectionItemOwned(VANITY_SPELL_REFERENCE[spellID] or spellID)) then return true end
+							if (CA_IsSpellKnown(spellID) or C_VanityCollection.IsCollectionItemOwned(VANITY_SPELL_REFERENCE[spellID] or spellID)) then
+                local name =  self.stoneInfo[spellID].zone
                 if not self.db.showStonesZone then
-                  name = GetSpellInfo(v)
-                  sorted[name] = {v}
+                  name = GetSpellInfo(spellID)
+                  sorted[name] = {spellID}
                 elseif sorted[name] then
                   name = name..ID
-                  sorted[name] = {v}
+                  sorted[name] = {spellID}
                 else
-                  sorted[name] = {v}
+                  sorted[name] = {spellID}
                 end
               end
 						end
@@ -361,8 +361,8 @@ function Portals:ShowStones(subMenu, spellCheck, noSpacer) --Kalimdor, true
 	end
 
 	if subMenu == "All" then
-		for continent, v in pairs(Portals.stones) do
-			if xpacLevel >= v.expansion then
+		for continent, zone in pairs(Portals.stones) do
+			if xpacLevel >= zone.expansion then
         addTable(continent)
       end
 		end
