@@ -34,7 +34,7 @@ function Portals:RemoveItem(arg2)
         local item = GetItemInfoInstant(self.deleteItem)
         if strfind(arg2, item:gsub("%-","")) then
             local found, bag, slot = self:HasItem(self.deleteItem)
-            if found and C_VanityCollection.IsCollectionItemOwned(self.deleteItem) and self:IsRealmbound(bag, slot) then
+            if found and self:HasVanity(self.deleteItem) and self:IsRealmbound(bag, slot) then
                 PickupContainerItem(bag, slot)
                 DeleteCursorItem()
             end
@@ -109,22 +109,22 @@ local UnknownList = {}
 function Portals:LearnUnknown()
   for i, v in pairs(UnknownList) do
     if not v then return end
-    if not CA_IsSpellKnown(v) and not Portals:HasItem(i) then
+    if not CA_IsSpellKnown(v) and not self:HasItem(i) then
       RequestDeliverVanityCollectionItem(i)
     else
       UnknownList[i] = nil
     end
   end
-  Portals:ScheduleTimer("learnUnknown", .1)
+  self:ScheduleTimer("learnUnknown", .1)
 end
 
 function Portals:LearnUnknownStones()
   for _,v in pairs(VANITY_ITEMS) do
-    if C_VanityCollection.IsCollectionItemOwned(v.itemid) and not CA_IsSpellKnown(v.learnedSpell) and v.name:match("Stone of Retreat") then
+    if self:HasVanity(v.itemid) and not CA_IsSpellKnown(v.learnedSpell) and v.name:match("Stone of Retreat") then
       UnknownList[v.itemid] = v.learnedSpell
     end
   end
-  Portals:LearnUnknown()
+  self:LearnUnknown()
 end
 
 --for a adding a divider to dew drop menus 
@@ -162,21 +162,21 @@ end
 function Portals:OnEnter(button, unlock)
 
     if self.db.autoMenu and not UnitAffectingCombat("player") then
-      Portals:OpenMenu(button, unlock)
+      self:OpenMenu(button, unlock)
     else
       GameTooltip:SetOwner(button, 'ANCHOR_NONE')
-      GameTooltip:SetPoint(Portals:GetTipAnchor(button))
+      GameTooltip:SetPoint(self:GetTipAnchor(button))
       GameTooltip:ClearLines()
 
       GameTooltip:AddLine('Broker Portals')
       GameTooltip:AddDoubleLine(L['RCLICK'], L['SEE_SPELLS'], 0.9, 0.6, 0.2, 0.2, 1, 0.2)
       GameTooltip:AddDoubleLine(L['ALTCLICK'], L['MOVE_SPELLS'], 0.9, 0.6, 0.2, 0.2, 1, 0.2)
       GameTooltip:AddLine(' ')
-      GameTooltip:AddDoubleLine(L['HEARTHSTONE'] .. ': ' .. GetBindLocation(), Portals:GetHearthCooldown(), 0.9, 0.6, 0.2, 0.2, 1,
+      GameTooltip:AddDoubleLine(L['HEARTHSTONE'] .. ': ' .. GetBindLocation(), self:GetHearthCooldown(), 0.9, 0.6, 0.2, 0.2, 1,
         0.2)
 
       if self.db.showItemCooldowns then
-        local cooldowns = Portals:GetItemCooldowns()
+        local cooldowns = self:GetItemCooldowns()
         if cooldowns ~= nil then
           GameTooltip:AddLine(' ')
           for name, cooldown in pairs(cooldowns) do
@@ -191,22 +191,42 @@ end
 
 local worldFrameHook
 function Portals:OpenMenu(button, showUnlock)
-  GameTooltip:Hide()
-  dewdrop:Open(button,
-  'point', function(parent)
-    local point1, _, point2 = self:GetTipAnchor(button)
-    return point1, point2
-  end,
-  'children', function(level, value)
-      Portals:UpdateMenu(level, value, showUnlock)
-  end)
-
-  if not worldFrameHook then
-    WorldFrame:HookScript("OnEnter", function()
-        if dewdrop:IsOpen(button) then
-            dewdrop:Close()
-        end
+    GameTooltip:Hide()
+    dewdrop:Open(button,
+    'point', function(parent)
+      local point1, _, point2 = self:GetTipAnchor(button)
+      return point1, point2
+    end,
+    'children', function(level, value)
+        self:UpdateMenu(level, value, showUnlock)
     end)
-    worldFrameHook = true
+
+    if not worldFrameHook then
+      WorldFrame:HookScript("OnEnter", function()
+          if dewdrop:IsOpen(button) then
+              dewdrop:Close()
+          end
+      end)
+      worldFrameHook = true
+  end
 end
+
+function Portals:CheckFavorites(ID)
+  return not self.favoritesdb[ID] or not self.favoritesdb[ID][1]
+end
+
+function Portals:HasVanityOrSpell(spellID)
+  return CA_IsSpellKnown(spellID) or self:HasVanity(spellID)
+end
+
+function Portals:HasVanity(ID)
+  return C_VanityCollection.IsCollectionItemOwned(VANITY_SPELL_REFERENCE[ID] or ID)
+end
+
+function Portals:IsPortalKnown(spellID)
+  return CA_IsSpellKnown(818045) and CA_IsSpellKnown(spellID)
+end
+
+function Portals:HasVanityOrItem(itemID)
+  return self:HasItem(itemID) or self:HasVanity(itemID)
 end
