@@ -167,7 +167,7 @@ function Portals:DewDropAdd(ID, Type, mage, isPortal, swapPortal)
     chatType = (UnitInRaid("player") and "RAID") or (GetNumPartyMembers() > 0 and "PARTY")
   end
 
-  if Type == "item" then
+  if Type == "item" or Type == "use" then
     local item = GetItemInfoInstant(ID)
     name, icon = item.name, item.icon 
     Type = "use"
@@ -198,7 +198,7 @@ function Portals:DewDropAdd(ID, Type, mage, isPortal, swapPortal)
     'func', function()
       local hasVanity = CA_IsSpellKnown(ID) or self:HasItem(ID)
       if IsAltKeyDown() then
-        self:AddFavorites(ID, secure.type1, mage, isPortal, swapPortal)
+        self:AddFavorites(ID, Type, mage, isPortal, swapPortal)
       elseif not hasVanity and self:HasVanity(ID) then
         RequestDeliverVanityCollectionItem(VANITY_SPELL_REFERENCE[ID] or ID)
       else
@@ -424,8 +424,9 @@ function Portals:ShowFavorites()
       if type(v) == "table" then
         if v[1] then
           local name
-          if v[2] == "item" then
-            name = GetItemInfoInstant(ID)
+          if v[2] == "use" or v[2] == "item" then
+            local item = GetItemInfoInstant(ID)
+            name = item.name
           else
             name = GetSpellInfo(ID)
           end
