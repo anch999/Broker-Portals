@@ -1,5 +1,6 @@
 local Portals = LibStub("AceAddon-3.0"):GetAddon("BrokerPortals")
 local L = LibStub("AceLocale-3.0"):GetLocale("BrokerPortals")
+local WHITE = "|cffFFFFFF"
 
 function Portals:OptionsToggle()
     if InterfaceOptionsFrame:IsVisible() then
@@ -175,6 +176,18 @@ function Portals:CreateOptionsUI()
 		}
 	}
 	self.options = self:CreateOptionsPages(Options, PortalsDB)
+	self.options.discordLink = CreateFrame("Button", "BrokerPortalsOptionsDiscordLink", BrokerPortalsOptionsFrame)
+	self.options.discordLink:SetPoint("BOTTOMLEFT", 15, 15)
+	self.options.discordLink.Lable = self.options.discordLink:CreateFontString(nil , "BORDER", "GameFontNormal")
+	self.options.discordLink.Lable:SetJustifyH("LEFT")
+	self.options.discordLink.Lable:SetPoint("LEFT", self.options.discordLink, 0, 0)
+	self.options.discordLink.Lable:SetText("For Help or suggestions come join us on Discord\nhttps://discord.gg/j7eebTK5Q3"..WHITE.." (Click to copy link)")
+	self.options.discordLink:SetScript("OnClick", function()
+		Internal_CopyToClipboard("https://discord.gg/bgsqskycPd")
+		DEFAULT_CHAT_FRAME:AddMessage("Discord link copyed to clipboard")
+	end)
+	self.options.discordLink:SetSize(self.options.discordLink.Lable:GetStringWidth(), self.options.discordLink.Lable:GetStringHeight())
+
 end
 
 function BrokerPortals_Options_Profile_Select_Initialize()
