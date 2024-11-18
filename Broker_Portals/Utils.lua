@@ -29,10 +29,11 @@ end
 
 -- deletes item from players inventory if value 2 in the items table is set
 function Portals:RemoveItem(arg2)
+  if not arg2 then return end
 	if not self.db.deleteItem then return end
         arg2 = self:ConvertCastName(arg2)
         local item = GetItemInfoInstant(self.deleteItem)
-        if strfind(arg2, item:gsub("%-","")) then
+        if item and strfind(arg2, item:gsub("%-","")) then
             local found, bag, slot = self:HasItem(self.deleteItem)
             if found and self:HasVanity(self.deleteItem) and self:IsRealmbound(bag, slot) then
                 PickupContainerItem(bag, slot)
