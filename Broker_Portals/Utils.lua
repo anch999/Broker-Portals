@@ -35,11 +35,13 @@ function Portals:RemoveItem(arg2)
         if item and strfind(arg2, item.name:gsub("%-","")) then
             local found, bag, slot = self:HasItem(self.deleteItem)
             if found and self:HasVanity(self.deleteItem) and self:IsRealmbound(bag, slot) then
-                PickupContainerItem(bag, slot)
-                DeleteCursorItem()
+              ClearCursor()
+              PickupContainerItem(bag, slot)
+              DeleteCursorItem()
             end
             self.deleteItem = nil
         end
+  Timer.After(5, self:UnregisterEvent("ZONE_CHANGED_NEW_AREA") )
 	self:UnregisterEvent("UNIT_SPELLCAST_SUCCEEDED")
 end
 

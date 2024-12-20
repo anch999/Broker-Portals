@@ -29,6 +29,9 @@ function Portals:SlashCommands(msg)
       self:LearnUnknownStones()
     elseif msg == "resetfavorites" then
       self.db.favorites = { Default = {} }
+    elseif msg == "fullreset" then
+      PortalsDB = nil
+      PortalsCharDB = nil
     else
       self:ToggleMinimap()
       if self.db.minimap and not self.options.minimap:GetChecked() then

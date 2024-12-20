@@ -1,4 +1,4 @@
-local Portals = LibStub("AceAddon-3.0"):NewAddon("BrokerPortals", "AceTimer-3.0", "AceEvent-3.0", "SettingsCreater-1.0")
+local Portals = LibStub("AceAddon-3.0"):NewAddon("BrokerPortals", "AceTimer-3.0", "AceEvent-3.0", "SettingsCreator-1.0")
 BROKERPORTALS = Portals
 local dewdrop = LibStub('Dewdrop-2.0', true)
 local L = LibStub("AceLocale-3.0"):GetLocale("BrokerPortals")
@@ -10,14 +10,14 @@ local fac = UnitFactionGroup('player')
 --Set Savedvariables defaults
 local DefaultSettings  = {
   enableAutoHide = { false },
-  hideMenu        = { true, HideFrame = "BrokerPortalsStandaloneButton"},
+  hideMenu        = { true },
   minimap         = { false },
   txtSize         = 12,
   autoMenu        = { false },
   deleteItem      = { false },
   setProfile      = { {} },
   selectedProfile = "default",
-  announceType    = "PARTYRAID",
+  announceType    = "Party/Raid",
   showItems       = { true },
   showItemCooldowns = { true },
   announce        = { false },
@@ -33,7 +33,6 @@ local DefaultSettings  = {
 local CharDefaultSettings = {}
 
 function Portals:OnInitialize()
-
   self.db = self:SetupDB("PortalsDB", DefaultSettings)
   self.charDB = self:SetupDB("PortalsCharDB", CharDefaultSettings)
   if not self.db.setProfile[GetRealmName()] then self.db.setProfile[GetRealmName()] = {} end
@@ -44,15 +43,13 @@ function Portals:OnInitialize()
     self.activeProfile = "Default"
   end
   self.favoritesdb = self.db.favorites[self.activeProfile] or self.db.favorites["Default"]
-  self:CreateOptionsUI()
 end
 
 function Portals:OnEnable()
   self:RegisterEvent("GOSSIP_SHOW")
   self:InitializeMinimap()
-  self:SetMenuPos()
-  self:ToggleMainButton(self.db.enableAutoHide)
-  self.standaloneButton:SetScale(self.db.buttonScale or 1)
+  self:CreateOptionsUI()
+  self:CreateUI()
 end
 
 
@@ -152,7 +149,9 @@ function Portals:GetCooldown(ID, text, type)
   end
   if not startTime then return end
   local cooldown = math.ceil(((duration - (GetTime() - startTime))/60))
-  if cooldown > 0 then
+  if cooldown > 60 then
+    return text.." |cFF00FFFF("..math.ceil(cooldown / 60).." ".. "hours" .. ")"
+  elseif cooldown > 0 then
     return text.." |cFF00FFFF("..cooldown.." ".. L['MIN'] .. ")"
   end
 end
@@ -160,11 +159,15 @@ end
 --main function used to add any items or spells to the drop down list
 function Portals:DewDropAdd(ID, Type, mage, isPortal, swapPortal)
 
-  local chatType = self.db.announceType
+  local chatType
   local name, icon
 
-  if isPortal and self.db.announceType == "PARTYRAID" then
+  if isPortal and self.db.announceType == "Party/Raid" then
     chatType = (UnitInRaid("player") and "RAID") or (GetNumPartyMembers() > 0 and "PARTY")
+  elseif self.db.announceType == "Say" then
+    chatType = "SAY"
+  elseif self.db.announceType == "Yell" then
+    chatType = "YELL"
   end
 
   if Type == "item" or Type == "use" then
@@ -205,7 +208,7 @@ function Portals:DewDropAdd(ID, Type, mage, isPortal, swapPortal)
         if Type == "use" and not self.dontDeleteAfterCast[ID] and self.db.deleteItem then
           self.deleteItem = ID
           self:RegisterEvent("UNIT_SPELLCAST_SUCCEEDED")
-
+          self:RegisterEvent("ZONE_CHANGED_NEW_AREA")
         end
         dewdrop:Close()
       end
@@ -535,6 +538,10 @@ function Portals:UNIT_SPELLCAST_SUCCEEDED(event, arg1, arg2)
 	self:RemoveItem(arg2)
 end
 
+function Portals:ZONE_CHANGED_NEW_AREA(event, arg1, arg2)
+  local item = GetItemInfoInstant(self.deleteItem)
+	self:RemoveItem(item.name or nil)
+end
 -- slashcommand definition
 SlashCmdList['BROKER_PORTALS'] = function(msg) Portals:SlashCommands(msg) end
 SLASH_BROKER_PORTALS1 = '/portals'

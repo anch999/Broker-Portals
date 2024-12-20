@@ -30,7 +30,7 @@ function Portals:CreateUI()
     self.standaloneButton.Highlight:SetPoint("CENTER", self.standaloneButton, 0, 0)
     self.standaloneButton.Highlight:SetTexture("Interface\\AddOns\\AwAddons\\Textures\\EnchOverhaul\\Slot2Selected")
     self.standaloneButton.Highlight:Hide()
-    self.standaloneButton:Hide()
+    self.standaloneButton:SetScale(self.db.buttonScale or 1)
     self.standaloneButton:SetScript("OnClick", function(button, btnclick)
         if btnclick == "RightButton" then
             if self.unlocked then
@@ -51,18 +51,27 @@ function Portals:CreateUI()
             self.standaloneButton.Highlight:Show()
             self:OpenMenu(button, true)
         end
-
+        if self.db.enableAutoHide then
+            self.standaloneButton:SetAlpha(10)
+        end
     end)
     self.standaloneButton:SetScript("OnLeave", function()
         GameTooltip:Hide()
         if not self.unlocked then
             self.standaloneButton.Highlight:Hide()
-            self:ToggleMainButton(self.db.enableAutoHide)
+        end
+        if self.db.enableAutoHide and not self.unlocked then
+            self.standaloneButton:SetAlpha(0)
         end
     end)
+    self:SetMenuPos()
+    self:SetFrameAlpha()
+    if self.db.hideMenu then
+        self.standaloneButton:Hide()
+    else
+        self.standaloneButton:Show()
+    end
 end
-
-Portals:CreateUI()
 
 --------------- Frame functions for misc menu standalone button---------------
 
@@ -77,13 +86,11 @@ function Portals:SetMenuPos()
     end
 end
 
-function Portals:ToggleMainButton(hide)
-    if hide then
-        self.standaloneButton.icon:Hide()
-        self.standaloneButton.Text:Hide()
+function Portals:SetFrameAlpha()
+    if self.db.enableAutoHide then
+        self.standaloneButton:SetAlpha(0)
     else
-        self.standaloneButton.icon:Show()
-        self.standaloneButton.Text:Show()
+        self.standaloneButton:SetAlpha(10)
     end
 end
 
@@ -94,12 +101,18 @@ function Portals:UnlockFrame()
         self.standaloneButton:SetMovable(false)
         self.standaloneButton:RegisterForDrag()
         self.standaloneButton.Highlight:Hide()
+        if self.db.enableAutoHide then
+            self.standaloneButton:SetAlpha(0)
+        end
         self.unlocked = false
         GameTooltip:Hide()
     else
         self.standaloneButton:SetMovable(true)
         self.standaloneButton:RegisterForDrag("LeftButton")
         self.standaloneButton.Highlight:Show()
+        if self.db.enableAutoHide then
+            self.standaloneButton:SetAlpha(10)
+        end
         self.unlocked = true
     end
 end
