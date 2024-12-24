@@ -540,7 +540,9 @@ end
 
 function Portals:ZONE_CHANGED_NEW_AREA(event, arg1, arg2)
   local item = GetItemInfoInstant(self.deleteItem)
-	self:RemoveItem(item.name or nil)
+  if item then
+	  self:RemoveItem(item.name or nil)
+  end
 end
 -- slashcommand definition
 SlashCmdList['BROKER_PORTALS'] = function(msg) Portals:SlashCommands(msg) end

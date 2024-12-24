@@ -41,7 +41,7 @@ function Portals:RemoveItem(arg2)
             end
             self.deleteItem = nil
         end
-  Timer.After(5, self:UnregisterEvent("ZONE_CHANGED_NEW_AREA") )
+  Timer.After(5, function() self:UnregisterEvent("ZONE_CHANGED_NEW_AREA") end)
 	self:UnregisterEvent("UNIT_SPELLCAST_SUCCEEDED")
 end
 

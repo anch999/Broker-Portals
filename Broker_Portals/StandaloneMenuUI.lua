@@ -66,9 +66,7 @@ function Portals:CreateUI()
     end)
     self:SetMenuPos()
     self:SetFrameAlpha()
-    if self.db.hideMenu then
-        self.standaloneButton:Hide()
-    else
+    if not self.db.hideMenu then
         self.standaloneButton:Show()
     end
 end
