@@ -6,19 +6,14 @@ function Portals:OptionsToggle()
     if InterfaceOptionsFrame:IsVisible() then
 		InterfaceOptionsFrame:Hide()
 	else
-		InterfaceOptionsFrame_OpenToCategory("BrokerPortals")
+		InterfaceOptionsFrame_OpenToCategory("Broker_Portals")
 	end
 end
 
-function BrokerPortals_OpenOptions()
-	if InterfaceOptionsFrame:GetWidth() < 850 then InterfaceOptionsFrame:SetWidth(850) end
-end
-
 --Creates the options frame and all its assets
-
 function Portals:CreateOptionsUI()
 	local Options = {
-		AddonName = "BrokerPortals",
+		AddonName = "Broker_Portals",
 		TitleText = "Broker Portals Settings",
 		{
 		Name = "Broker Poratls",
@@ -188,26 +183,8 @@ function Portals:CreateOptionsUI()
 		}
 	}
 	self.options = self:CreateOptionsPages(Options, PortalsDB)
-	self.options.discordLink = CreateFrame("Button", "BrokerPortalsOptionsDiscordLink", BrokerPortalsOptionsFrame)
-	self.options.discordLink:SetPoint("BOTTOMLEFT", 15, 15)
-	self.options.discordLink.Lable = self.options.discordLink:CreateFontString(nil , "BORDER", "GameFontNormal")
-	self.options.discordLink.Lable:SetJustifyH("LEFT")
-	self.options.discordLink.Lable:SetPoint("LEFT", self.options.discordLink, 0, 0)
-	self.options.discordLink.Lable:SetText("For Help or suggestions come join us on Discord\nhttps://discord.gg/j7eebTK5Q3"..WHITE.." (Click to copy link)")
-	self.options.discordLink:SetScript("OnClick", function()
-		Internal_CopyToClipboard("https://discord.gg/bgsqskycPd")
-		DEFAULT_CHAT_FRAME:AddMessage("Discord link copyed to clipboard")
-	end)
-	self.options.discordLink:SetSize(self.options.discordLink.Lable:GetStringWidth(), self.options.discordLink.Lable:GetStringHeight())
 
 end
-
---Hook interface frame show to update options data
-InterfaceOptionsFrame:HookScript("OnShow", function()
-	if InterfaceOptionsFrame and BrokerPortalsOptionsFrame:IsVisible() then
-		BrokerPortals_OpenOptions()
-	end
-end)
 
 StaticPopupDialogs["BROKER_PORTALS_ADD_PROFILE"] = {
 	text = "Add New Profile",

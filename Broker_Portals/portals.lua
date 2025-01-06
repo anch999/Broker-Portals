@@ -9,25 +9,25 @@ local fac = UnitFactionGroup('player')
 
 --Set Savedvariables defaults
 local DefaultSettings  = {
-  enableAutoHide = { false },
-  hideMenu        = { true },
-  minimap         = { false },
+  enableAutoHide = false,
+  hideMenu        = true,
+  minimap         = false,
   txtSize         = 12,
-  autoMenu        = { false },
-  deleteItem      = { false },
-  setProfile      = { {} },
+  autoMenu        = false,
+  deleteItem      = false,
+  setProfile      = {},
   selectedProfile = "default",
   announceType    = "Party/Raid",
-  showItems       = { true },
-  showItemCooldowns = { true },
-  announce        = { false },
-  showPortals     = { false },
-  swapPortals     = { true },
-  showEnemy       = { false },
-  stonesSubMenu      = { true },
-  favorites       = { { Default = {} } },
-  selfCast        = { true },
-  showStonesZone = { true }
+  showItems       = true,
+  showItemCooldowns = true,
+  announce        = false,
+  showPortals     = false,
+  swapPortals     = true,
+  showEnemy       = false,
+  stonesSubMenu      = true,
+  favorites       = { Default = {} },
+  selfCast        = true,
+  showStonesZone = true
 }
 
 local CharDefaultSettings = {}

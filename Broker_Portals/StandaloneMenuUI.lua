@@ -51,7 +51,7 @@ function Portals:CreateUI()
             self.standaloneButton.Highlight:Show()
             self:OpenMenu(button, true)
         end
-        if self.db.enableAutoHide then
+        if self.db.enableAutoHide and not UnitAffectingCombat("player") then
             self.standaloneButton:SetAlpha(10)
         end
     end)
@@ -66,7 +66,9 @@ function Portals:CreateUI()
     end)
     self:SetMenuPos()
     self:SetFrameAlpha()
-    if not self.db.hideMenu then
+    if self.db.hideMenu then
+        self.standaloneButton:Hide()
+    else
         self.standaloneButton:Show()
     end
 end
