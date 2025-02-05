@@ -342,13 +342,10 @@ function Portals:ShowStones(subMenu, spellCheck, noSpacer) --Kalimdor, true
                 local name =  self.stoneInfo[spellID].zone
                 if not self.db.showStonesZone then
                   name = GetSpellInfo(spellID)
-                  sorted[name] = {spellID}
                 elseif sorted[name] then
                   name = name..ID
-                  sorted[name] = {spellID}
-                else
-                  sorted[name] = {spellID}
                 end
+                sorted[name] = {spellID}
               end
 						end
 					end
@@ -439,10 +436,8 @@ function Portals:ShowFavorites()
             end
             if sorted[name] then
               name = name..ID
-              sorted[name] = {ID, v[2], v[3], v[4], v[5]}
-            else
-              sorted[name] = {ID, v[2], v[3], v[4], v[5]}
             end
+            sorted[name] = {ID, v[2], v[3], v[4], v[5]}
           end
         end
       end
