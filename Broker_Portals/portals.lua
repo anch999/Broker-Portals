@@ -427,7 +427,12 @@ function Portals:ShowFavorites()
           else
             name = GetSpellInfo(ID)
           end
-          if CA_IsSpellKnown(ID) or C_VanityCollection.IsCollectionItemOwned(VANITY_SPELL_REFERENCE[ID] or ID) or Portals:HasItem(ID) then
+
+          if not name then
+            name = (v[2] or "spell")..":"..(ID or "NO ID")
+          end
+
+          if name and (CA_IsSpellKnown(ID) or C_VanityCollection.IsCollectionItemOwned(VANITY_SPELL_REFERENCE[ID] or ID) or Portals:HasItem(ID)) then
             if self.db.showStonesZone and self.stoneInfo[ID] then
               name = self.stoneInfo[ID].zone
             end
