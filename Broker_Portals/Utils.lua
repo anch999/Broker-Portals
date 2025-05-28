@@ -225,8 +225,13 @@ function Portals:HasVanity(ID)
   return C_VanityCollection.IsCollectionItemOwned(VANITY_SPELL_REFERENCE[ID] or ID)
 end
 
+local _, class = UnitClass('player')
 function Portals:IsPortalKnown(spellID)
-  return CA_IsSpellKnown(818045) and CA_IsSpellKnown(spellID)
+  if class == "HERO" then
+    return CA_IsSpellKnown(818045) and CA_IsSpellKnown(spellID)
+  elseif class == "MAGE" then
+    return CA_IsSpellKnown(spellID)
+  end
 end
 
 function Portals:HasVanityOrItem(itemID)
