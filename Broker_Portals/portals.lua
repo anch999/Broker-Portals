@@ -426,9 +426,9 @@ function Portals:ShowFavorites()
           local name
           if v[2] == "use" or v[2] == "item" then
             local item = GetItemInfoInstant(ID)
-            name = item.name
+            name = item.name or "NO ID"
           else
-            name = GetSpellInfo(ID)
+            name = GetSpellInfo(ID) or "NO ID"
           end
           if CA_IsSpellKnown(ID) or self:HasVanity(VANITY_SPELL_REFERENCE[ID] or ID) or self:HasItem(ID) then
             if self.db.showStonesZone and self.stoneInfo[ID] then
