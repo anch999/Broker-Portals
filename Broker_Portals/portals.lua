@@ -1,4 +1,4 @@
-local Portals = LibStub("AceAddon-3.0"):NewAddon("BrokerPortals", "AceTimer-3.0", "AceEvent-3.0", "SettingsCreater-1.0")
+local Portals = LibStub("AceAddon-3.0"):NewAddon("BrokerPortals", "AceTimer-3.0", "AceEvent-3.0", "SettingsCreator-1.0")
 BROKERPORTALS = Portals
 local dewdrop = LibStub('Dewdrop-2.0', true)
 local L = LibStub("AceLocale-3.0"):GetLocale("BrokerPortals")
@@ -9,31 +9,30 @@ local fac = UnitFactionGroup('player')
 
 --Set Savedvariables defaults
 local DefaultSettings  = {
-  enableAutoHide = { false },
-  hideMenu        = { true, HideFrame = "BrokerPortalsStandaloneButton"},
-  minimap         = { false },
+  enableAutoHide = false,
+  hideMenu        = true,
+  minimap         = false,
   txtSize         = 12,
-  autoMenu        = { false },
-  deleteItem      = { false },
-  setProfile      = { {} },
+  autoMenu        = false,
+  deleteItem      = false,
+  setProfile      = {},
   selectedProfile = "default",
-  announceType    = "PARTYRAID",
-  showItems       = { true },
-  showItemCooldowns = { true },
-  announce        = { false },
-  showPortals     = { false },
-  swapPortals     = { true },
-  showEnemy       = { false },
-  stonesSubMenu      = { true },
-  favorites       = { { Default = {} } },
-  selfCast        = { true },
-  showStonesZone = { true }
+  announceType    = "Party/Raid",
+  showItems       = true,
+  showItemCooldowns = true,
+  announce        = false,
+  showPortals     = false,
+  swapPortals     = true,
+  showEnemy       = false,
+  stonesSubMenu      = true,
+  favorites       = { Default = {} },
+  selfCast        = true,
+  showStonesZone = true
 }
 
 local CharDefaultSettings = {}
 
 function Portals:OnInitialize()
-
   self.db = self:SetupDB("PortalsDB", DefaultSettings)
   self.charDB = self:SetupDB("PortalsCharDB", CharDefaultSettings)
   if not self.db.setProfile[GetRealmName()] then self.db.setProfile[GetRealmName()] = {} end
@@ -44,15 +43,13 @@ function Portals:OnInitialize()
     self.activeProfile = "Default"
   end
   self.favoritesdb = self.db.favorites[self.activeProfile] or self.db.favorites["Default"]
-  self:CreateOptionsUI()
 end
 
 function Portals:OnEnable()
   self:RegisterEvent("GOSSIP_SHOW")
   self:InitializeMinimap()
-  self:SetMenuPos()
-  self:ToggleMainButton(self.db.enableAutoHide)
-  self.standaloneButton:SetScale(self.db.buttonScale or 1)
+  self:CreateOptionsUI()
+  self:CreateUI()
 end
 
 
@@ -152,7 +149,9 @@ function Portals:GetCooldown(ID, text, type)
   end
   if not startTime then return end
   local cooldown = math.ceil(((duration - (GetTime() - startTime))/60))
-  if cooldown > 0 then
+  if cooldown > 60 then
+    return text.." |cFF00FFFF("..math.ceil(cooldown / 60).." ".. "hours" .. ")"
+  elseif cooldown > 0 then
     return text.." |cFF00FFFF("..cooldown.." ".. L['MIN'] .. ")"
   end
 end
@@ -160,14 +159,18 @@ end
 --main function used to add any items or spells to the drop down list
 function Portals:DewDropAdd(ID, Type, mage, isPortal, swapPortal)
 
-  local chatType = self.db.announceType
+  local chatType
   local name, icon
 
-  if isPortal and self.db.announceType == "PARTYRAID" then
+  if isPortal and self.db.announceType == "Party/Raid" then
     chatType = (UnitInRaid("player") and "RAID") or (GetNumPartyMembers() > 0 and "PARTY")
+  elseif self.db.announceType == "Say" then
+    chatType = "SAY"
+  elseif self.db.announceType == "Yell" then
+    chatType = "YELL"
   end
 
-  if Type == "item" then
+  if Type == "item" or Type == "use" then
     local item = GetItemInfoInstant(ID)
     name, icon = item.name, item.icon 
     Type = "use"
@@ -198,14 +201,14 @@ function Portals:DewDropAdd(ID, Type, mage, isPortal, swapPortal)
     'func', function()
       local hasVanity = CA_IsSpellKnown(ID) or self:HasItem(ID)
       if IsAltKeyDown() then
-        self:AddFavorites(ID, secure.type1, mage, isPortal, swapPortal)
-      elseif not hasVanity and C_VanityCollection.IsCollectionItemOwned(VANITY_SPELL_REFERENCE[ID] or ID) then
+        self:AddFavorites(ID, Type, mage, isPortal, swapPortal)
+      elseif not hasVanity and self:HasVanity(ID) then
         RequestDeliverVanityCollectionItem(VANITY_SPELL_REFERENCE[ID] or ID)
       else
         if Type == "use" and not self.dontDeleteAfterCast[ID] and self.db.deleteItem then
           self.deleteItem = ID
           self:RegisterEvent("UNIT_SPELLCAST_SUCCEEDED")
-
+          self:RegisterEvent("ZONE_CHANGED_NEW_AREA")
         end
         dewdrop:Close()
       end
@@ -224,9 +227,11 @@ function Portals:ShowClassSpells()
   local headerSet = false
   if portals then
     for _, v in ipairs(portals) do
-      if CA_IsSpellKnown(818045) and CA_IsSpellKnown(v[1]) and (not self.favoritesdb[v[1]] or not self.favoritesdb[v[1]][1]) then
-        if not v[2] or (v[2] and not self.db.showPortals and not self.db.swapPortals) or (self.db.showPortals and v[2] and not self.db.swapPortals) and (GetNumPartyMembers() > 0 or UnitInRaid("player")) then
-          headerSet = Portals:SetHeader("Mage Portals", headerSet)
+      if self:IsPortalKnown(v[1]) and self:CheckFavorites(v[1]) then
+        if not v[2] or (v[2] and not self.db.showPortals and not self.db.swapPortals)
+        or (self.db.showPortals and v[2] and not self.db.swapPortals)
+        and (GetNumPartyMembers() > 0 or UnitInRaid("player")) then
+          headerSet = self:SetHeader("Mage Portals", headerSet)
           local name = GetSpellInfo(v[1])
           methods[name] = {
             spellID = v[1],
@@ -237,9 +242,9 @@ function Portals:ShowClassSpells()
       end
     end
   end
-  for _, v in Portals:PairsByKeys(methods) do
-    if (not self.favoritesdb[v.spellID] or not self.favoritesdb[v.spellID][1]) then
-      Portals:DewDropAdd(v.spellID, "spell", true, v.isPortal, v.portalSpellID)
+  for _, v in self:PairsByKeys(methods) do
+    if self:CheckFavorites(v.spellID) then
+      self:DewDropAdd(v.spellID, "spell", true, v.isPortal, v.portalSpellID)
     end
   end
 end
@@ -265,11 +270,11 @@ function Portals:GetHearthCooldown()
 end
 
 function Portals:GetItemCooldowns()
-  local cooldown, startTime, duration, cooldowns = nil, nil, nil, nil
+  local cooldown, startTime, duration, cooldowns
 
   -- items
-  for _, ID in pairs(Portals.items) do
-    if GetItemCount(ID) > 0 or C_VanityCollection.IsCollectionItemOwned(ID) then
+  for _, ID in pairs(self.items) do
+    if GetItemCount(ID) > 0 or self:HasVanity(ID) then
       startTime, duration = GetItemCooldown(ID)
       cooldown = duration - (GetTime() - startTime)
       if cooldown >= 60 then
@@ -294,30 +299,30 @@ end
 --Hearthstone items and spells
 function Portals:ShowHearthstone()
   local headerSet = false 
-  for _, itemID in ipairs(Portals.scrolls) do
-    if (Portals:HasItem(itemID) or C_VanityCollection.IsCollectionItemOwned(itemID)) and (not self.favoritesdb[itemID] or not self.favoritesdb[itemID][1]) then
-      headerSet = Portals:SetHeader("Hearthstone: "..GetBindLocation(), headerSet)
-      Portals:DewDropAdd(itemID, "item")
+  for _, itemID in ipairs(self.scrolls) do
+    if self:HasVanityOrItem(itemID) and self:CheckFavorites(itemID) then
+      headerSet = self:SetHeader("Hearthstone: "..GetBindLocation(), headerSet)
+      self:DewDropAdd(itemID, "item")
     end
   end
 
   local runeRandom = {}
-  for _, spellID in ipairs(Portals.runes) do
-    if (CA_IsSpellKnown(spellID) or C_VanityCollection.IsCollectionItemOwned(VANITY_SPELL_REFERENCE[spellID] or spellID)) and (not self.favoritesdb[spellID] or not self.favoritesdb[spellID][1]) then
+  for _, spellID in ipairs(self.runes) do
+    if self:HasVanityOrSpell(spellID) and self:CheckFavorites(spellID) then
       tinsert(runeRandom, spellID)
     end
   end
 
   if #runeRandom > 0 then
     local spellID = runeRandom[math.random(1, #runeRandom)]
-      headerSet = Portals:SetHeader("Hearthstone: "..GetBindLocation(), headerSet)
-      Portals:DewDropAdd(spellID, "spell")
+      headerSet = self:SetHeader("Hearthstone: "..GetBindLocation(), headerSet)
+      self:DewDropAdd(spellID, "spell")
   end
 
-  for _,spellID in ipairs(Portals.hearthspells) do
-    if CA_IsSpellKnown(spellID) and (not self.favoritesdb[spellID] or not self.favoritesdb[spellID][1]) then
-      headerSet = Portals:SetHeader("Hearthstone: "..GetBindLocation(), headerSet)
-      Portals:DewDropAdd(spellID, "spell")
+  for _,spellID in ipairs(self.hearthspells) do
+    if CA_IsSpellKnown(spellID) and self:CheckFavorites(spellID) then
+      headerSet = self:SetHeader("Hearthstone: "..GetBindLocation(), headerSet)
+      self:DewDropAdd(spellID, "spell")
     end
   end
 end
@@ -328,30 +333,27 @@ function Portals:ShowStones(subMenu, spellCheck, noSpacer) --Kalimdor, true
   local function tableSort(zone)
     local sorted = {}
     local headerSet = false
-      for ID,v in ipairs(Portals.stones[zone]) do
-					if (not self.favoritesdb[v] or not self.favoritesdb[v][1]) and not (Portals.stoneInfo[v].factionLock and Portals.stoneInfo[v].fac ~= fac ) and (xpacLevel >= Portals.stoneInfo[v].expac) then --xpacLevel and locked cities check
-						if self.db.showEnemy or (Portals.stoneInfo[v].fac == fac or Portals.stoneInfo[v].fac == "Neutral") then --faction or showEnemy check
+      for ID, spellID in ipairs(self.stones[zone]) do
+					if self:CheckFavorites(spellID) and not (self.stoneInfo[spellID].factionLock and self.stoneInfo[spellID].fac ~= fac ) and (xpacLevel >= self.stoneInfo[spellID].expac) then --xpacLevel and locked cities check
+						if self.db.showEnemy or (self.stoneInfo[spellID].fac == fac or self.stoneInfo[spellID].fac == "Neutral") then --faction or showEnemy check
 							--returns on the first found stone to turn the menu on
-              if spellCheck and (CA_IsSpellKnown(v) or C_VanityCollection.IsCollectionItemOwned(VANITY_SPELL_REFERENCE[v] or v)) then return true end
-							if (CA_IsSpellKnown(v) or C_VanityCollection.IsCollectionItemOwned(VANITY_SPELL_REFERENCE[v] or v)) then
-                local name =  self.stoneInfo[v].zone
+              if spellCheck and self:HasVanityOrSpell(spellID) then return true end
+							if self:HasVanityOrSpell(spellID) then
+                local name =  self.stoneInfo[spellID].zone
                 if not self.db.showStonesZone then
-                  name = GetSpellInfo(v)
-                  sorted[name] = {v}
+                  name = GetSpellInfo(spellID)
                 elseif sorted[name] then
                   name = name..ID
-                  sorted[name] = {v}
-                else
-                  sorted[name] = {v}
                 end
+                sorted[name] = {spellID}
               end
 						end
 					end
       end
       table.sort(sorted)
-      for _,v in Portals:PairsByKeys(sorted) do
-        headerSet = Portals:SetHeader(Portals.stones[zone].header, headerSet, noSpacer)
-        Portals:DewDropAdd(v[1], "spell")
+      for _,v in self:PairsByKeys(sorted) do
+        headerSet = self:SetHeader(self.stones[zone].header, headerSet, noSpacer)
+        self:DewDropAdd(v[1], "spell")
       end
   end
 
@@ -361,8 +363,8 @@ function Portals:ShowStones(subMenu, spellCheck, noSpacer) --Kalimdor, true
 	end
 
 	if subMenu == "All" then
-		for continent, v in pairs(Portals.stones) do
-			if xpacLevel >= v.expansion then
+		for continent, zone in pairs(self.stones) do
+			if xpacLevel >= zone.expansion then
         addTable(continent)
       end
 		end
@@ -374,41 +376,41 @@ end
 --scrolls of defense and scrolls of retreat
 function Portals:ShowScrolls()
   local headerSet = false
-  for _,spellID in ipairs(Portals.sod) do
-    if (CA_IsSpellKnown(spellID) or C_VanityCollection.IsCollectionItemOwned(VANITY_SPELL_REFERENCE[spellID] or spellID)) and (not self.favoritesdb[spellID] or not self.favoritesdb[spellID][1]) then
-      headerSet = Portals:SetHeader("Scrolls Of Defense", headerSet)
-      Portals:DewDropAdd(spellID, "spell")
+  for _,spellID in ipairs(self.sod) do
+    if self:HasVanityOrSpell(spellID) and self:CheckFavorites(spellID) then
+      headerSet = self:SetHeader("Scrolls Of Defense", headerSet)
+      self:DewDropAdd(spellID, "spell")
     end
   end
-  if (Portals:HasItem(Portals.sor[fac]) or C_VanityCollection.IsCollectionItemOwned(Portals.sor[fac])) and (not self.favoritesdb[Portals.sor[fac]] or not self.favoritesdb[Portals.sor[fac]][1]) then
-    Portals:DewDropAdd(Portals.sor[fac], "item", fac, true)
+  if (self:HasItem(self.sor[fac]) or self:HasVanity(self.sor[fac])) and self:CheckFavorites(fac) then
+    self:DewDropAdd(self.sor[fac], "item", fac, true)
   end
 end
 
 --other items things like Engineering teleport trinkets
 function Portals:ShowOtherItems()
   local headerSet = false
-  for _, itemID in ipairs(Portals.items) do
-    if (Portals:HasItem(itemID) or C_VanityCollection.IsCollectionItemOwned(itemID)) and (not self.favoritesdb[itemID] or not self.favoritesdb[itemID][1]) then
-      headerSet = Portals:SetHeader("Other Items", headerSet)
-      Portals:DewDropAdd(itemID, "item")
+  for _, itemID in ipairs(self.items) do
+    if self:HasVanityOrItem(itemID) and self:CheckFavorites(itemID) then
+      headerSet = self:SetHeader("Other Items", headerSet)
+      self:DewDropAdd(itemID, "item")
     end
   end
   if UnitLevel("player") <= 8 then
     local itemID = 977028
-    if (Portals:HasItem(itemID) or C_VanityCollection.IsCollectionItemOwned(itemID)) and (not self.favoritesdb[itemID] or not self.favoritesdb[itemID][1]) then
-      headerSet = Portals:SetHeader("Other Items", headerSet)
-      Portals:DewDropAdd(itemID, "item")
+    if self:HasVanityOrItem(itemID) and self:CheckFavorites(itemID) then
+      headerSet = self:SetHeader("Other Items", headerSet)
+      self:DewDropAdd(itemID, "item")
     end
   end
 end
 
 function Portals:ShowOtherPorts()
   local headerSet = false
-  for _,spellID in ipairs(Portals.otherportals) do
-    if (CA_IsSpellKnown(spellID) or C_VanityCollection.IsCollectionItemOwned(VANITY_SPELL_REFERENCE[spellID] or spellID)) and (not self.favoritesdb[spellID] or not self.favoritesdb[spellID][1]) then
-      headerSet = Portals:SetHeader("Other Teleports/Portals", headerSet)
-      Portals:DewDropAdd(spellID, "spell")
+  for _,spellID in ipairs(self.otherportals) do
+    if self:HasVanityOrSpell(spellID) and self:CheckFavorites(spellID) then
+      headerSet = self:SetHeader("Other Teleports/Portals", headerSet)
+      self:DewDropAdd(spellID, "spell")
     end
   end
 end
@@ -422,41 +424,35 @@ function Portals:ShowFavorites()
       if type(v) == "table" then
         if v[1] then
           local name
-          if v[2] == "item" then
-            name = GetItemInfoInstant(ID)
+          if v[2] == "use" or v[2] == "item" then
+            local item = GetItemInfoInstant(ID)
+            name = item.name or "NO ID"
           else
-            name = GetSpellInfo(ID)
+            name = GetSpellInfo(ID) or "NO ID"
           end
-
-          if not name then
-            name = (v[2] or "spell")..":"..(ID or "NO ID")
-          end
-
-          if name and (CA_IsSpellKnown(ID) or C_VanityCollection.IsCollectionItemOwned(VANITY_SPELL_REFERENCE[ID] or ID) or Portals:HasItem(ID)) then
+          if CA_IsSpellKnown(ID) or self:HasVanity(VANITY_SPELL_REFERENCE[ID] or ID) or self:HasItem(ID) then
             if self.db.showStonesZone and self.stoneInfo[ID] then
               name = self.stoneInfo[ID].zone
             end
             if sorted[name] then
               name = name..ID
-              sorted[name] = {ID, v[2], v[3], v[4], v[5]}
-            else
-              sorted[name] = {ID, v[2], v[3], v[4], v[5]}
             end
+            sorted[name] = {ID, v[2], v[3], v[4], v[5]}
           end
         end
       end
     end
     table.sort(sorted)
-    for _,v in Portals:PairsByKeys(sorted) do
-      --Portals:AddFavorites(spellID 1, type 2, mage 3, isPortal 4, portalSpellID 5)
-      if not Portals.stoneInfo[v[1]] or (Portals.stoneInfo[v[1]] and not (Portals.stoneInfo[v[1]].factionLock and Portals.stoneInfo[v[1]].fac ~= fac ) and (xpacLevel >= Portals.stoneInfo[v[1]].expac)) then --xpacLevel and locked cities check
-        if self.db.showEnemy or (Portals.stoneInfo[v[1]] and (Portals.stoneInfo[v[1]].fac == fac or Portals.stoneInfo[v[1]].fac == "Neutral")) or v[3] then --faction or showEnemy check
-          if  ( v[3] and (not v[4] and CA_IsSpellKnown(818045) and CA_IsSpellKnown(v[1])) or
-              (v[4] and self.db.showPortals and not self.db.swapPortals and CA_IsSpellKnown(818045) and CA_IsSpellKnown(v[1]) and ((GetNumPartyMembers() > 0 or UnitInRaid("player")))) or
-              (v[4] and not self.db.showPortals and not self.db.swapPortals and CA_IsSpellKnown(818045) and CA_IsSpellKnown(v[1]))) or
-              (not v[3] and CA_IsSpellKnown(v[1])) or C_VanityCollection.IsCollectionItemOwned(VANITY_SPELL_REFERENCE[v[1]] or v[1]) or Portals:HasItem(v[1]) then
-                headerSet = Portals:SetHeader("Favorites", headerSet, true)
-                Portals:DewDropAdd(v[1], v[2], v[3], v[4], v[5])
+    for _,v in self:PairsByKeys(sorted) do
+      --self:AddFavorites(spellID 1, type 2, mage 3, isPortal 4, portalSpellID 5)
+      if not self.stoneInfo[v[1]] or (self.stoneInfo[v[1]] and not (self.stoneInfo[v[1]].factionLock and self.stoneInfo[v[1]].fac ~= fac ) and (xpacLevel >= self.stoneInfo[v[1]].expac)) then --xpacLevel and locked cities check
+        if self.db.showEnemy or (self.stoneInfo[v[1]] and (self.stoneInfo[v[1]].fac == fac or self.stoneInfo[v[1]].fac == "Neutral")) or v[3] then --faction or showEnemy check
+          if  ( v[3] and (not v[4] and self:IsPortalKnown(v[1])) or
+              (v[4] and self.db.showPortals and not self.db.swapPortals and self:IsPortalKnown(v[1]) and ((GetNumPartyMembers() > 0 or UnitInRaid("player")))) or
+              (v[4] and not self.db.showPortals and not self.db.swapPortals and self:IsPortalKnown(v[1]))) or
+              (not v[3] and CA_IsSpellKnown(v[1])) or self:HasVanity(v[1]) or self:HasItem(v[1]) then
+                headerSet = self:SetHeader("Favorites", headerSet, true)
+                self:DewDropAdd(v[1], v[2], v[3], v[4], v[5])
           end
         end
       end
@@ -466,14 +462,14 @@ end
 
 function Portals:UpdateMenu(level, value, showUnlock)
   if level == 1 then
-    Portals:ShowFavorites()
+    self:ShowFavorites()
 
     if self.db.stonesSubMenu then
       local mainHeaderSet = false
       --Adds menu if any stone in that category has been learned
-			for continent, _ in pairs(Portals.stones) do
-				if Portals:ShowStones(continent, true) then
-        mainHeaderSet = Portals:SetHeader("Stones Of Retreat", mainHeaderSet)
+			for continent, _ in pairs(self.stones) do
+				if self:ShowStones(continent, true) then
+        mainHeaderSet = self:SetHeader("Stones Of Retreat", mainHeaderSet)
         dewdrop:AddLine(
           'textHeight', self.db.txtSize,
           'textWidth', self.db.txtSize,
@@ -484,18 +480,16 @@ function Portals:UpdateMenu(level, value, showUnlock)
 				end
 			end
     else
-      Portals:ShowStones("All")
+      self:ShowStones("All")
     end
 
-    Portals:ShowClassSpells()
-
-    Portals:ShowHearthstone()
-
-    Portals:ShowOtherPorts()
+    self:ShowClassSpells()
+    self:ShowHearthstone()
+    self:ShowOtherPorts()
 
     if self.db.showItems then
-      Portals:ShowScrolls()
-      Portals:ShowOtherItems()
+      self:ShowScrolls()
+      self:ShowOtherItems()
     end
 
     dewdrop:AddLine()
@@ -507,7 +501,7 @@ function Portals:UpdateMenu(level, value, showUnlock)
           'func', self.UnlockFrame,
           'closeWhenClicked', true
       )
-  end
+    end
     dewdrop:AddLine(
       'text', L['OPTIONS'],
       'textHeight', self.db.txtSize,
@@ -525,13 +519,13 @@ function Portals:UpdateMenu(level, value, showUnlock)
       'closeWhenClicked', true
     )
   elseif level == 2 and value == 'Kalimdor' then
-    Portals:ShowStones("Kalimdor", nil, true)
+    self:ShowStones("Kalimdor", nil, true)
   elseif level == 2 and value == 'EasternKingdoms' then
-    Portals:ShowStones("EasternKingdoms", nil, true)
+    self:ShowStones("EasternKingdoms", nil, true)
   elseif level == 2 and value == 'Outlands' then
-    Portals:ShowStones("Outlands", nil, true)
+    self:ShowStones("Outlands", nil, true)
   elseif level == 2 and value == 'Northrend' then
-    Portals:ShowStones("Northrend", nil, true)
+    self:ShowStones("Northrend", nil, true)
   end
 end
 
@@ -539,7 +533,15 @@ function Portals:UNIT_SPELLCAST_SUCCEEDED(event, arg1, arg2)
 	self:RemoveItem(arg2)
 end
 
+function Portals:ZONE_CHANGED_NEW_AREA(event, arg1, arg2)
+  local item = GetItemInfoInstant(self.deleteItem)
+  if item then
+	  self:RemoveItem(item.name or nil)
+  end
+end
 -- slashcommand definition
 SlashCmdList['BROKER_PORTALS'] = function(msg) Portals:SlashCommands(msg) end
 SLASH_BROKER_PORTALS1 = '/portals'
+
+
 

@@ -1,24 +1,19 @@
 local Portals = LibStub("AceAddon-3.0"):GetAddon("BrokerPortals")
 local L = LibStub("AceLocale-3.0"):GetLocale("BrokerPortals")
+local WHITE = "|cffFFFFFF"
 
 function Portals:OptionsToggle()
     if InterfaceOptionsFrame:IsVisible() then
 		InterfaceOptionsFrame:Hide()
 	else
-		InterfaceOptionsFrame_OpenToCategory("BrokerPortals")
+		InterfaceOptionsFrame_OpenToCategory("Broker_Portals")
 	end
 end
 
-function BrokerPortals_OpenOptions()
-	if InterfaceOptionsFrame:GetWidth() < 850 then InterfaceOptionsFrame:SetWidth(850) end
-	BrokerPortals_DropDownInitialize()
-end
-
 --Creates the options frame and all its assets
-
 function Portals:CreateOptionsUI()
 	local Options = {
-		AddonName = "BrokerPortals",
+		AddonName = "Broker_Portals",
 		TitleText = "Broker Portals Settings",
 		{
 		Name = "Broker Poratls",
@@ -43,7 +38,7 @@ function Portals:CreateOptionsUI()
 				Lable = "Only Show Standalone Button on Hover",
 				OnClick = function()
 					self.db.enableAutoHide = not self.db.enableAutoHide
-					self:ToggleMainButton(self.db.enableAutoHide)
+					self:SetFrameAlpha()
 				end
 			},
 			{
@@ -74,7 +69,7 @@ function Portals:CreateOptionsUI()
 				Type = "Menu",
 				Name = "announce",
 				Lable = "Show Announce in",
-				Menu = {{"Say", "SAY"}, {"Yell", "YELL"}, {"|cff00ffffParty|r/|cffff7f00Raid", "PARTYRAID"}}
+				Menu = { "Say", "Yell", "Party/Raid" }
 			},
 			{
 				Type = "CheckButton",
@@ -100,18 +95,6 @@ function Portals:CreateOptionsUI()
 				Lable = "Show enemy faction Stones of Retreats",
 				OnClick = function() self.db.showEnemy = not self.db.showEnemy end
 			},
-			{
-				Type = "CheckButton",
-				Name = "selfCast",
-				Lable = "Cast placeable items/spells on self",
-				OnClick = function() self.db.selfCast = not self.db.selfCast end
-			},
-			{
-				Type = "CheckButton",
-				Name = "showStonesZone",
-				Lable = "Show stone of retreat zones",
-				OnClick = function() self.db.showStonesZone = not self.db.showStonesZone end
-			},
 		},
 		Right = {
 			{
@@ -131,12 +114,25 @@ function Portals:CreateOptionsUI()
 			{
 				Type = "Menu",
 				Name = "txtSize",
-				Lable = "Menu text size"
+				Lable = "Menu text size",
+				Menu = {10,11,12,13,14,15,16,17,18,19,20,21,22,23,24,25}
 			},
 			{
 				Type = "Menu",
 				Name = "ProfileSelect",
 				Lable = "Profile selection",
+				Func = 	function(name)
+					self.activeProfile = name
+					self.favoritesdb = self.db.favorites[self.activeProfile]
+					self.db.setProfile[GetRealmName()][UnitName("player")] = self.activeProfile
+				end,
+				Menu = function()
+					local selections = {}
+					for name, _ in pairs(self.db.favorites) do
+						tinsert(selections, name)
+					end
+					return selections
+				end
 			},
 			{
 				Type = "Button",
@@ -170,87 +166,25 @@ function Portals:CreateOptionsUI()
 						self.standaloneButton:SetScale(self.db.buttonScale)
 					end
 				end
-			}
+			};
+			{
+				Type = "CheckButton",
+				Name = "selfCast",
+				Lable = "Cast placeable items/spells on self",
+				OnClick = function() self.db.selfCast = not self.db.selfCast end
+			},
+			{
+				Type = "CheckButton",
+				Name = "showStonesZone",
+				Lable = "Show stone of retreat zones",
+				OnClick = function() self.db.showStonesZone = not self.db.showStonesZone end
+			},
 		}
 		}
 	}
 	self.options = self:CreateOptionsPages(Options, PortalsDB)
-end
 
-function BrokerPortals_Options_Profile_Select_Initialize()
-	local i, info, selected = 1
-	for name, _ in pairs(Portals.db.favorites) do
-		if name == Portals.db.setProfile[GetRealmName()][UnitName("player")] then
-			selected = i
-		end
-		i = i + 1
-		info = {
-			text = name;
-			func = function()
-				local thisID = this:GetID();
-				UIDropDownMenu_SetSelectedID(BrokerPortalsOptionsProfileSelectMenu, thisID)
-				Portals.activeProfile = name
-				Portals.favoritesdb = Portals.db.favorites[Portals.activeProfile]
-				Portals.db.setProfile[GetRealmName()][UnitName("player")] = Portals.activeProfile
-			end;
-		}
-			UIDropDownMenu_AddButton(info)
-	end
-	UIDropDownMenu_SetWidth(BrokerPortalsOptionsProfileSelectMenu, 150)
-	UIDropDownMenu_SetSelectedID(BrokerPortalsOptionsProfileSelectMenu, selected)
 end
-
-function BrokerPortals_Options_Menu_Initialize()
-	local info
-	for i = 10, 25 do
-		info = {
-			text = i;
-			func = function() 
-				Portals.db.txtSize = i
-				local thisID = this:GetID();
-				UIDropDownMenu_SetSelectedID(BrokerPortalsOptionstxtSizeMenu, thisID)
-			end;
-		}
-			UIDropDownMenu_AddButton(info)
-	end
-	UIDropDownMenu_SetWidth(BrokerPortalsOptionstxtSizeMenu, 150)
-	UIDropDownMenu_SetSelectedID(BrokerPortalsOptionstxtSizeMenu, Portals.db.txtSize - 9)
-end
-
-function BrokerPortals_Options_Announce_Initialize()
-	local info, selected
-	for i, announceType in ipairs(BrokerPortalsOptionsannounceMenu.Menu) do
-		if (Portals.db.announceType == announceType[2]) then
-			selected =  i
-		end
-		info = {
-			text = announceType[1];
-			func = function()
-				local thisID = this:GetID();
-				selected = thisID
-				UIDropDownMenu_SetSelectedID(BrokerPortalsOptionsannounceMenu, thisID)
-				Portals.db.announceType = announceType[2]
-			end;
-		}
-			UIDropDownMenu_AddButton(info)
-	end
-	UIDropDownMenu_SetWidth(BrokerPortalsOptionsannounceMenu, 150)
-	UIDropDownMenu_SetSelectedID(BrokerPortalsOptionsannounceMenu, selected)
-end
-
-function BrokerPortals_DropDownInitialize()
-	--Setup for Dropdown menus in the settings
-	UIDropDownMenu_Initialize(BrokerPortalsOptionstxtSizeMenu, BrokerPortals_Options_Menu_Initialize)
-	UIDropDownMenu_Initialize(BrokerPortalsOptionsProfileSelectMenu, BrokerPortals_Options_Profile_Select_Initialize)
-	UIDropDownMenu_Initialize(BrokerPortalsOptionsannounceMenu, BrokerPortals_Options_Announce_Initialize)
-end
-
---Hook interface frame show to update options data
-InterfaceOptionsFrame:HookScript("OnShow", function()
-	if InterfaceOptionsFrame and BrokerPortalsOptionsFrame:IsVisible() then
-		BrokerPortals_OpenOptions()
-	end
-end)
 
 StaticPopupDialogs["BROKER_PORTALS_ADD_PROFILE"] = {
 	text = "Add New Profile",
