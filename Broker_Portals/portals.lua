@@ -159,8 +159,8 @@ end
 --main function used to add any items or spells to the drop down list
 function Portals:DewDropAdd(ID, Type, mage, isPortal, swapPortal)
 
-  local chatType, icon
-  local name = ""
+  local chatType
+  local name, icon
 
   if isPortal and self.db.announceType == "Party/Raid" then
     chatType = (UnitInRaid("player") and "RAID") or (GetNumPartyMembers() > 0 and "PARTY")
@@ -172,7 +172,7 @@ function Portals:DewDropAdd(ID, Type, mage, isPortal, swapPortal)
 
   if Type == "item" or Type == "use" then
     local item = GetItemInfoInstant(ID)
-    name, icon = item.name, item.icon 
+    name, icon = item.name, item.icon
     Type = "use"
   elseif (self.db.swapPortals and swapPortal and (GetNumPartyMembers() > 0 or UnitInRaid("player"))) then
     name, _, icon = GetSpellInfo(swapPortal)
@@ -181,6 +181,8 @@ function Portals:DewDropAdd(ID, Type, mage, isPortal, swapPortal)
     name, _, icon = GetSpellInfo(ID)
     Type = "cast"
   end
+
+  if not name then return end
 
   local text = self:GetCooldown(ID, name, Type) or name
   local selfCast = self.db.selfCast and "[@player] " or ""
