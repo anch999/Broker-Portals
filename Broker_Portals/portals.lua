@@ -159,8 +159,8 @@ end
 --main function used to add any items or spells to the drop down list
 function Portals:DewDropAdd(ID, Type, mage, isPortal, swapPortal)
 
-  local chatType
-  local name, icon
+  local chatType, icon
+  local name = ""
 
   if isPortal and self.db.announceType == "Party/Raid" then
     chatType = (UnitInRaid("player") and "RAID") or (GetNumPartyMembers() > 0 and "PARTY")

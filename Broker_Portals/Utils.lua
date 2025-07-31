@@ -210,7 +210,7 @@ function Portals:OpenMenu(button, showUnlock)
           end
       end)
       worldFrameHook = true
-  end
+    end
 end
 
 function Portals:CheckFavorites(ID)
