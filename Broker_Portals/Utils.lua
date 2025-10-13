@@ -205,9 +205,11 @@ function Portals:OpenMenu(button, showUnlock)
 
     if not worldFrameHook then
       WorldFrame:HookScript("OnEnter", function()
-          if dewdrop:IsOpen(button) then
+        Timer.After(.2, function()
+          if dewdrop:IsOpen(button) and GetMouseFocus() ~= button then
               dewdrop:Close()
           end
+        end)
       end)
       worldFrameHook = true
     end
