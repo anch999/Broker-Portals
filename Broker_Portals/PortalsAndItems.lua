@@ -81,7 +81,6 @@ Portals.items = {
   Portals.otherportals = {
     28148, -- P:Karazhan
     18960, -- TP:Moonglade
-    1118960, -- TP:Moonglade
     1518960, -- TP:Moonglade Vanity
     50977, -- Death Gate
     992030, -- Molten Core

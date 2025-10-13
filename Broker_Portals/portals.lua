@@ -23,7 +23,6 @@ local DefaultSettings  = {
   announce        = false,
   showPortals     = false,
   swapPortals     = true,
-  showEnemy       = false,
   stonesSubMenu      = true,
   favorites       = { Default = {} },
   selfCast        = true,
@@ -54,7 +53,6 @@ end
 
 
 function Portals:SetupSpells()
-  local portals = {}
   local spells = {
     Alliance = {
       { 3561 , false, 10059 }, -- TP:Stormwind
@@ -63,12 +61,14 @@ function Portals:SetupSpells()
       { 32271, false, 32266 }, -- TP:Exodar
       { 49359, false, 49360 }, -- TP:Theramore
       { 33690, false, 33691 }, -- TP:Shattrath
+      { 53140, true, 53142 }, -- TP:Dalaran
       { 10059, true }, -- P:Stormwind
       { 11416, true }, -- P:Ironforge
       { 11419, true }, -- P:Darnassus
       { 32266, true }, -- P:Exodar
       { 49360, true }, -- P:Theramore
       { 33691, true }, -- P:Shattrath
+      { 53142, true }, -- P:Dalaran
     },
     Horde = {
       { 3563 , false, 11418 }, -- TP:Undercity
@@ -77,42 +77,17 @@ function Portals:SetupSpells()
       { 32272, false, 32267 }, -- TP:Silvermoon
       { 49358, false, 49361 }, -- TP:Stonard
       { 35715, false, 35717 }, -- TP:Shattrath
+      { 53140, true, 53142 }, -- TP:Dalaran
       { 11418, true }, -- P:Undercity
       { 11420, true }, -- P:Thunder Bluff
       { 11417, true }, -- P:Orgrimmar
       { 32267, true }, -- P:Silvermoon
       { 49361, true }, -- P:Stonard
       { 35717, true }, -- P:Shattrath
+      { 53142, true }, -- P:Dalaran
     }
   }
-
-  local _, class = UnitClass('player')
-  if class == 'HERO' then
-    if CA_IsSpellKnown(818045) then
-      portals = spells[fac]
-      tinsert(portals, { 53140, false, 53142 }) -- TP:Dalaran
-      tinsert(portals, { 53142, true }) -- P:Dalaran
-    else
-      portals = {};
-    end
-  elseif class == 'MAGE' then
-    portals = spells[fac]
-    tinsert(portals, { 53140, false, 53142 }) -- TP:Dalaran
-    tinsert(portals, { 53142, true }) -- P:Dalaran
-  elseif class == 'DEATHKNIGHT' then
-    portals = {
-      { 50977 } -- Death Gate
-    }
-  elseif class == 'DRUID' then
-    portals = {
-      { 18960 }
-    }
-  elseif class == 'SHAMAN' then
-    portals = {
-      { 556 }
-    }
-  end
-  return portals
+  return spells[fac]
 end
 
 --used to add items or spells to the favorites
@@ -224,7 +199,7 @@ end
 
 --shows class teleports/portals
 function Portals:ShowClassSpells()
-  local portals = Portals:SetupSpells()
+  local portals = self:SetupSpells()
   local methods = {}
   local headerSet = false
   if portals then
@@ -337,7 +312,7 @@ function Portals:ShowStones(subMenu, spellCheck, noSpacer) --Kalimdor, true
     local headerSet = false
       for ID, spellID in ipairs(self.stones[zone]) do
 					if self:CheckFavorites(spellID) and not (self.stoneInfo[spellID].factionLock and self.stoneInfo[spellID].fac ~= fac ) and (xpacLevel >= self.stoneInfo[spellID].expac) then --xpacLevel and locked cities check
-						if self.db.showEnemy or (self.stoneInfo[spellID].fac == fac or self.stoneInfo[spellID].fac == "Neutral") then --faction or showEnemy check
+						if (self.stoneInfo[spellID].fac == fac or self.stoneInfo[spellID].fac == "Neutral") then --show faction stones
 							--returns on the first found stone to turn the menu on
               if spellCheck and self:HasVanityOrSpell(spellID) then return true end
 							if self:HasVanityOrSpell(spellID) then
@@ -448,7 +423,7 @@ function Portals:ShowFavorites()
     for _,v in self:PairsByKeys(sorted) do
       --self:AddFavorites(spellID 1, type 2, mage 3, isPortal 4, portalSpellID 5)
       if not self.stoneInfo[v[1]] or (self.stoneInfo[v[1]] and not (self.stoneInfo[v[1]].factionLock and self.stoneInfo[v[1]].fac ~= fac ) and (xpacLevel >= self.stoneInfo[v[1]].expac)) then --xpacLevel and locked cities check
-        if self.db.showEnemy or (self.stoneInfo[v[1]] and (self.stoneInfo[v[1]].fac == fac or self.stoneInfo[v[1]].fac == "Neutral")) or v[3] then --faction or showEnemy check
+        if not self.stoneInfo[v[1]] or (self.stoneInfo[v[1]] and (self.stoneInfo[v[1]].fac == fac or self.stoneInfo[v[1]].fac == "Neutral")) then --show faction stones
           if  ( v[3] and (not v[4] and self:IsPortalKnown(v[1])) or
               (v[4] and self.db.showPortals and not self.db.swapPortals and self:IsPortalKnown(v[1]) and ((GetNumPartyMembers() > 0 or UnitInRaid("player")))) or
               (v[4] and not self.db.showPortals and not self.db.swapPortals and self:IsPortalKnown(v[1]))) or
