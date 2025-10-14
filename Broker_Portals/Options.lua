@@ -89,12 +89,6 @@ function Portals:CreateOptionsUI()
 				Lable = "Show Stones Of Retreats As Menus",
 				OnClick = function() self.db.stonesSubMenu = not self.db.stonesSubMenu end
 			},
-			{
-				Type = "CheckButton",
-				Name = "showEnemy",
-				Lable = "Show enemy faction Stones of Retreats",
-				OnClick = function() self.db.showEnemy = not self.db.showEnemy end
-			},
 		},
 		Right = {
 			{
