@@ -1,4 +1,4 @@
-local MAJOR, MINOR = "SettingsCreator-1.0", 11
+local MAJOR, MINOR = "SettingsCreator-1.0", 12
 local SettingsCreator, oldminor = LibStub:NewLibrary(MAJOR, MINOR)
 
 if not SettingsCreator then return end -- No Upgrade needed.
@@ -129,7 +129,7 @@ local function CreateCheckButton(options, db, frame, addonName, setPoint, opTabl
     GameTooltip:Hide()
     end)
     options[opTable.Name]:SetScript("OnShow", function() if opTable.OnShow then opTable.OnShow(options[opTable.Name]) end end)
-    options[opTable.Name]:SetChecked(db[opTable.Name] or false)
+    options[opTable.Name]:SetChecked((db and db[opTable.Name]) or false)
     checkBoxs[addonName] = checkBoxs[addonName] or {}
     tinsert(checkBoxs[addonName], {options[opTable.Name], opTable.Name})
     return options[opTable.Name]
@@ -343,6 +343,11 @@ function SettingsCreator:CreateOptionsPages(data, db)
                 end
             end
         end
+
+    if data.About and LibStub:GetLibrary("LibAboutPanel", true) then
+        LibStub("LibAboutPanel").new(data.AddonName, data.AddonName)
+    end
+
     return options
 end
 

@@ -173,7 +173,8 @@ function Portals:CreateOptionsUI()
 				Lable = "Show stone of retreat zones",
 				OnClick = function() self.db.showStonesZone = not self.db.showStonesZone end
 			},
-		}
+		},
+		About = true
 		}
 	}
 	self.options = self:CreateOptionsPages(Options, PortalsDB)
