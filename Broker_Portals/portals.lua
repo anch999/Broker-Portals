@@ -54,40 +54,77 @@ end
 
 function Portals:SetupSpells()
   local spells = {
-    Alliance = {
-      { 3561 , false, 10059 }, -- TP:Stormwind
-      { 3562 , false, 11416 }, -- TP:Ironforge
-      { 3565 , false, 11419 }, -- TP:Darnassus
-      { 32271, false, 32266 }, -- TP:Exodar
-      { 49359, false, 49360 }, -- TP:Theramore
-      { 33690, false, 33691 }, -- TP:Shattrath
-      { 53140, true, 53142 }, -- TP:Dalaran
-      { 10059, true }, -- P:Stormwind
-      { 11416, true }, -- P:Ironforge
-      { 11419, true }, -- P:Darnassus
-      { 32266, true }, -- P:Exodar
-      { 49360, true }, -- P:Theramore
-      { 33691, true }, -- P:Shattrath
-      { 53142, true }, -- P:Dalaran
+    HERO = {
+      Alliance = {
+        { 3561 , false, 10059 }, -- TP:Stormwind
+        { 3562 , false, 11416 }, -- TP:Ironforge
+        { 3565 , false, 11419 }, -- TP:Darnassus
+        { 32271, false, 32266 }, -- TP:Exodar
+        { 49359, false, 49360 }, -- TP:Theramore
+        { 33690, false, 33691 }, -- TP:Shattrath
+        { 53140, true, 53142 }, -- TP:Dalaran
+        { 10059, true }, -- P:Stormwind
+        { 11416, true }, -- P:Ironforge
+        { 11419, true }, -- P:Darnassus
+        { 32266, true }, -- P:Exodar
+        { 49360, true }, -- P:Theramore
+        { 33691, true }, -- P:Shattrath
+        { 53142, true }, -- P:Dalaran
+      },
+      Horde = {
+        { 3563 , false, 11418 }, -- TP:Undercity
+        { 3566 , false, 11420 }, -- TP:Thunder Bluff
+        { 3567 , false, 11417 }, -- TP:Orgrimmar
+        { 32272, false, 32267 }, -- TP:Silvermoon
+        { 49358, false, 49361 }, -- TP:Stonard
+        { 35715, false, 35717 }, -- TP:Shattrath
+        { 53140, true, 53142 }, -- TP:Dalaran
+        { 11418, true }, -- P:Undercity
+        { 11420, true }, -- P:Thunder Bluff
+        { 11417, true }, -- P:Orgrimmar
+        { 32267, true }, -- P:Silvermoon
+        { 49361, true }, -- P:Stonard
+        { 35717, true }, -- P:Shattrath
+        { 53142, true }, -- P:Dalaran
+      }
     },
-    Horde = {
-      { 3563 , false, 11418 }, -- TP:Undercity
-      { 3566 , false, 11420 }, -- TP:Thunder Bluff
-      { 3567 , false, 11417 }, -- TP:Orgrimmar
-      { 32272, false, 32267 }, -- TP:Silvermoon
-      { 49358, false, 49361 }, -- TP:Stonard
-      { 35715, false, 35717 }, -- TP:Shattrath
-      { 53140, true, 53142 }, -- TP:Dalaran
-      { 11418, true }, -- P:Undercity
-      { 11420, true }, -- P:Thunder Bluff
-      { 11417, true }, -- P:Orgrimmar
-      { 32267, true }, -- P:Silvermoon
-      { 49361, true }, -- P:Stonard
-      { 35717, true }, -- P:Shattrath
-      { 53142, true }, -- P:Dalaran
+    MAGE = {
+      Alliance = {
+        { 1103561 , false, 1110059 }, -- TP:Stormwind
+        { 1103562 , false, 1111416 }, -- TP:Ironforge
+        { 1103565 , false, 1111419 }, -- TP:Darnassus
+        { 1132271, false, 1132266 }, -- TP:Exodar
+        { 1149359, false, 1149360 }, -- TP:Theramore
+        { 1133690, false, 1133691 }, -- TP:Shattrath
+        { 1153140, true,  1153142 }, -- TP:Dalaran
+        { 1110059, true }, -- P:Stormwind
+        { 1111416, true }, -- P:Ironforge
+        { 1111419, true }, -- P:Darnassus
+        { 1132266, true }, -- P:Exodar
+        { 1149360, true }, -- P:Theramore
+        { 1133691, true }, -- P:Shattrath
+        { 1153142, true }, -- P:Dalaran
+      },
+      Horde = {
+        { 1103563 , false, 1111418 }, -- TP:Undercity
+        { 1103566 , false, 1111420 }, -- TP:Thunder Bluff
+        { 1103567 , false, 1111417 }, -- TP:Orgrimmar
+        { 1132272, false, 1132267 }, -- TP:Silvermoon
+        { 1149358, false, 1149361 }, -- TP:Stonard
+        { 1135715, false, 1135717 }, -- TP:Shattrath
+        { 1153140, true,  1153142 }, -- TP:Dalaran
+        { 1111418, true }, -- P:Undercity
+        { 1111420, true }, -- P:Thunder Bluff
+        { 1111417, true }, -- P:Orgrimmar
+        { 1132267, true }, -- P:Silvermoon
+        { 1149361, true }, -- P:Stonard
+        { 1135717, true }, -- P:Shattrath
+        { 1153142, true }, -- P:Dalaran
+      }
     }
   }
-  return spells[fac]
+  local _, class = UnitClass('player')
+  return spells[class] and spells[class][fac]
 end
 
 --used to add items or spells to the favorites
