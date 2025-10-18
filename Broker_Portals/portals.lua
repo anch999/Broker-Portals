@@ -355,11 +355,12 @@ function Portals:ShowScrolls()
   local headerSet = false
   for _,spellID in ipairs(self.sod) do
     if self:HasVanityOrSpell(spellID) and self:CheckFavorites(spellID) then
-      headerSet = self:SetHeader("Scrolls Of Defense", headerSet)
+      headerSet = self:SetHeader("Scrolls", headerSet)
       self:DewDropAdd(spellID, "spell")
     end
   end
-  if (self:HasItem(self.sor[fac]) or self:HasVanity(self.sor[fac])) and self:CheckFavorites(fac) then
+  if self:HasVanityOrItem(self.sor[fac]) and self:CheckFavorites(self.sor[fac]) then
+    headerSet = self:SetHeader("Scrolls", headerSet)
     self:DewDropAdd(self.sor[fac], "item", fac, true)
   end
 end
