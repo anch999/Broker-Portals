@@ -15,6 +15,7 @@ function Portals:CreateOptionsUI()
 	local Options = {
 		AddonName = "Broker_Portals",
 		TitleText = "Broker Portals Settings",
+		About = true,
 		{
 		Name = "Broker Poratls",
 		Left = {
@@ -174,7 +175,6 @@ function Portals:CreateOptionsUI()
 				OnClick = function() self.db.showStonesZone = not self.db.showStonesZone end
 			},
 		},
-		About = true
 		}
 	}
 	self.options = self:CreateOptionsPages(Options, PortalsDB)
