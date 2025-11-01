@@ -3,7 +3,7 @@
 ## Notes: Provides access to all Portal/Teleport spells and Ascension Stones of Retreats on right click of one button. Alt click any spell to add it to favorites. Alt click favorites to remove.
 ## Author: Ascension: Anch/Mattibalize/Neumie (Orginal: CrazyBenny of Stormrage-EU)
 ## LastUpdate: 07-02-2023
-## Version: 1.6.3
+## Version: 1.6.4
 ## OptionalDeps: LibDBIcon-1.0
 ## X-Discord: https://discord.gg/bgsqskycPd
 ## X-Github-Repository: https://github.com/Ascension-Addons/Broker-Portals
@@ -11,13 +11,8 @@
 ## SavedVariables: PortalsDB
 ## SavedVariablesPerCharacter: PortalsCharDB
 
-Libs\LibStub\LibStub.lua
-Libs\AceTimer-3.0\AceTimer-3.0.xml
-Libs\CallbackHandler-1.0\CallbackHandler-1.0.lua
-Libs\LibDataBroker-1.1.lua
 Libs\AceLibrary\AceLibrary.lua
 Libs\Dewdrop-2.0\Dewdrop-2.0.lua
-Libs\LibDBIcon-1.0\LibDBIcon-1.0.lua
 Libs\SettingsCreator-1.0\SettingsCreator.lua
 
 Locales\Locales.xml
