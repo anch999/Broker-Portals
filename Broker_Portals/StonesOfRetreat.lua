@@ -53,6 +53,7 @@ Portals.stones = {
       expansion = 1,
       header = "Eastern Kingdoms",
       777006, -- Light's Hope
+      1880049,-- Chillwind Camp
       777008, -- Booty Bay
       777011, -- Thorium Point
       777020, -- Gurubashi Arena
@@ -222,6 +223,7 @@ Portals.stones = {
       [1777090] = { fac = "Horde", expac = 1 , zone = "Mulgore" }, -- Bloodhoof Village
       --EasternKingdoms
       [777006] = { fac = "Neutral", expac = 1 , zone = "Eastern Plaguelands" }, -- Light's Hope
+      [1880049] = { fac = "Neutral", expac = 1 , zone = "Western Plaguelands" }, -- Light's Hope
       [777008] = { fac = "Neutral", expac = 1 , zone = "Stranglethorn Vale" }, -- Booty Bay
       [777011] = { fac = "Neutral", expac = 1 , zone = "Searing Gorge" }, -- Thorium Point
       [777020] = { fac = "Neutral", expac = 1 , zone = "Stranglethorn Vale" }, -- Gurubashi Arena
