@@ -68,7 +68,7 @@ function Portals:CreateOptionsUI()
 			},
 			{
 				Type = "Menu",
-				Name = "announce",
+				Name = "announceType",
 				Lable = "Show Announce in",
 				Menu = { "Say", "Yell", "Party/Raid" }
 			},
