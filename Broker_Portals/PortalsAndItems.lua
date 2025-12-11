@@ -64,6 +64,7 @@ Portals.items = {
 
   Portals.hearthspells = {
     556, -- Astral Recall
+    1100556, -- Astral Recall (Bronzebeard)
   }
 
   -- Ascension: Scrolls of Defense
@@ -81,6 +82,7 @@ Portals.items = {
   Portals.otherportals = {
     28148, -- P:Karazhan
     18960, -- TP:Moonglade
+    1118960, -- TP:Moonglade (Bronzebeard)
     1518960, -- TP:Moonglade Vanity
     50977, -- Death Gate
     992030, -- Molten Core
